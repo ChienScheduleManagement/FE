@@ -1,0 +1,11 @@
+services:
+  fe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: landmanagement-fe
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      VITE_API_URL: http://localhost:5155

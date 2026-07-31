@@ -1,0 +1,66 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+dist-ssr/
+coverage/
+storybook-static/
+
+# Caches
+.npm/
+.vite/
+.eslintcache
+.stylelintcache
+.cache/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Local environment
+.env
+.env.*
+!.env.example
+*.local
+
+# Runtime / process
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Generated API (regenerate via pnpm gen:api)
+swagger.json
+
+# Test artifacts
+playwright-report/
+test-results/
+.nyc_output/
+junit.xml
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.history/
+
+# Misc
+tmp/
+temp/
+.playwright-mcp/

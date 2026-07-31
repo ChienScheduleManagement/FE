@@ -1,0 +1,41 @@
+# VCS
+.git
+.gitignore
+.gitattributes
+
+# Dependencies and build outputs
+node_modules
+dist
+dist-ssr
+coverage
+storybook-static
+
+# Caches
+.npm
+.pnpm-store
+
+# Local environment and secrets
+.env
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Tests / reports
+playwright-report
+test-results
+.nyc_output
+
+# IDE / OS files
+.vscode
+.idea
+.vs
+Thumbs.db
+
+# CI and docs
+*.md
+
+swagger.json
