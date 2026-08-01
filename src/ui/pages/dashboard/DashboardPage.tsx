@@ -161,15 +161,15 @@ export function DashboardPage() {
                       </p>
                       <div className="mt-2 flex h-2 w-full max-w-md overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                         <div
-                          className="h-full rounded-full bg-emerald-500 transition-all"
+                          className="h-full rounded-full bg-emerald-500 transition-all duration-700"
                           style={{ width: `${completedPct}%` }}
                         />
                         <div
-                          className="h-full bg-amber-400 transition-all"
+                          className="h-full bg-amber-400 transition-all duration-700"
                           style={{ width: `${formatPercent(dept.inProgress, dept.total)}%` }}
                         />
                         <div
-                          className="h-full bg-red-500 transition-all"
+                          className="h-full bg-red-500 transition-all duration-700"
                           style={{ width: `${formatPercent(dept.overdue, dept.total)}%` }}
                         />
                       </div>

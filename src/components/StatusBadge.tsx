@@ -5,8 +5,9 @@ export function StatusBadge({ status, className }: { status?: string | null; cla
   const meta = getTaskStatusMeta(status)
   return (
     <span
+      key={status ?? 'none'}
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold',
+        'inline-flex animate-in items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold fade-in-0 zoom-in-95 duration-200',
         meta.badge,
         className,
       )}
@@ -27,8 +28,9 @@ export function DeadlineBadge({
   const meta = getDeadlineStatusMeta(status)
   return (
     <span
+      key={status ?? 'none'}
       className={cn(
-        'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold',
+        'inline-flex animate-in items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold fade-in-0 zoom-in-95 duration-200',
         meta.badge,
         className,
       )}

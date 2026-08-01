@@ -210,7 +210,7 @@ export function DataTable<TData, TValue>({
                     data-state={row.getIsSelected() && 'selected'}
                     onClick={() => onRowClick?.(row.original)}
                     className={cn(
-                      "group",
+                      "animate-in fade-in-0 duration-200 group",
                       onRowClick ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-neutral-800' : ''
                     )}
                   >

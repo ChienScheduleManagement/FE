@@ -236,10 +236,13 @@ export function AppLayout() {
                 <button
                   type="button"
                   aria-label={theme === 'dark' ? 'Chuyển sang chế độ sáng' : 'Chuyển sang chế độ tối'}
-                  className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                  className="group flex size-9 items-center justify-center rounded-lg text-slate-500 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 active:scale-95 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                   onClick={toggleTheme}
                 >
-                  <span className="material-symbols-outlined text-xl">
+                  <span
+                    key={theme}
+                    className="material-symbols-outlined animate-in fade-in-0 rotate-in-45 duration-500 text-xl transition-transform group-hover:rotate-45"
+                  >
                     {theme === 'dark' ? 'light_mode' : 'dark_mode'}
                   </span>
                 </button>
