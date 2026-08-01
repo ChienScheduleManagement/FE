@@ -8,10 +8,13 @@ import {
 } from '@tanstack/react-router'
 
 import { NotFoundPage } from '@/ui/pages/common/NotFoundPage'
-import { hasAnyRole } from '@/utils/jwt'
 import { useAuthStore } from '@/store/auth.store'
 import { RoutePending } from '@/components/RoutePending'
 
+const AppLayout = lazyRouteComponent(
+  () => import('@/ui/layouts/AppLayout'),
+  'AppLayout',
+)
 const LoginPage = lazyRouteComponent(
   () => import('@/ui/pages/common/LoginPage'),
   'LoginPage',
@@ -20,10 +23,41 @@ const ForbiddenPage = lazyRouteComponent(
   () => import('@/ui/pages/common/ForbiddenPage'),
   'ForbiddenPage',
 )
-const HomePage = lazyRouteComponent(() => import('@/ui/pages/home/HomePage'), 'HomePage')
-const AdminDashboardPage = lazyRouteComponent(
-  () => import('@/ui/pages/admin/dashboard/AdminDashboardPage'),
-  'AdminDashboardPage',
+const DashboardPage = lazyRouteComponent(
+  () => import('@/ui/pages/dashboard/DashboardPage'),
+  'DashboardPage',
+)
+const DocumentsPage = lazyRouteComponent(
+  () => import('@/ui/pages/documents/DocumentsPage'),
+  'DocumentsPage',
+)
+const DocumentDetailPage = lazyRouteComponent(
+  () => import('@/ui/pages/documents/DocumentDetailPage'),
+  'DocumentDetailPage',
+)
+const TasksPage = lazyRouteComponent(
+  () => import('@/ui/pages/tasks/TasksPage'),
+  'TasksPage',
+)
+const TaskDetailPage = lazyRouteComponent(
+  () => import('@/ui/pages/tasks/TaskDetailPage'),
+  'TaskDetailPage',
+)
+const DepartmentsPage = lazyRouteComponent(
+  () => import('@/ui/pages/admin/departments/DepartmentsPage'),
+  'DepartmentsPage',
+)
+const CategoriesPage = lazyRouteComponent(
+  () => import('@/ui/pages/admin/categories/CategoriesPage'),
+  'CategoriesPage',
+)
+const DocSourcesPage = lazyRouteComponent(
+  () => import('@/ui/pages/admin/doc-sources/DocSourcesPage'),
+  'DocSourcesPage',
+)
+const ChangePasswordPage = lazyRouteComponent(
+  () => import('@/ui/pages/settings/ChangePasswordPage'),
+  'ChangePasswordPage',
 )
 
 // ================= ROOT =================
@@ -39,68 +73,110 @@ const indexRoute = createRoute({
   path: '/',
   beforeLoad: () => {
     const token = useAuthStore.getState().user?.token
-
-    // chưa login
     if (!token) {
       throw redirect({ to: '/login' })
     }
-
-    // Admin đi tới admin dashboard
-    if (hasAnyRole(token, ['Admin'])) {
-      throw redirect({ to: '/admin/dashboard' })
-    }
-
-    // Mọi role khác đi tới home
-    throw redirect({ to: '/home' })
+    throw redirect({ to: '/dashboard' })
   },
 })
 
-// ================= USER =================
-const userLayoutRoute = createRoute({
+// ================= APP LAYOUT (chỉ cần đăng nhập) =================
+const appLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
-  id: 'user-layout',
+  id: 'app-layout',
   beforeLoad: () => {
     const token = useAuthStore.getState().user?.token
-
     if (!token) {
       throw redirect({ to: '/login' })
     }
-
-    if (hasAnyRole(token, ['Admin'])) {
-      throw redirect({ to: '/admin/dashboard' })
-    }
   },
-  component: Outlet,
+  component: AppLayout,
 })
 
+const dashboardRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/dashboard',
+  component: DashboardPage,
+})
+
+const documentsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/documents',
+  component: DocumentsPage,
+})
+
+const documentDetailRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/documents/$id',
+  component: DocumentDetailPage,
+})
+
+interface TasksSearch {
+  create?: boolean
+  documentId?: string
+  docNumber?: string
+  tab?: string
+}
+
+const tasksRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/tasks',
+  validateSearch: (search: Record<string, unknown>): TasksSearch => ({
+    create: search.create === true || search.create === 'true' ? true : undefined,
+    documentId: typeof search.documentId === 'string' ? search.documentId : undefined,
+    docNumber: typeof search.docNumber === 'string' ? search.docNumber : undefined,
+    tab: typeof search.tab === 'string' ? search.tab : undefined,
+  }),
+  component: TasksPage,
+})
+
+const taskDetailRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/tasks/$id',
+  component: TaskDetailPage,
+})
+
+const departmentsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/departments',
+  component: DepartmentsPage,
+})
+
+const categoriesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/categories',
+  component: CategoriesPage,
+})
+
+const docSourcesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/doc-sources',
+  component: DocSourcesPage,
+})
+
+const changePasswordRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/settings/change-password',
+  component: ChangePasswordPage,
+})
+
+// ================= BACKWARD COMPAT (redirect cũ) =================
 const homeRoute = createRoute({
-  getParentRoute: () => userLayoutRoute,
+  getParentRoute: () => appLayoutRoute,
   path: '/home',
-  component: HomePage,
-})
-
-// ================= ADMIN =================
-const adminLayoutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/admin',
   beforeLoad: () => {
-    const token = useAuthStore.getState().user?.token
-
-    if (!token) {
-      throw redirect({ to: '/login' })
-    }
-
-    if (!hasAnyRole(token, ['Admin'])) {
-      throw redirect({ to: '/403' })
-    }
+    throw redirect({ to: '/dashboard' })
   },
-  component: Outlet,
+  component: () => null,
 })
 
 const adminDashboardRoute = createRoute({
-  getParentRoute: () => adminLayoutRoute,
-  path: 'dashboard',
-  component: AdminDashboardPage,
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/dashboard',
+  beforeLoad: () => {
+    throw redirect({ to: '/dashboard' })
+  },
+  component: () => null,
 })
 
 // ================= PUBLIC =================
@@ -110,8 +186,7 @@ const loginRoute = createRoute({
   beforeLoad: () => {
     const token = useAuthStore.getState().user?.token
     if (token) {
-      if (hasAnyRole(token, ['Admin'])) throw redirect({ to: '/admin/dashboard' })
-      throw redirect({ to: '/home' })
+      throw redirect({ to: '/dashboard' })
     }
   },
   component: LoginPage,
@@ -126,8 +201,19 @@ const forbiddenRoute = createRoute({
 // ================= TREE =================
 export const routeTree = rootRoute.addChildren([
   indexRoute,
-  userLayoutRoute.addChildren([homeRoute]),
-  adminLayoutRoute.addChildren([adminDashboardRoute]),
+  appLayoutRoute.addChildren([
+    dashboardRoute,
+    documentsRoute,
+    documentDetailRoute,
+    tasksRoute,
+    taskDetailRoute,
+    departmentsRoute,
+    categoriesRoute,
+    docSourcesRoute,
+    changePasswordRoute,
+    homeRoute,
+    adminDashboardRoute,
+  ]),
   loginRoute,
   forbiddenRoute,
 ])
