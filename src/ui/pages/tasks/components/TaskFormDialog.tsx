@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { toInputValue } from '@/lib/format'
 import type { DocumentVm, PagedResponse, TaskItemVm } from '@/types/api'
 
 export interface TaskFormValues {
@@ -83,7 +84,7 @@ export function TaskFormDialog({
             .filter(Boolean)
         : [],
       assigneeName: editing?.assigneeName ?? '',
-      dueDate: editing?.dueDate ?? '',
+      dueDate: editing?.dueDate ? toInputValue(editing.dueDate) : '',
       status: editing?.status ?? 'IN_PROGRESS',
       initialNote: '',
       latestResult: editing?.latestResult ?? '',
@@ -217,7 +218,7 @@ export function TaskFormDialog({
 
             <div className="space-y-1.5">
               <Label htmlFor="dueDate">Hạn xử lý</Label>
-              <Input id="dueDate" type="date" {...register('dueDate')} />
+              <Input id="dueDate" type="datetime-local" {...register('dueDate')} />
             </div>
 
             {editing ? (

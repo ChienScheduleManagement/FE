@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { formatDate } from '@/lib/format'
+import { formatDateTime } from '@/lib/format'
 import {
   Dialog,
   DialogContent,
@@ -49,7 +49,7 @@ export function CompleteTaskDialog({ task, onOpenChange, onConfirm }: CompleteTa
 
         <div className="flex items-center gap-4 rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-900">
           <span className="text-muted-foreground">Hạn xử lý:</span>
-          <span className="font-semibold">{formatDate(task?.dueDate)}</span>
+          <span className="font-semibold">{formatDateTime(task?.dueDate)}</span>
           <span className="text-muted-foreground">Đơn vị:</span>
           <span className="font-semibold">{task?.mainDepartmentName ?? '—'}</span>
         </div>

@@ -189,7 +189,7 @@ export function TaskDetailPage() {
                     value={task.coDepartmentNames.length ? task.coDepartmentNames.join(', ') : null}
                   />
                   <DetailItem label="CB phụ trách" value={task.assigneeName} />
-                  <DetailItem label="Hạn xử lý" value={formatDate(task.dueDate)} />
+                  <DetailItem label="Hạn xử lý" value={formatDateTime(task.dueDate)} />
                   <DetailItem
                     label="Ngày hoàn thành"
                     value={task.completedDate ? formatDate(task.completedDate) : null}

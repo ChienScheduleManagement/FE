@@ -14,7 +14,7 @@ import {
 } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, showSuccess, toastSmartPromise } from '@/api/utils'
-import { formatDate } from '@/lib/format'
+import { formatDateTime, toUtcIso } from '@/lib/format'
 import { APP_NAME } from '@/constants/ui'
 import { DEFAULT_PAGE_SIZE, TASK_TABS } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
@@ -100,7 +100,7 @@ export function TasksPage() {
             ? values.coDepartmentIds.join(',')
             : undefined,
           assigneeName: values.assigneeName || null,
-          dueDate: values.dueDate || null,
+          dueDate: toUtcIso(values.dueDate),
           status: values.status || undefined,
           latestResult: values.latestResult || null,
         }).then(unwrapApiResponse),
@@ -124,7 +124,7 @@ export function TasksPage() {
       mainDepartmentId: Number(values.mainDepartmentId),
       coDepartmentIds: values.coDepartmentIds?.length ? values.coDepartmentIds.join(',') : null,
       assigneeName: values.assigneeName || null,
-      dueDate: values.dueDate || null,
+      dueDate: toUtcIso(values.dueDate),
       initialNote: values.initialNote || null,
       createdBy: undefined,
     }).then(unwrapApiResponse)
@@ -245,7 +245,9 @@ export function TasksPage() {
     {
       accessorKey: 'dueDate',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Hạn xử lý" />,
-      cell: ({ row }) => <span className="text-sm font-medium">{formatDate(row.original.dueDate)}</span>,
+      cell: ({ row }) => (
+        <span className="text-sm font-medium">{formatDateTime(row.original.dueDate)}</span>
+      ),
       size: 110,
     },
     {

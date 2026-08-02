@@ -154,7 +154,7 @@ export function DocumentDetailPage() {
                             {task.assigneeName ?? '—'}
                           </TableCell>
                           <TableCell className="text-sm font-medium">
-                            {formatDate(task.dueDate)}
+                            {formatDateTime(task.dueDate)}
                           </TableCell>
                           <TableCell>
                             <DeadlineBadge status={task.deadlineStatus} />

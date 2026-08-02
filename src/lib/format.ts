@@ -11,6 +11,20 @@ export function formatDateTime(value?: string | null): string {
   return formatDate(value, 'dd/MM/yyyy HH:mm')
 }
 
+export function toInputValue(value?: string | null): string {
+  if (!value) return ''
+  const date = typeof value === 'string' ? parseISO(value) : value
+  if (!isValid(date)) return ''
+  return format(date, "yyyy-MM-dd'T'HH:mm")
+}
+
+export function toUtcIso(value?: string | null): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  return date.toISOString()
+}
+
 export function formatFileSize(bytes?: number | null): string {
   if (!bytes) return '—'
   if (bytes < 1024) return `${bytes} B`
