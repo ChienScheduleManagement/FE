@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth.store'
 import { useLogout } from '@/hooks/useLogout'
 import { useTheme } from '@/hooks/useTheme'
+import { useDataWarming } from '@/hooks/useDataWarming'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { APP_NAME } from '@/constants/ui'
 
@@ -144,6 +145,7 @@ export function AppLayout() {
   const user = useAuthStore((s) => s.user)
   const logout = useLogout()
   const { theme, toggleTheme } = useTheme()
+  useDataWarming()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1',
