@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useRouter, useSearch } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef, PaginationState } from '@tanstack/react-table'
+import type { ColumnDef, PaginationState, RowSelectionState } from '@tanstack/react-table'
 import {
+  bulkDeleteTasks,
   completeTaskById,
   createTask,
   deleteTask,
@@ -20,7 +21,8 @@ import { DEFAULT_PAGE_SIZE, TASK_TABS } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { StatusBadge, DeadlineBadge } from '@/components/StatusBadge'
-import { DataTable, DataTableColumnHeader } from '@/components/DataTable'
+import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
+import { selectColumn } from '@/components/DataTable/selectColumn'
 import { TooltipButton } from '@/components/TooltipButton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -48,6 +50,9 @@ export function TasksPage() {
   const [editing, setEditing] = useState<TaskItemVm | null>(null)
   const [deleting, setDeleting] = useState<TaskItemVm | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [completing, setCompleting] = useState<TaskItemVm | null>(null)
   const [exporting, setExporting] = useState(false)
 
@@ -146,6 +151,26 @@ export function TasksPage() {
     }
   }
 
+  const handleBulkDelete = async () => {
+    const ids = Object.keys(rowSelection)
+    if (!ids.length) return
+    setBulkDeleting(true)
+    try {
+      await toastSmartPromise(
+        bulkDeleteTasks(ids).then(unwrapApiResponse),
+        { loading: 'Đang xóa nhiều nhiệm vụ...', success: 'Đã xóa các nhiệm vụ đã chọn!' },
+      )
+      await invalidate()
+      setBulkDeleteOpen(false)
+      setRowSelection({})
+      if (ids.length >= (tasks?.items.length ?? 0) && pagination.pageIndex > 0) {
+        setPagination((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
+      }
+    } finally {
+      setBulkDeleting(false)
+    }
+  }
+
   const handleComplete = async (latestResult: string) => {
     if (!completing) return
     await toastSmartPromise(
@@ -187,6 +212,7 @@ export function TasksPage() {
   }
 
   const columns: ColumnDef<TaskItemVm>[] = [
+    selectColumn<TaskItemVm>(),
     {
       accessorKey: 'docNumber',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Số VB" />,
@@ -394,6 +420,19 @@ export function TasksPage() {
         </div>
 
         <div className="rounded-2xl border bg-card shadow-sm p-4">
+          <BulkActionBar
+            selectedCount={Object.keys(rowSelection).length}
+            actions={[
+              {
+                label: 'Xóa nhiều',
+                icon: 'delete_sweep',
+                onClick: () => setBulkDeleteOpen(true),
+                colorClass:
+                  'text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:border-red-900 dark:hover:bg-red-950/40',
+              },
+            ]}
+            onClearSelection={() => setRowSelection({})}
+          />
           <DataTable
             columns={columns}
             data={tasks?.items ?? []}
@@ -404,6 +443,9 @@ export function TasksPage() {
             onPaginationChange={setPagination}
             totalItems={tasks?.totalItems ?? 0}
             getRowId={(row) => row.id}
+            enableRowSelection
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
           />
         </div>
       </div>
@@ -430,6 +472,15 @@ export function TasksPage() {
         description="Bạn có chắc chắn muốn xóa nhiệm vụ này? Lịch sử cập nhật tiến độ cũng sẽ bị xóa."
         loading={deleteLoading}
         onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        title="Xóa nhiều nhiệm vụ"
+        description={`Bạn có chắc chắn muốn xóa ${Object.keys(rowSelection).length} nhiệm vụ đã chọn? Hành động này không thể hoàn tác.`}
+        loading={bulkDeleting}
+        onConfirm={handleBulkDelete}
       />
     </>
   )

@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef } from '@tanstack/react-table'
-import { createDocSource, deleteDocSource, updateDocSource, useGetDocSources } from '@/api/generated'
+import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
+import { bulkDeleteDocSources, createDocSource, deleteDocSource, updateDocSource, useGetDocSources } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { DOC_SOURCE_LEVELS } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { DataTable, DataTableColumnHeader } from '@/components/DataTable'
+import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
+import { selectColumn } from '@/components/DataTable/selectColumn'
 import { TooltipButton } from '@/components/TooltipButton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -40,6 +41,9 @@ export function DocSourcesPage() {
   const [editing, setEditing] = useState<DocSourceVm | null>(null)
   const [deleting, setDeleting] = useState<DocSourceVm | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
@@ -53,6 +57,7 @@ export function DocSourcesPage() {
   const sources = raw ? unwrapApiResponse<DocSourceVm[]>(raw) : undefined
 
   const columns: ColumnDef<DocSourceVm>[] = [
+    selectColumn<DocSourceVm>(),
     {
       accessorKey: 'code',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Mã" />,
@@ -144,6 +149,7 @@ export function DocSourcesPage() {
     const nextErrors: typeof errors = {}
     if (!form.code.trim()) nextErrors.code = 'Mã nguồn không được để trống.'
     if (!form.name.trim()) nextErrors.name = 'Tên nguồn không được để trống.'
+    if (Number(form.displayOrder) < 0) nextErrors.displayOrder = 'Độ ưu tiên không được âm.'
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)
       return
@@ -194,6 +200,23 @@ export function DocSourcesPage() {
     }
   }
 
+  const handleBulkDelete = async () => {
+    const ids = Object.keys(rowSelection).map(Number)
+    if (!ids.length) return
+    setBulkDeleting(true)
+    try {
+      await toastSmartPromise(
+        bulkDeleteDocSources(ids).then(unwrapApiResponse),
+        { loading: 'Đang xóa nhiều nguồn...', success: 'Đã xóa các nguồn văn bản đã chọn!' },
+      )
+      await invalidate()
+      setBulkDeleteOpen(false)
+      setRowSelection({})
+    } finally {
+      setBulkDeleting(false)
+    }
+  }
+
   const levelLabel = (level: string) =>
     DOC_SOURCE_LEVELS.find((l) => l.value === level)?.label ?? level
 
@@ -216,12 +239,28 @@ export function DocSourcesPage() {
         />
 
         <div className="rounded-2xl border bg-card shadow-sm p-4">
+          <BulkActionBar
+            selectedCount={Object.keys(rowSelection).length}
+            actions={[
+              {
+                label: 'Xóa nhiều',
+                icon: 'delete_sweep',
+                onClick: () => setBulkDeleteOpen(true),
+                colorClass:
+                  'text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:border-red-900 dark:hover:bg-red-950/40',
+              },
+            ]}
+            onClearSelection={() => setRowSelection({})}
+          />
           <DataTable
             columns={columns}
             data={sources ?? []}
             searchKey="tên nguồn"
             loading={isLoading}
             getRowId={(row) => row.id}
+            enableRowSelection
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
           />
         </div>
       </div>
@@ -284,9 +323,13 @@ export function DocSourcesPage() {
               <Input
                 id="src-order"
                 type="number"
+                min={0}
                 value={form.displayOrder}
                 onChange={(e) => setField('displayOrder', e.target.value)}
               />
+              {errors.displayOrder ? (
+                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
+              ) : null}
             </div>
           </div>
 
@@ -318,6 +361,15 @@ export function DocSourcesPage() {
         }
         loading={deleteLoading}
         onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        title="Xóa nhiều nguồn văn bản"
+        description={`Bạn có chắc chắn muốn xóa ${Object.keys(rowSelection).length} nguồn văn bản đã chọn? Hành động này không thể hoàn tác.`}
+        loading={bulkDeleting}
+        onConfirm={handleBulkDelete}
       />
     </>
   )

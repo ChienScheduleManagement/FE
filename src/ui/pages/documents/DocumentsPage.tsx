@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef, PaginationState } from '@tanstack/react-table'
+import type { ColumnDef, PaginationState, RowSelectionState } from '@tanstack/react-table'
 import {
+  bulkDeleteDocuments,
   createDocument,
   deleteDocument,
   updateDocument,
@@ -17,7 +18,8 @@ import { APP_NAME } from '@/constants/ui'
 import { DEFAULT_PAGE_SIZE } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { DataTable, DataTableColumnHeader } from '@/components/DataTable'
+import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
+import { selectColumn } from '@/components/DataTable/selectColumn'
 import { TooltipButton } from '@/components/TooltipButton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,6 +40,9 @@ export function DocumentsPage() {
   const [editing, setEditing] = useState<DocumentVm | null>(null)
   const [deleting, setDeleting] = useState<DocumentVm | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
   const params = useMemo(
     () => ({
@@ -111,12 +116,33 @@ export function DocumentsPage() {
     }
   }
 
+  const handleBulkDelete = async () => {
+    const ids = Object.keys(rowSelection)
+    if (!ids.length) return
+    setBulkDeleting(true)
+    try {
+      await toastSmartPromise(
+        bulkDeleteDocuments(ids).then(unwrapApiResponse),
+        { loading: 'Đang xóa nhiều văn bản...', success: 'Đã xóa các văn bản đã chọn!' },
+      )
+      await invalidate()
+      setBulkDeleteOpen(false)
+      setRowSelection({})
+      if (ids.length >= (documents?.items.length ?? 0) && pagination.pageIndex > 0) {
+        setPagination((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
+      }
+    } finally {
+      setBulkDeleting(false)
+    }
+  }
+
   const applySearch = () => {
     setPagination((p) => ({ ...p, pageIndex: 0 }))
     setSearchText(keyword.trim())
   }
 
   const columns: ColumnDef<DocumentVm>[] = [
+    selectColumn<DocumentVm>(),
     {
       accessorKey: 'docNumber',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Số văn bản" />,
@@ -264,6 +290,19 @@ export function DocumentsPage() {
         </div>
 
         <div className="rounded-2xl border bg-card shadow-sm p-4">
+          <BulkActionBar
+            selectedCount={Object.keys(rowSelection).length}
+            actions={[
+              {
+                label: 'Xóa nhiều',
+                icon: 'delete_sweep',
+                onClick: () => setBulkDeleteOpen(true),
+                colorClass:
+                  'text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:border-red-900 dark:hover:bg-red-950/40',
+              },
+            ]}
+            onClearSelection={() => setRowSelection({})}
+          />
           <DataTable
             columns={columns}
             data={documents?.items ?? []}
@@ -274,6 +313,9 @@ export function DocumentsPage() {
             onPaginationChange={setPagination}
             totalItems={documents?.totalItems ?? 0}
             getRowId={(row) => row.id}
+            enableRowSelection
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
           />
         </div>
       </div>
@@ -299,6 +341,15 @@ export function DocumentsPage() {
         }
         loading={deleteLoading}
         onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        title="Xóa nhiều văn bản"
+        description={`Bạn có chắc chắn muốn xóa ${Object.keys(rowSelection).length} văn bản đã chọn? Các nhiệm vụ phát sinh từ các văn bản này cũng sẽ bị xóa.`}
+        loading={bulkDeleting}
+        onConfirm={handleBulkDelete}
       />
     </>
   )

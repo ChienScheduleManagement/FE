@@ -2371,3 +2371,78 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getDeleteDepartmentMutationOptions(options), queryClient);
     }
+
+export const bulkDeleteTasks = (
+    ids: string[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/tasks/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: ids, signal
+    },
+      options);
+    }
+  
+
+export const bulkDeleteDocuments = (
+    ids: string[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/documents/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: ids, signal
+    },
+      options);
+    }
+  
+
+export const bulkDeleteDocSources = (
+    ids: number[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/doc-sources/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: ids, signal
+    },
+      options);
+    }
+  
+
+export const bulkDeleteCategories = (
+    ids: number[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/categories/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: ids, signal
+    },
+      options);
+    }
+  
+
+export const bulkDeleteDepartments = (
+    ids: number[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/departments/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: ids, signal
+    },
+      options);
+    }
+  
