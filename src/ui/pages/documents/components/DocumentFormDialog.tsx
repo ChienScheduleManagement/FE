@@ -111,7 +111,7 @@ export function DocumentFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>
             {editing ? 'Chỉnh sửa văn bản' : 'Thêm văn bản mới'}
