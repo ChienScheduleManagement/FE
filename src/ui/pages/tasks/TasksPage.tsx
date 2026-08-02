@@ -113,8 +113,6 @@ export function TasksPage() {
       )
     }
     await invalidate()
-    setDialogOpen(false)
-    setEditing(null)
   }
 
   const getTasksCreate = async (values: TaskFormValues) => {

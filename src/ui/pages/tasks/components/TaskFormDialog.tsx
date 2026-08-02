@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useGetDepartments, useGetDocuments } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DateTimePicker } from '@/components/ui/date-time-picker'
+import { SearchableSelect } from '@/components/ui/searchable-select'
 import { cn } from '@/lib/utils'
 import { toInputValue } from '@/lib/format'
 import type { DocumentVm, PagedResponse, TaskItemVm } from '@/types/api'
@@ -118,9 +120,36 @@ export function TaskFormDialog({
   const selectedDoc = documents?.find((d) => d.id === watch('documentId'))
   const docLabel = editing?.docNumber ?? presetDocNumber ?? selectedDoc?.docNumber ?? ''
 
+  const [deptSearch, setDeptSearch] = useState('')
+  const filteredDepartments = useMemo(() => {
+    const q = deptSearch.trim().toLowerCase()
+    return q
+      ? (departments ?? []).filter((d) => d.name.toLowerCase().includes(q))
+      : (departments ?? [])
+  }, [departments, deptSearch])
+
+  const onSubmit = handleSubmit(async (values) => {
+    await onSave(values)
+    if (editing) {
+      onOpenChange(false)
+    } else {
+      reset({
+        documentId: presetDocumentId ?? '',
+        taskContent: '',
+        mainDepartmentId: '',
+        coDepartmentIds: [],
+        assigneeName: '',
+        dueDate: '',
+        status: 'IN_PROGRESS',
+        initialNote: '',
+        latestResult: '',
+      })
+    }
+  })
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>{editing ? 'Chỉnh sửa nhiệm vụ' : 'Thêm nhiệm vụ mới'}</DialogTitle>
           <DialogDescription>
@@ -128,28 +157,24 @@ export function TaskFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSave)} className="grid gap-4">
+        <form onSubmit={onSubmit} className="grid gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <input type="hidden" {...register('documentId', { required: 'Vui lòng chọn văn bản liên quan.' })} />
             <div className="space-y-1.5 sm:col-span-2">
               <Label>
                 Văn bản liên quan <span className="text-red-500">*</span>
               </Label>
-              <Select
+              <SearchableSelect
+                id="documentId"
                 value={watch('documentId') || ''}
                 onValueChange={(v) => setValue('documentId', v, { shouldDirty: true })}
-              >
-                <SelectTrigger className={docLabel ? '' : 'text-muted-foreground'}>
-                  <SelectValue placeholder="Chọn văn bản..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {documents?.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.docNumber} - {d.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                items={(documents ?? []).map((d) => ({
+                  value: d.id,
+                  label: `${d.docNumber} - ${d.title}`,
+                }))}
+                placeholder="Tìm hoặc chọn văn bản..."
+                triggerClassName={docLabel ? '' : 'text-muted-foreground'}
+              />
               {presetDocNumber && !editing ? (
                 <p className="text-xs text-muted-foreground">
                   Văn bản: <span className="font-medium text-foreground">{presetDocNumber}</span>
@@ -185,21 +210,16 @@ export function TaskFormDialog({
               <Label>
                 Đơn vị chủ trì <span className="text-red-500">*</span>
               </Label>
-              <Select
+              <SearchableSelect
+                id="mainDepartmentId"
                 value={watch('mainDepartmentId') || ''}
                 onValueChange={(v) => setValue('mainDepartmentId', v, { shouldDirty: true })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn đơn vị chủ trì" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments?.map((d) => (
-                    <SelectItem key={d.id} value={String(d.id)}>
-                      {d.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                items={(departments ?? []).map((d) => ({
+                  value: String(d.id),
+                  label: d.name,
+                }))}
+                placeholder="Tìm hoặc chọn đơn vị..."
+              />
               {errors.mainDepartmentId ? (
                 <p className="text-xs font-medium text-red-500">
                   {errors.mainDepartmentId.message as string}
@@ -218,7 +238,13 @@ export function TaskFormDialog({
 
             <div className="space-y-1.5">
               <Label htmlFor="dueDate">Hạn xử lý</Label>
-              <Input id="dueDate" type="datetime-local" {...register('dueDate')} />
+              <DateTimePicker
+                id="dueDate"
+                value={watch('dueDate')}
+                withTime
+                placeholder="Chọn ngày và giờ..."
+                onChange={(v) => setValue('dueDate', v, { shouldDirty: true })}
+              />
             </div>
 
             {editing ? (
@@ -252,26 +278,42 @@ export function TaskFormDialog({
           <div className="space-y-1.5">
             <Label>Đơn vị phối hợp</Label>
             {departments?.length ? (
-              <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto rounded-lg border p-2.5">
-                {departments.map((d) => {
-                  const selected = coDepartmentIds.includes(String(d.id))
-                  return (
-                    <button
-                      key={d.id}
-                      type="button"
-                      onClick={() => toggleCoDepartment(String(d.id))}
-                      className={cn(
-                        'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
-                        selected
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-slate-200 text-muted-foreground hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800',
-                      )}
-                    >
-                      {d.name}
-                    </button>
-                  )
-                })}
-              </div>
+              <>
+                <Input
+                  value={deptSearch}
+                  onChange={(e) => setDeptSearch(e.target.value)}
+                  placeholder="Tìm đơn vị phối hợp..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') e.preventDefault()
+                  }}
+                />
+                {filteredDepartments.length ? (
+                  <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto rounded-lg border p-2.5">
+                    {filteredDepartments.map((d) => {
+                      const selected = coDepartmentIds.includes(String(d.id))
+                      return (
+                        <button
+                          key={d.id}
+                          type="button"
+                          onClick={() => toggleCoDepartment(String(d.id))}
+                          className={cn(
+                            'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                            selected
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-slate-200 text-muted-foreground hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800',
+                          )}
+                        >
+                          {d.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Không tìm thấy đơn vị phù hợp
+                  </p>
+                )}
+              </>
             ) : (
               <p className="text-xs text-muted-foreground">Chưa có dữ liệu phòng ban</p>
             )}

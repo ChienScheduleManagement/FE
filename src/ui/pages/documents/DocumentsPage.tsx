@@ -91,8 +91,6 @@ export function DocumentsPage() {
       )
     }
     await invalidate()
-    setDialogOpen(false)
-    setEditing(null)
   }
 
   const handleDelete = async () => {

@@ -13,7 +13,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { DateTimePicker } from '@/components/ui/date-time-picker'
+import { SearchableSelect } from '@/components/ui/searchable-select'
 import type { DocumentVm } from '@/types/api'
 
 export interface DocumentFormValues {
@@ -33,7 +35,12 @@ interface DocumentFormDialogProps {
   onSave: (values: DocumentFormValues) => Promise<void>
 }
 
-export function DocumentFormDialog({ open, onOpenChange, editing, onSave }: DocumentFormDialogProps) {
+export function DocumentFormDialog({
+  open,
+  onOpenChange,
+  editing,
+  onSave,
+}: DocumentFormDialogProps) {
   const {
     register,
     handleSubmit,
@@ -71,25 +78,47 @@ export function DocumentFormDialog({ open, onOpenChange, editing, onSave }: Docu
   const { data: typeRaw } = useGetCategories({ type: 'DOC_TYPE' })
 
   const sources = useMemo(
-    () => (sourceRaw ? unwrapApiResponse<Array<{ id: number; name: string }>>(sourceRaw) : undefined),
+    () =>
+      sourceRaw
+        ? unwrapApiResponse<Array<{ id: number; name: string }>>(sourceRaw)
+        : undefined,
     [sourceRaw],
   )
   const docTypes = useMemo(
-    () => (typeRaw ? unwrapApiResponse<Array<{ id: number; name: string }>>(typeRaw) : undefined),
+    () =>
+      typeRaw
+        ? unwrapApiResponse<Array<{ id: number; name: string }>>(typeRaw)
+        : undefined,
     [typeRaw],
   )
 
   const onSubmit = handleSubmit(async (values) => {
     await onSave(values)
+    if (editing) {
+      onOpenChange(false)
+    } else {
+      reset({
+        docNumber: '',
+        title: '',
+        sourceId: '',
+        docTypeId: '',
+        issueDate: '',
+        signer: '',
+        filePath: '',
+      })
+    }
   })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{editing ? 'Chỉnh sửa văn bản' : 'Thêm văn bản mới'}</DialogTitle>
+          <DialogTitle>
+            {editing ? 'Chỉnh sửa văn bản' : 'Thêm văn bản mới'}
+          </DialogTitle>
           <DialogDescription>
-            Nhập thông tin văn bản cần theo dõi. Các trường có dấu (*) là bắt buộc.
+            Nhập thông tin văn bản cần theo dõi. Các trường có dấu (*) là bắt
+            buộc.
           </DialogDescription>
         </DialogHeader>
 
@@ -101,89 +130,109 @@ export function DocumentFormDialog({ open, onOpenChange, editing, onSave }: Docu
             <Input
               id="docNumber"
               placeholder="VD: 123/UBND-VP"
-              {...register('docNumber', { required: 'Số văn bản không được để trống.' })}
+              {...register('docNumber', {
+                required: 'Số văn bản không được để trống.',
+              })}
             />
             {errors.docNumber ? (
-              <p className="text-xs font-medium text-red-500">{errors.docNumber.message as string}</p>
+              <p className="text-xs font-medium text-red-500">
+                {errors.docNumber.message as string}
+              </p>
             ) : null}
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="issueDate">Ngày ban hành</Label>
-            <Input id="issueDate" type="date" {...register('issueDate')} />
+            <DateTimePicker
+              id="issueDate"
+              value={watch('issueDate')}
+              placeholder="Chọn ngày..."
+              onChange={(v) => setValue('issueDate', v, { shouldDirty: true })}
+            />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="title">
               Trích yếu nội dung <span className="text-red-500">*</span>
             </Label>
-            <Input
+            <Textarea
               id="title"
+              rows={3}
               placeholder="Trích yếu nội dung văn bản..."
-              {...register('title', { required: 'Trích yếu không được để trống.' })}
+              {...register('title', {
+                required: 'Trích yếu không được để trống.',
+              })}
             />
             {errors.title ? (
-              <p className="text-xs font-medium text-red-500">{errors.title.message as string}</p>
+              <p className="text-xs font-medium text-red-500">
+                {errors.title.message as string}
+              </p>
             ) : null}
           </div>
 
           <div className="space-y-1.5">
             <Label>Nguồn ban hành</Label>
-            <Select
+            <SearchableSelect
+              id="sourceId"
               value={watch('sourceId') || ''}
               onValueChange={(v) => setValue('sourceId', v || '', { shouldDirty: true })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn nguồn ban hành" />
-              </SelectTrigger>
-              <SelectContent>
-                {sources?.map((s) => (
-                  <SelectItem key={s.id} value={String(s.id)}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              items={(sources ?? []).map((s) => ({
+                value: String(s.id),
+                label: s.name,
+              }))}
+              placeholder="Tìm hoặc chọn nguồn..."
+            />
           </div>
 
           <div className="space-y-1.5">
             <Label>Loại văn bản</Label>
-            <Select
+            <SearchableSelect
+              id="docTypeId"
               value={watch('docTypeId') || ''}
               onValueChange={(v) => setValue('docTypeId', v || '', { shouldDirty: true })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn loại văn bản" />
-              </SelectTrigger>
-              <SelectContent>
-                {docTypes?.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              items={(docTypes ?? []).map((c) => ({
+                value: String(c.id),
+                label: c.name,
+              }))}
+              placeholder="Tìm hoặc chọn loại văn bản..."
+            />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="signer">Người ký</Label>
-            <Input id="signer" placeholder="Tên người ký..." {...register('signer')} />
+            <Input
+              id="signer"
+              placeholder="Tên người ký..."
+              {...register('signer')}
+            />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="filePath">Tệp đính kèm (đường dẫn)</Label>
-            <Input id="filePath" placeholder="Link tệp văn bản..." {...register('filePath')} />
+            <Input
+              id="filePath"
+              placeholder="Link tệp văn bản..."
+              {...register('filePath')}
+            />
           </div>
 
           <DialogFooter className="sm:col-span-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Hủy
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
-                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                <span className="material-symbols-outlined animate-spin text-base">
+                  progress_activity
+                </span>
               ) : (
-                <span className="material-symbols-outlined text-base mr-1">save</span>
+                <span className="material-symbols-outlined text-base mr-1">
+                  save
+                </span>
               )}
               {isSubmitting ? 'Đang lưu...' : editing ? 'Cập nhật' : 'Thêm mới'}
             </Button>
