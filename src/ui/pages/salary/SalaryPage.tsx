@@ -33,15 +33,16 @@ export function SalaryPage() {
   const handleExport = async () => {
     try {
       await toastSmartPromise(
-        exportSalary({
-          Year: year,
-          Month: month,
-          DepartmentId: departmentId === 'all' ? undefined : Number(departmentId),
-        }).then((res) => {
+        exportSalary(
+          {
+            Year: year,
+            Month: month,
+            DepartmentId: departmentId === 'all' ? undefined : Number(departmentId),
+          },
+          { responseType: 'blob' },
+        ).then((res) => {
           // Download blob
-          const blob = new Blob([res as any], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          })
+          const blob = res as Blob
           const url = window.URL.createObjectURL(blob)
           const a = document.createElement('a')
           a.href = url

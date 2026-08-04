@@ -186,18 +186,15 @@ export function TasksPage() {
   const handleExport = async () => {
     setExporting(true)
     try {
-      const result = await exportTasks({
-        Tab: tab === 'all' ? undefined : tab,
-        DepartmentId: departmentId ? Number(departmentId) : undefined,
-        Keyword: searchText || undefined,
-      })
-      const data = unwrapApiResponse<unknown>(result)
-      const base64 = typeof data === 'string' ? data : String(data ?? '')
-      if (!base64) {
-        showError(new Error('Máy chủ trả về dữ liệu rỗng'))
-        return
-      }
-      downloadExcel(base64, `Bao-cao-nhiem-vu-${tab}.xlsx`)
+      const blob = await exportTasks(
+        {
+          Tab: tab === 'all' ? undefined : tab,
+          DepartmentId: departmentId ? Number(departmentId) : undefined,
+          Keyword: searchText || undefined,
+        },
+        { responseType: 'blob' },
+      )
+      downloadBlob(blob as Blob, `Bao-cao-nhiem-vu-${tab}.xlsx`)
       showSuccess('Xuất Excel thành công!')
     } catch (err) {
       showError(err)
@@ -486,16 +483,7 @@ export function TasksPage() {
   )
 }
 
-function downloadExcel(base64: string, filename: string) {
-  const byteCharacters = atob(base64)
-  const byteNumbers = new Array(byteCharacters.length)
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i)
-  }
-  const byteArray = new Uint8Array(byteNumbers)
-  const blob = new Blob([byteArray], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  })
+function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
