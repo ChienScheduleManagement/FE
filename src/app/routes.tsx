@@ -59,6 +59,26 @@ const ChangePasswordPage = lazyRouteComponent(
   () => import('@/ui/pages/settings/ChangePasswordPage'),
   'ChangePasswordPage',
 )
+const AttendancePage = lazyRouteComponent(
+  () => import('@/ui/pages/attendance/AttendancePage'),
+  'AttendancePage',
+)
+const SalaryPage = lazyRouteComponent(
+  () => import('@/ui/pages/salary/SalaryPage'),
+  'SalaryPage',
+)
+const ReportsPage = lazyRouteComponent(
+  () => import('@/ui/pages/reports/ReportsPage'),
+  'ReportsPage',
+)
+const EmployeesPage = lazyRouteComponent(
+  () => import('@/ui/pages/admin/employees/EmployeesPage'),
+  'EmployeesPage',
+)
+const LeaveReasonsPage = lazyRouteComponent(
+  () => import('@/ui/pages/admin/leave-reasons/LeaveReasonsPage'),
+  'LeaveReasonsPage',
+)
 
 // ================= ROOT =================
 const rootRoute = createRootRoute({
@@ -160,6 +180,36 @@ const changePasswordRoute = createRoute({
   component: ChangePasswordPage,
 })
 
+const attendanceRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/attendance',
+  component: AttendancePage,
+})
+
+const salaryRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/salary',
+  component: SalaryPage,
+})
+
+const reportsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/reports',
+  component: ReportsPage,
+})
+
+const employeesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/employees',
+  component: EmployeesPage,
+})
+
+const leaveReasonsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/leave-reasons',
+  component: LeaveReasonsPage,
+})
+
 // ================= BACKWARD COMPAT (redirect cũ) =================
 const homeRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
@@ -210,6 +260,11 @@ export const routeTree = rootRoute.addChildren([
     departmentsRoute,
     categoriesRoute,
     docSourcesRoute,
+    employeesRoute,
+    leaveReasonsRoute,
+    attendanceRoute,
+    salaryRoute,
+    reportsRoute,
     changePasswordRoute,
     homeRoute,
     adminDashboardRoute,

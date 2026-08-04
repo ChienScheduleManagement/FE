@@ -24,25 +24,36 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  BulkSetAttendanceRequest,
   ChangePasswordRequest,
   CompleteTaskRequest,
   CreateCategoryRequest,
   CreateDepartmentRequest,
   CreateDocSourceRequest,
   CreateDocumentRequest,
+  CreateEmployeeRequest,
+  CreateLeaveReasonRequest,
   CreateTaskLogRequest,
   CreateTaskRequest,
+  ExportSalaryParams,
   ExportTasksParams,
+  GetAttendanceHistoryParams,
+  GetAttendanceParams,
   GetCategoriesParams,
   GetDepartmentsParams,
   GetDocumentsParams,
+  GetEmployeesParams,
+  GetSalaryParams,
   GetTasksParams,
   LoginRequest,
   Result,
+  SetAttendanceCellRequest,
   UpdateCategoryRequest,
   UpdateDepartmentRequest,
   UpdateDocSourceRequest,
   UpdateDocumentRequest,
+  UpdateEmployeeRequest,
+  UpdateLeaveReasonRequest,
   UpdateTaskRequest
 } from './model';
 
@@ -623,6 +634,64 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getDeleteDocumentMutationOptions(options), queryClient);
     }
     
+export const bulkDeleteDocuments = (
+    bulkDeleteDocumentsBody: string[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/documents/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkDeleteDocumentsBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkDeleteDocumentsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDocuments>>, TError,{data: string[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDocuments>>, TError,{data: string[]}, TContext> => {
+
+const mutationKey = ['bulkDeleteDocuments'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeleteDocuments>>, {data: string[]}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeleteDocuments(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeleteDocumentsMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeleteDocuments>>>
+    export type BulkDeleteDocumentsMutationBody = string[]
+    export type BulkDeleteDocumentsMutationError = unknown
+
+    export const useBulkDeleteDocuments = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDocuments>>, TError,{data: string[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeleteDocuments>>,
+        TError,
+        {data: string[]},
+        TContext
+      > => {
+      return useMutation(getBulkDeleteDocumentsMutationOptions(options), queryClient);
+    }
+    
 export const getTasks = (
     params?: GetTasksParams,
  options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
@@ -1024,6 +1093,64 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getCompleteTaskByIdMutationOptions(options), queryClient);
+    }
+    
+export const bulkDeleteTasks = (
+    bulkDeleteTasksBody: string[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/tasks/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkDeleteTasksBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkDeleteTasksMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteTasks>>, TError,{data: string[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteTasks>>, TError,{data: string[]}, TContext> => {
+
+const mutationKey = ['bulkDeleteTasks'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeleteTasks>>, {data: string[]}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeleteTasks(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeleteTasksMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeleteTasks>>>
+    export type BulkDeleteTasksMutationBody = string[]
+    export type BulkDeleteTasksMutationError = unknown
+
+    export const useBulkDeleteTasks = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteTasks>>, TError,{data: string[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeleteTasks>>,
+        TError,
+        {data: string[]},
+        TContext
+      > => {
+      return useMutation(getBulkDeleteTasksMutationOptions(options), queryClient);
     }
     
 export const exportTasks = (
@@ -1684,6 +1811,64 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getDeleteDocSourceMutationOptions(options), queryClient);
     }
     
+export const bulkDeleteDocSources = (
+    numberString: (number | string)[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/doc-sources/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: numberString, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkDeleteDocSourcesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDocSources>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDocSources>>, TError,{data: (number | string)[]}, TContext> => {
+
+const mutationKey = ['bulkDeleteDocSources'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeleteDocSources>>, {data: (number | string)[]}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeleteDocSources(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeleteDocSourcesMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeleteDocSources>>>
+    export type BulkDeleteDocSourcesMutationBody = (number | string)[]
+    export type BulkDeleteDocSourcesMutationError = unknown
+
+    export const useBulkDeleteDocSources = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDocSources>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeleteDocSources>>,
+        TError,
+        {data: (number | string)[]},
+        TContext
+      > => {
+      return useMutation(getBulkDeleteDocSourcesMutationOptions(options), queryClient);
+    }
+    
 export const getCategories = (
     params?: GetCategoriesParams,
  options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
@@ -2026,6 +2211,64 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getDeleteCategoryMutationOptions(options), queryClient);
+    }
+    
+export const bulkDeleteCategorys = (
+    numberString: (number | string)[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/categories/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: numberString, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkDeleteCategorysMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteCategorys>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteCategorys>>, TError,{data: (number | string)[]}, TContext> => {
+
+const mutationKey = ['bulkDeleteCategorys'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeleteCategorys>>, {data: (number | string)[]}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeleteCategorys(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeleteCategorysMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeleteCategorys>>>
+    export type BulkDeleteCategorysMutationBody = (number | string)[]
+    export type BulkDeleteCategorysMutationError = unknown
+
+    export const useBulkDeleteCategorys = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteCategorys>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeleteCategorys>>,
+        TError,
+        {data: (number | string)[]},
+        TContext
+      > => {
+      return useMutation(getBulkDeleteCategorysMutationOptions(options), queryClient);
     }
     
 export const getDepartments = (
@@ -2371,69 +2614,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getDeleteDepartmentMutationOptions(options), queryClient);
     }
-
-export const bulkDeleteTasks = (
-    ids: string[],
- options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
-) => {
-      
-      
-      return apiOrvalClient<Result>(
-      {url: `/api/tasks/bulk`, method: 'DELETE',
-      headers: {'Content-Type': 'application/json', },
-      data: ids, signal
-    },
-      options);
-    }
-  
-
-export const bulkDeleteDocuments = (
-    ids: string[],
- options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
-) => {
-      
-      
-      return apiOrvalClient<Result>(
-      {url: `/api/documents/bulk`, method: 'DELETE',
-      headers: {'Content-Type': 'application/json', },
-      data: ids, signal
-    },
-      options);
-    }
-  
-
-export const bulkDeleteDocSources = (
-    ids: number[],
- options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
-) => {
-      
-      
-      return apiOrvalClient<Result>(
-      {url: `/api/doc-sources/bulk`, method: 'DELETE',
-      headers: {'Content-Type': 'application/json', },
-      data: ids, signal
-    },
-      options);
-    }
-  
-
-export const bulkDeleteCategories = (
-    ids: number[],
- options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
-) => {
-      
-      
-      return apiOrvalClient<Result>(
-      {url: `/api/categories/bulk`, method: 'DELETE',
-      headers: {'Content-Type': 'application/json', },
-      data: ids, signal
-    },
-      options);
-    }
-  
-
+    
 export const bulkDeleteDepartments = (
-    ids: number[],
+    numberString: (number | string)[],
  options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
 ) => {
       
@@ -2441,8 +2624,1317 @@ export const bulkDeleteDepartments = (
       return apiOrvalClient<Result>(
       {url: `/api/departments/bulk`, method: 'DELETE',
       headers: {'Content-Type': 'application/json', },
-      data: ids, signal
+      data: numberString, signal
     },
       options);
     }
   
+
+
+export const getBulkDeleteDepartmentsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDepartments>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDepartments>>, TError,{data: (number | string)[]}, TContext> => {
+
+const mutationKey = ['bulkDeleteDepartments'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeleteDepartments>>, {data: (number | string)[]}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeleteDepartments(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeleteDepartmentsMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeleteDepartments>>>
+    export type BulkDeleteDepartmentsMutationBody = (number | string)[]
+    export type BulkDeleteDepartmentsMutationError = unknown
+
+    export const useBulkDeleteDepartments = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteDepartments>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeleteDepartments>>,
+        TError,
+        {data: (number | string)[]},
+        TContext
+      > => {
+      return useMutation(getBulkDeleteDepartmentsMutationOptions(options), queryClient);
+    }
+    
+export const getEmployees = (
+    params?: GetEmployeesParams,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employees`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetEmployeesQueryKey = (params?: GetEmployeesParams,) => {
+    return [
+    `/api/employees`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetEmployeesQueryOptions = <TData = Awaited<ReturnType<typeof getEmployees>>, TError = unknown>(params?: GetEmployeesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEmployeesQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEmployees>>> = ({ signal }) => getEmployees(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEmployeesQueryResult = NonNullable<Awaited<ReturnType<typeof getEmployees>>>
+export type GetEmployeesQueryError = unknown
+
+
+export function useGetEmployees<TData = Awaited<ReturnType<typeof getEmployees>>, TError = unknown>(
+ params: undefined |  GetEmployeesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEmployees>>,
+          TError,
+          Awaited<ReturnType<typeof getEmployees>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEmployees<TData = Awaited<ReturnType<typeof getEmployees>>, TError = unknown>(
+ params?: GetEmployeesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEmployees>>,
+          TError,
+          Awaited<ReturnType<typeof getEmployees>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEmployees<TData = Awaited<ReturnType<typeof getEmployees>>, TError = unknown>(
+ params?: GetEmployeesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetEmployees<TData = Awaited<ReturnType<typeof getEmployees>>, TError = unknown>(
+ params?: GetEmployeesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployees>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEmployeesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const createEmployee = (
+    createEmployeeRequest: CreateEmployeeRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employees`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createEmployeeRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getCreateEmployeeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEmployee>>, TError,{data: CreateEmployeeRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof createEmployee>>, TError,{data: CreateEmployeeRequest}, TContext> => {
+
+const mutationKey = ['createEmployee'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEmployee>>, {data: CreateEmployeeRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createEmployee(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateEmployeeMutationResult = NonNullable<Awaited<ReturnType<typeof createEmployee>>>
+    export type CreateEmployeeMutationBody = CreateEmployeeRequest
+    export type CreateEmployeeMutationError = unknown
+
+    export const useCreateEmployee = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEmployee>>, TError,{data: CreateEmployeeRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createEmployee>>,
+        TError,
+        {data: CreateEmployeeRequest},
+        TContext
+      > => {
+      return useMutation(getCreateEmployeeMutationOptions(options), queryClient);
+    }
+    
+export const getEmployeeById = (
+    id: string,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employees/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetEmployeeByIdQueryKey = (id: string,) => {
+    return [
+    `/api/employees/${id}`
+    ] as const;
+    }
+
+    
+export const getGetEmployeeByIdQueryOptions = <TData = Awaited<ReturnType<typeof getEmployeeById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployeeById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEmployeeByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEmployeeById>>> = ({ signal }) => getEmployeeById(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEmployeeById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEmployeeByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getEmployeeById>>>
+export type GetEmployeeByIdQueryError = unknown
+
+
+export function useGetEmployeeById<TData = Awaited<ReturnType<typeof getEmployeeById>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployeeById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEmployeeById>>,
+          TError,
+          Awaited<ReturnType<typeof getEmployeeById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEmployeeById<TData = Awaited<ReturnType<typeof getEmployeeById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployeeById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEmployeeById>>,
+          TError,
+          Awaited<ReturnType<typeof getEmployeeById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEmployeeById<TData = Awaited<ReturnType<typeof getEmployeeById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployeeById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetEmployeeById<TData = Awaited<ReturnType<typeof getEmployeeById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmployeeById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEmployeeByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const updateEmployee = (
+    id: string,
+    updateEmployeeRequest: UpdateEmployeeRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employees/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateEmployeeRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getUpdateEmployeeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEmployee>>, TError,{id: string;data: UpdateEmployeeRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateEmployee>>, TError,{id: string;data: UpdateEmployeeRequest}, TContext> => {
+
+const mutationKey = ['updateEmployee'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateEmployee>>, {id: string;data: UpdateEmployeeRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateEmployee(id,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateEmployeeMutationResult = NonNullable<Awaited<ReturnType<typeof updateEmployee>>>
+    export type UpdateEmployeeMutationBody = UpdateEmployeeRequest
+    export type UpdateEmployeeMutationError = unknown
+
+    export const useUpdateEmployee = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEmployee>>, TError,{id: string;data: UpdateEmployeeRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateEmployee>>,
+        TError,
+        {id: string;data: UpdateEmployeeRequest},
+        TContext
+      > => {
+      return useMutation(getUpdateEmployeeMutationOptions(options), queryClient);
+    }
+    
+export const deleteEmployee = (
+    id: string,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employees/${id}`, method: 'DELETE', signal
+    },
+      options);
+    }
+  
+
+
+export const getDeleteEmployeeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEmployee>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteEmployee>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteEmployee'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteEmployee>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteEmployee(id,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteEmployeeMutationResult = NonNullable<Awaited<ReturnType<typeof deleteEmployee>>>
+    
+    export type DeleteEmployeeMutationError = unknown
+
+    export const useDeleteEmployee = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEmployee>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteEmployee>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeleteEmployeeMutationOptions(options), queryClient);
+    }
+    
+export const bulkDeleteEmployees = (
+    bulkDeleteEmployeesBody: string[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employees/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkDeleteEmployeesBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkDeleteEmployeesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteEmployees>>, TError,{data: string[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteEmployees>>, TError,{data: string[]}, TContext> => {
+
+const mutationKey = ['bulkDeleteEmployees'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeleteEmployees>>, {data: string[]}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeleteEmployees(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeleteEmployeesMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeleteEmployees>>>
+    export type BulkDeleteEmployeesMutationBody = string[]
+    export type BulkDeleteEmployeesMutationError = unknown
+
+    export const useBulkDeleteEmployees = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteEmployees>>, TError,{data: string[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeleteEmployees>>,
+        TError,
+        {data: string[]},
+        TContext
+      > => {
+      return useMutation(getBulkDeleteEmployeesMutationOptions(options), queryClient);
+    }
+    
+export const getLeaveReasons = (
+    
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/leave-reasons`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetLeaveReasonsQueryKey = () => {
+    return [
+    `/api/leave-reasons`
+    ] as const;
+    }
+
+    
+export const getGetLeaveReasonsQueryOptions = <TData = Awaited<ReturnType<typeof getLeaveReasons>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasons>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLeaveReasonsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLeaveReasons>>> = ({ signal }) => getLeaveReasons(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasons>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetLeaveReasonsQueryResult = NonNullable<Awaited<ReturnType<typeof getLeaveReasons>>>
+export type GetLeaveReasonsQueryError = unknown
+
+
+export function useGetLeaveReasons<TData = Awaited<ReturnType<typeof getLeaveReasons>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasons>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaveReasons>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaveReasons>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLeaveReasons<TData = Awaited<ReturnType<typeof getLeaveReasons>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasons>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaveReasons>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaveReasons>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLeaveReasons<TData = Awaited<ReturnType<typeof getLeaveReasons>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasons>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetLeaveReasons<TData = Awaited<ReturnType<typeof getLeaveReasons>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasons>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetLeaveReasonsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const createLeaveReason = (
+    createLeaveReasonRequest: CreateLeaveReasonRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/leave-reasons`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createLeaveReasonRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getCreateLeaveReasonMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLeaveReason>>, TError,{data: CreateLeaveReasonRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof createLeaveReason>>, TError,{data: CreateLeaveReasonRequest}, TContext> => {
+
+const mutationKey = ['createLeaveReason'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createLeaveReason>>, {data: CreateLeaveReasonRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createLeaveReason(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateLeaveReasonMutationResult = NonNullable<Awaited<ReturnType<typeof createLeaveReason>>>
+    export type CreateLeaveReasonMutationBody = CreateLeaveReasonRequest
+    export type CreateLeaveReasonMutationError = unknown
+
+    export const useCreateLeaveReason = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLeaveReason>>, TError,{data: CreateLeaveReasonRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createLeaveReason>>,
+        TError,
+        {data: CreateLeaveReasonRequest},
+        TContext
+      > => {
+      return useMutation(getCreateLeaveReasonMutationOptions(options), queryClient);
+    }
+    
+export const getLeaveReasonById = (
+    id: number,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/leave-reasons/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetLeaveReasonByIdQueryKey = (id: number,) => {
+    return [
+    `/api/leave-reasons/${id}`
+    ] as const;
+    }
+
+    
+export const getGetLeaveReasonByIdQueryOptions = <TData = Awaited<ReturnType<typeof getLeaveReasonById>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasonById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLeaveReasonByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLeaveReasonById>>> = ({ signal }) => getLeaveReasonById(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasonById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetLeaveReasonByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getLeaveReasonById>>>
+export type GetLeaveReasonByIdQueryError = unknown
+
+
+export function useGetLeaveReasonById<TData = Awaited<ReturnType<typeof getLeaveReasonById>>, TError = unknown>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasonById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaveReasonById>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaveReasonById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLeaveReasonById<TData = Awaited<ReturnType<typeof getLeaveReasonById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasonById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getLeaveReasonById>>,
+          TError,
+          Awaited<ReturnType<typeof getLeaveReasonById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetLeaveReasonById<TData = Awaited<ReturnType<typeof getLeaveReasonById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasonById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetLeaveReasonById<TData = Awaited<ReturnType<typeof getLeaveReasonById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getLeaveReasonById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetLeaveReasonByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const updateLeaveReason = (
+    id: number,
+    updateLeaveReasonRequest: UpdateLeaveReasonRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/leave-reasons/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateLeaveReasonRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getUpdateLeaveReasonMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLeaveReason>>, TError,{id: number;data: UpdateLeaveReasonRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateLeaveReason>>, TError,{id: number;data: UpdateLeaveReasonRequest}, TContext> => {
+
+const mutationKey = ['updateLeaveReason'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateLeaveReason>>, {id: number;data: UpdateLeaveReasonRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateLeaveReason(id,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateLeaveReasonMutationResult = NonNullable<Awaited<ReturnType<typeof updateLeaveReason>>>
+    export type UpdateLeaveReasonMutationBody = UpdateLeaveReasonRequest
+    export type UpdateLeaveReasonMutationError = unknown
+
+    export const useUpdateLeaveReason = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLeaveReason>>, TError,{id: number;data: UpdateLeaveReasonRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateLeaveReason>>,
+        TError,
+        {id: number;data: UpdateLeaveReasonRequest},
+        TContext
+      > => {
+      return useMutation(getUpdateLeaveReasonMutationOptions(options), queryClient);
+    }
+    
+export const deleteLeaveReason = (
+    id: number,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/leave-reasons/${id}`, method: 'DELETE', signal
+    },
+      options);
+    }
+  
+
+
+export const getDeleteLeaveReasonMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteLeaveReason>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteLeaveReason>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteLeaveReason'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteLeaveReason>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteLeaveReason(id,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteLeaveReasonMutationResult = NonNullable<Awaited<ReturnType<typeof deleteLeaveReason>>>
+    
+    export type DeleteLeaveReasonMutationError = unknown
+
+    export const useDeleteLeaveReason = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteLeaveReason>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteLeaveReason>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteLeaveReasonMutationOptions(options), queryClient);
+    }
+    
+export const bulkDeleteLeaveReasons = (
+    numberString: (number | string)[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/leave-reasons/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: numberString, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkDeleteLeaveReasonsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteLeaveReasons>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteLeaveReasons>>, TError,{data: (number | string)[]}, TContext> => {
+
+const mutationKey = ['bulkDeleteLeaveReasons'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeleteLeaveReasons>>, {data: (number | string)[]}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeleteLeaveReasons(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeleteLeaveReasonsMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeleteLeaveReasons>>>
+    export type BulkDeleteLeaveReasonsMutationBody = (number | string)[]
+    export type BulkDeleteLeaveReasonsMutationError = unknown
+
+    export const useBulkDeleteLeaveReasons = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteLeaveReasons>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeleteLeaveReasons>>,
+        TError,
+        {data: (number | string)[]},
+        TContext
+      > => {
+      return useMutation(getBulkDeleteLeaveReasonsMutationOptions(options), queryClient);
+    }
+    
+export const getAttendance = (
+    params?: GetAttendanceParams,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/attendance`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetAttendanceQueryKey = (params?: GetAttendanceParams,) => {
+    return [
+    `/api/attendance`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetAttendanceQueryOptions = <TData = Awaited<ReturnType<typeof getAttendance>>, TError = unknown>(params?: GetAttendanceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendance>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAttendanceQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAttendance>>> = ({ signal }) => getAttendance(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAttendance>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAttendanceQueryResult = NonNullable<Awaited<ReturnType<typeof getAttendance>>>
+export type GetAttendanceQueryError = unknown
+
+
+export function useGetAttendance<TData = Awaited<ReturnType<typeof getAttendance>>, TError = unknown>(
+ params: undefined |  GetAttendanceParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendance>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAttendance>>,
+          TError,
+          Awaited<ReturnType<typeof getAttendance>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAttendance<TData = Awaited<ReturnType<typeof getAttendance>>, TError = unknown>(
+ params?: GetAttendanceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendance>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAttendance>>,
+          TError,
+          Awaited<ReturnType<typeof getAttendance>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAttendance<TData = Awaited<ReturnType<typeof getAttendance>>, TError = unknown>(
+ params?: GetAttendanceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendance>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetAttendance<TData = Awaited<ReturnType<typeof getAttendance>>, TError = unknown>(
+ params?: GetAttendanceParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendance>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAttendanceQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const setAttendanceCell = (
+    setAttendanceCellRequest: SetAttendanceCellRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/attendance`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: setAttendanceCellRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getSetAttendanceCellMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAttendanceCell>>, TError,{data: SetAttendanceCellRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof setAttendanceCell>>, TError,{data: SetAttendanceCellRequest}, TContext> => {
+
+const mutationKey = ['setAttendanceCell'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setAttendanceCell>>, {data: SetAttendanceCellRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  setAttendanceCell(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetAttendanceCellMutationResult = NonNullable<Awaited<ReturnType<typeof setAttendanceCell>>>
+    export type SetAttendanceCellMutationBody = SetAttendanceCellRequest
+    export type SetAttendanceCellMutationError = unknown
+
+    export const useSetAttendanceCell = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setAttendanceCell>>, TError,{data: SetAttendanceCellRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setAttendanceCell>>,
+        TError,
+        {data: SetAttendanceCellRequest},
+        TContext
+      > => {
+      return useMutation(getSetAttendanceCellMutationOptions(options), queryClient);
+    }
+    
+export const bulkSetAttendance = (
+    bulkSetAttendanceRequest: BulkSetAttendanceRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/attendance/bulk`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkSetAttendanceRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkSetAttendanceMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkSetAttendance>>, TError,{data: BulkSetAttendanceRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkSetAttendance>>, TError,{data: BulkSetAttendanceRequest}, TContext> => {
+
+const mutationKey = ['bulkSetAttendance'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkSetAttendance>>, {data: BulkSetAttendanceRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkSetAttendance(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkSetAttendanceMutationResult = NonNullable<Awaited<ReturnType<typeof bulkSetAttendance>>>
+    export type BulkSetAttendanceMutationBody = BulkSetAttendanceRequest
+    export type BulkSetAttendanceMutationError = unknown
+
+    export const useBulkSetAttendance = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkSetAttendance>>, TError,{data: BulkSetAttendanceRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkSetAttendance>>,
+        TError,
+        {data: BulkSetAttendanceRequest},
+        TContext
+      > => {
+      return useMutation(getBulkSetAttendanceMutationOptions(options), queryClient);
+    }
+    
+export const getAttendanceHistory = (
+    employeeId: string,
+    params?: GetAttendanceHistoryParams,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/attendance/${employeeId}/history`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetAttendanceHistoryQueryKey = (employeeId: string,
+    params?: GetAttendanceHistoryParams,) => {
+    return [
+    `/api/attendance/${employeeId}/history`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetAttendanceHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getAttendanceHistory>>, TError = unknown>(employeeId: string,
+    params?: GetAttendanceHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendanceHistory>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAttendanceHistoryQueryKey(employeeId,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAttendanceHistory>>> = ({ signal }) => getAttendanceHistory(employeeId,params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(employeeId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAttendanceHistory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAttendanceHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getAttendanceHistory>>>
+export type GetAttendanceHistoryQueryError = unknown
+
+
+export function useGetAttendanceHistory<TData = Awaited<ReturnType<typeof getAttendanceHistory>>, TError = unknown>(
+ employeeId: string,
+    params: undefined |  GetAttendanceHistoryParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendanceHistory>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAttendanceHistory>>,
+          TError,
+          Awaited<ReturnType<typeof getAttendanceHistory>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAttendanceHistory<TData = Awaited<ReturnType<typeof getAttendanceHistory>>, TError = unknown>(
+ employeeId: string,
+    params?: GetAttendanceHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendanceHistory>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAttendanceHistory>>,
+          TError,
+          Awaited<ReturnType<typeof getAttendanceHistory>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAttendanceHistory<TData = Awaited<ReturnType<typeof getAttendanceHistory>>, TError = unknown>(
+ employeeId: string,
+    params?: GetAttendanceHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendanceHistory>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetAttendanceHistory<TData = Awaited<ReturnType<typeof getAttendanceHistory>>, TError = unknown>(
+ employeeId: string,
+    params?: GetAttendanceHistoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAttendanceHistory>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAttendanceHistoryQueryOptions(employeeId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const getSalary = (
+    params?: GetSalaryParams,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/salary`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetSalaryQueryKey = (params?: GetSalaryParams,) => {
+    return [
+    `/api/salary`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetSalaryQueryOptions = <TData = Awaited<ReturnType<typeof getSalary>>, TError = unknown>(params?: GetSalaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalary>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSalaryQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSalary>>> = ({ signal }) => getSalary(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSalary>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSalaryQueryResult = NonNullable<Awaited<ReturnType<typeof getSalary>>>
+export type GetSalaryQueryError = unknown
+
+
+export function useGetSalary<TData = Awaited<ReturnType<typeof getSalary>>, TError = unknown>(
+ params: undefined |  GetSalaryParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalary>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSalary>>,
+          TError,
+          Awaited<ReturnType<typeof getSalary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSalary<TData = Awaited<ReturnType<typeof getSalary>>, TError = unknown>(
+ params?: GetSalaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalary>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSalary>>,
+          TError,
+          Awaited<ReturnType<typeof getSalary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSalary<TData = Awaited<ReturnType<typeof getSalary>>, TError = unknown>(
+ params?: GetSalaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalary>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetSalary<TData = Awaited<ReturnType<typeof getSalary>>, TError = unknown>(
+ params?: GetSalaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalary>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSalaryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const exportSalary = (
+    params?: ExportSalaryParams,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/salary/export`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getExportSalaryQueryKey = (params?: ExportSalaryParams,) => {
+    return [
+    `/api/salary/export`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getExportSalaryQueryOptions = <TData = Awaited<ReturnType<typeof exportSalary>>, TError = unknown>(params?: ExportSalaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportSalary>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getExportSalaryQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof exportSalary>>> = ({ signal }) => exportSalary(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof exportSalary>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ExportSalaryQueryResult = NonNullable<Awaited<ReturnType<typeof exportSalary>>>
+export type ExportSalaryQueryError = unknown
+
+
+export function useExportSalary<TData = Awaited<ReturnType<typeof exportSalary>>, TError = unknown>(
+ params: undefined |  ExportSalaryParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportSalary>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof exportSalary>>,
+          TError,
+          Awaited<ReturnType<typeof exportSalary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useExportSalary<TData = Awaited<ReturnType<typeof exportSalary>>, TError = unknown>(
+ params?: ExportSalaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportSalary>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof exportSalary>>,
+          TError,
+          Awaited<ReturnType<typeof exportSalary>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useExportSalary<TData = Awaited<ReturnType<typeof exportSalary>>, TError = unknown>(
+ params?: ExportSalaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportSalary>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useExportSalary<TData = Awaited<ReturnType<typeof exportSalary>>, TError = unknown>(
+ params?: ExportSalaryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportSalary>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getExportSalaryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}

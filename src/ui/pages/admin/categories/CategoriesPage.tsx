@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { bulkDeleteCategories, createCategory, deleteCategory, updateCategory, useGetCategories } from '@/api/generated'
+import { bulkDeleteCategorys, createCategory, deleteCategory, updateCategory, useGetCategories } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -197,7 +197,7 @@ export function CategoriesPage() {
     setBulkDeleting(true)
     try {
       await toastSmartPromise(
-        bulkDeleteCategories(ids).then(unwrapApiResponse),
+        bulkDeleteCategorys(ids).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều danh mục...', success: 'Đã xóa các danh mục đã chọn!' },
       )
       await invalidate()

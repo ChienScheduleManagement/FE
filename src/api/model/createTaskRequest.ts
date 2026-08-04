@@ -7,6 +7,8 @@
 
 export interface CreateTaskRequest {
   documentId?: string;
+  /** @nullable */
+  taskCode?: string | null;
   taskContent?: string;
   mainDepartmentId?: number;
   /** @nullable */

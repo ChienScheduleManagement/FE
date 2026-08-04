@@ -5,23 +5,34 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from './bulkSetAttendanceRequest';
 export * from './changePasswordRequest';
 export * from './completeTaskRequest';
 export * from './createCategoryRequest';
 export * from './createDepartmentRequest';
 export * from './createDocSourceRequest';
 export * from './createDocumentRequest';
+export * from './createEmployeeRequest';
+export * from './createLeaveReasonRequest';
 export * from './createTaskLogRequest';
 export * from './createTaskRequest';
+export * from './exportSalaryParams';
 export * from './exportTasksParams';
+export * from './getAttendanceHistoryParams';
+export * from './getAttendanceParams';
 export * from './getCategoriesParams';
 export * from './getDepartmentsParams';
 export * from './getDocumentsParams';
+export * from './getEmployeesParams';
+export * from './getSalaryParams';
 export * from './getTasksParams';
 export * from './loginRequest';
 export * from './result';
+export * from './setAttendanceCellRequest';
 export * from './updateCategoryRequest';
 export * from './updateDepartmentRequest';
 export * from './updateDocSourceRequest';
 export * from './updateDocumentRequest';
+export * from './updateEmployeeRequest';
+export * from './updateLeaveReasonRequest';
 export * from './updateTaskRequest';

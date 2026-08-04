@@ -17,11 +17,16 @@ interface NavItem {
 
 const NAV_MAIN: NavItem[] = [
   { label: 'Tổng quan', to: '/dashboard', icon: 'dashboard' },
+  { label: 'Chấm công', to: '/attendance', icon: 'event_available' },
+  { label: 'Tính lương', to: '/salary', icon: 'payments' },
+  { label: 'Báo cáo', to: '/reports', icon: 'bar_chart' },
   { label: 'Văn bản', to: '/documents', icon: 'description', activePrefixes: ['/documents'] },
   { label: 'Nhiệm vụ', to: '/tasks', icon: 'task_alt', activePrefixes: ['/tasks'] },
 ]
 
 const NAV_ADMIN: NavItem[] = [
+  { label: 'Danh sách cán bộ', to: '/admin/employees', icon: 'badge' },
+  { label: 'Danh mục lý do nghỉ', to: '/admin/leave-reasons', icon: 'clinical_notes' },
   { label: 'Phòng ban', to: '/admin/departments', icon: 'account_balance' },
   { label: 'Danh mục', to: '/admin/categories', icon: 'category' },
   { label: 'Nguồn văn bản', to: '/admin/doc-sources', icon: 'import_contacts' },
@@ -99,7 +104,7 @@ function SidebarContent({
             <span className="block text-sm font-black tracking-tight text-slate-900 dark:text-slate-100">
               {APP_NAME}
             </span>
-            <span className="block text-xs text-muted-foreground">Quản lý nhiệm vụ</span>
+            <span className="block text-xs text-muted-foreground">Quản lý nhiệm vụ & nhân sự</span>
           </div>
         ) : null}
       </Link>

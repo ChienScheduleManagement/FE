@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import { defineConfig } from 'orval'
 
 const swaggerInput = process.env.ORVAL_INPUT ?? './swagger.json'

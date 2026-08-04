@@ -123,3 +123,92 @@ export interface DocSourceVm {
   level: string
   displayOrder: number
 }
+
+// ================= Nhân sự & Chấm công =================
+
+export interface EmployeeVm {
+  id: string
+  employeeCode: string
+  fullName: string
+  departmentId: number
+  departmentName?: string | null
+  position?: string | null
+  baseSalary: number
+  allowance: number
+  phoneNumber?: string | null
+  avatarUrl?: string | null
+  isActive: boolean
+  joinDate?: string | null
+  createdAt: string
+}
+
+export interface LeaveReasonVm {
+  id: number
+  code: string
+  name: string
+  symbol?: string | null
+  color?: string | null
+  isPaid: boolean
+  salaryRatio: number
+  displayOrder: number
+}
+
+export interface AttendanceDayVm {
+  date: string
+  leaveReasonId?: number | null
+  note?: string | null
+}
+
+export interface AttendanceEmployeeVm {
+  employeeId: string
+  employeeCode: string
+  fullName: string
+  position?: string | null
+  departmentName?: string | null
+  workDays: number
+  leaveDays: number
+  days: AttendanceDayVm[]
+}
+
+export interface AttendanceGridVm {
+  year: number
+  month: number
+  daysInMonth: number
+  employees: AttendanceEmployeeVm[]
+}
+
+export interface AttendanceChangeVm {
+  id: string
+  employeeId: string
+  date: string
+  fromLeaveReasonId?: number | null
+  fromLeaveReasonName?: string | null
+  toLeaveReasonId?: number | null
+  toLeaveReasonName?: string | null
+  note?: string | null
+  changedBy?: string | null
+  changedAt: string
+}
+
+export interface SalaryItemVm {
+  employeeId: string
+  employeeCode: string
+  fullName: string
+  position?: string | null
+  departmentName?: string | null
+  workDays: number
+  leaveDays: number
+  baseSalary: number
+  allowance: number
+  salaryRatio: number
+  grossSalary: number
+  netSalary: number
+}
+
+export interface SalaryVm {
+  year: number
+  month: number
+  daysInMonth: number
+  standardDays: number
+  items: SalaryItemVm[]
+}

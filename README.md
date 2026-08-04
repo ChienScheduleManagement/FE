@@ -34,6 +34,7 @@ Sao chép `.env.example` thành `.env` và điều chỉnh:
 VITE_APP_ENV=development
 VITE_APP_NAME=ScheduleManagement
 VITE_API_URL=http://localhost:5117
+ORVAL_INPUT=http://localhost:5117/openapi/v1.json
 ```
 
 ## Sinh mã API từ OpenAPI spec
