@@ -266,7 +266,7 @@ export function DocSourcesPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Chỉnh sửa nguồn văn bản' : 'Thêm nguồn văn bản mới'}</DialogTitle>
             <DialogDescription>
@@ -304,7 +304,7 @@ export function DocSourcesPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5 sm:col-span-2">
+            <div className="space-y-1.5">
               <Label htmlFor="src-name">
                 Tên nguồn <span className="text-red-500">*</span>
               </Label>

@@ -327,7 +327,7 @@ export function EmployeesPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Chỉnh sửa cán bộ' : 'Thêm cán bộ mới'}</DialogTitle>
             <DialogDescription>
@@ -370,7 +370,7 @@ export function EmployeesPage() {
                 <p className="text-xs font-medium text-red-500">{errors.departmentId}</p>
               ) : null}
             </div>
-            <div className="space-y-1.5 sm:col-span-2">
+            <div className="space-y-1.5">
               <Label htmlFor="emp-name">
                 Họ tên <span className="text-red-500">*</span>
               </Label>
@@ -423,7 +423,7 @@ export function EmployeesPage() {
                 <p className="text-xs font-medium text-red-500">{errors.allowance}</p>
               ) : null}
             </div>
-            <div className="space-y-1.5 sm:col-span-2">
+            <div className="space-y-1.5">
               <Label htmlFor="emp-phone">Số điện thoại</Label>
               <Input
                 id="emp-phone"

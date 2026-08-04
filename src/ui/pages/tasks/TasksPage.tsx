@@ -194,7 +194,7 @@ export function TasksPage() {
         },
         { responseType: 'blob' },
       )
-      downloadBlob(blob as Blob, `Bao-cao-nhiem-vu-${tab}.xlsx`)
+      downloadBlob(blob as unknown as Blob, `Bao-cao-nhiem-vu-${tab}.xlsx`)
       showSuccess('Xuất Excel thành công!')
     } catch (err) {
       showError(err)

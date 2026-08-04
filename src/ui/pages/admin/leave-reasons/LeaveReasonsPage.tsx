@@ -323,7 +323,7 @@ export function LeaveReasonsPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Chỉnh sửa lý do nghỉ' : 'Thêm lý do nghỉ mới'}</DialogTitle>
             <DialogDescription>
@@ -359,7 +359,7 @@ export function LeaveReasonsPage() {
                 <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
               ) : null}
             </div>
-            <div className="space-y-1.5 sm:col-span-2">
+            <div className="space-y-1.5">
               <Label htmlFor="lr-name">
                 Tên lý do <span className="text-red-500">*</span>
               </Label>

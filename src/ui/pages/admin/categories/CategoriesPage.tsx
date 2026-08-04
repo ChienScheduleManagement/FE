@@ -271,7 +271,7 @@ export function CategoriesPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}</DialogTitle>
             <DialogDescription>

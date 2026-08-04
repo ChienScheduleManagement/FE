@@ -42,7 +42,7 @@ export function SalaryPage() {
           { responseType: 'blob' },
         ).then((res) => {
           // Download blob
-          const blob = res as Blob
+          const blob = res as unknown as Blob
           const url = window.URL.createObjectURL(blob)
           const a = document.createElement('a')
           a.href = url
