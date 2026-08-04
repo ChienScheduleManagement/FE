@@ -15,18 +15,21 @@ interface NavItem {
   activePrefixes?: string[]
 }
 
-const NAV_MAIN: NavItem[] = [
+const NAV_PROGRESS: NavItem[] = [
   { label: 'Tổng quan', to: '/dashboard', icon: 'dashboard' },
-  { label: 'Chấm công', to: '/attendance', icon: 'event_available' },
-  { label: 'Tính lương', to: '/salary', icon: 'payments' },
-  { label: 'Báo cáo', to: '/reports', icon: 'bar_chart' },
   { label: 'Văn bản', to: '/documents', icon: 'description', activePrefixes: ['/documents'] },
   { label: 'Nhiệm vụ', to: '/tasks', icon: 'task_alt', activePrefixes: ['/tasks'] },
 ]
 
-const NAV_ADMIN: NavItem[] = [
-  { label: 'Danh sách cán bộ', to: '/admin/employees', icon: 'badge' },
+const NAV_HR: NavItem[] = [
+  { label: 'Danh sách nhân viên', to: '/admin/employees', icon: 'badge' },
+  { label: 'Chấm công', to: '/attendance', icon: 'event_available' },
+  { label: 'Tính lương', to: '/salary', icon: 'payments' },
+  { label: 'Báo cáo', to: '/reports', icon: 'bar_chart' },
   { label: 'Danh mục lý do nghỉ', to: '/admin/leave-reasons', icon: 'clinical_notes' },
+]
+
+const NAV_ADMIN: NavItem[] = [
   { label: 'Phòng ban', to: '/admin/departments', icon: 'account_balance' },
   { label: 'Danh mục', to: '/admin/categories', icon: 'category' },
   { label: 'Nguồn văn bản', to: '/admin/doc-sources', icon: 'import_contacts' },
@@ -112,10 +115,19 @@ function SidebarContent({
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
         {!collapsed ? (
           <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-            Quản lý
+            Quản lý tiến độ
           </p>
         ) : null}
-        {NAV_MAIN.map((item) => (
+        {NAV_PROGRESS.map((item) => (
+          <NavLink key={item.to} item={item} collapsed={collapsed} onNavigate={onNavigate} />
+        ))}
+
+        {!collapsed ? (
+          <p className="px-3 pb-1 pt-4 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            Quản lý nhân sự
+          </p>
+        ) : null}
+        {NAV_HR.map((item) => (
           <NavLink key={item.to} item={item} collapsed={collapsed} onNavigate={onNavigate} />
         ))}
 

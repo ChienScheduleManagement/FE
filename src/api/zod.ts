@@ -6,6 +6,76 @@
  */
 import * as zod from 'zod';
 
+export const GetAttendanceQueryParams = zod.object({
+  "year": zod.number().optional(),
+  "month": zod.number().optional(),
+  "departmentId": zod.number().optional()
+})
+
+export const GetAttendanceResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const SetAttendanceCellBody = zod.object({
+  "employeeId": zod.uuid().optional(),
+  "date": zod.iso.date().optional(),
+  "leaveReasonId": zod.number().optional(),
+  "note": zod.string().nullish()
+})
+
+export const SetAttendanceCellResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const BulkSetAttendanceBody = zod.object({
+  "items": zod.array(zod.object({
+  "employeeId": zod.uuid().optional(),
+  "date": zod.iso.date().optional(),
+  "leaveReasonId": zod.number().optional(),
+  "note": zod.string().nullish()
+})).optional()
+})
+
+export const BulkSetAttendanceResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetAttendanceHistoryParams = zod.object({
+  "employeeId": zod.uuid()
+})
+
+export const GetAttendanceHistoryQueryParams = zod.object({
+  "year": zod.number().optional(),
+  "month": zod.number().optional()
+})
+
+export const GetAttendanceHistoryResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const ExportAttendancesQueryParams = zod.object({
+  "year": zod.number().optional(),
+  "month": zod.number().optional(),
+  "departmentId": zod.number().optional()
+})
+
+
 export const LoginUserBody = zod.object({
   "username": zod.string().optional(),
   "password": zod.string().optional()
@@ -41,6 +111,270 @@ export const AuthChangePasswordBody = zod.object({
 })
 
 export const AuthChangePasswordResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetCategoriesQueryParams = zod.object({
+  "type": zod.string().optional()
+})
+
+export const GetCategoriesResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const CreateCategoryBody = zod.object({
+  "type": zod.string().optional(),
+  "code": zod.string().optional(),
+  "name": zod.string().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CreateCategoryResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetCategoryByIdParams = zod.object({
+  "id": zod.number()
+})
+
+export const GetCategoryByIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const UpdateCategoryParams = zod.object({
+  "id": zod.number()
+})
+
+export const UpdateCategoryBody = zod.object({
+  "type": zod.string().nullish(),
+  "code": zod.string().nullish(),
+  "name": zod.string().nullish(),
+  "displayOrder": zod.number().optional()
+})
+
+export const UpdateCategoryResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const DeleteCategoryParams = zod.object({
+  "id": zod.number()
+})
+
+export const DeleteCategoryResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const bulkDeleteCategorysBodyRegExpOne = new RegExp('^-?(?:0|[1-9]\\d\*)$');
+export const bulkDeleteCategorysBodyRegExpTwo = new RegExp('^-?(?:0|[1-9]\\d\*)$');
+
+
+export const BulkDeleteCategorysBodyItem = zod.union([zod.number().stringFormat('int32', bulkDeleteCategorysBodyRegExpOne),zod.stringFormat('int32', bulkDeleteCategorysBodyRegExpTwo)])
+export const BulkDeleteCategorysBody = zod.array(BulkDeleteCategorysBodyItem)
+
+export const BulkDeleteCategorysResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetDashboardResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetDepartmentsQueryParams = zod.object({
+  "activeOnly": zod.boolean().optional()
+})
+
+export const GetDepartmentsResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const CreateDepartmentBody = zod.object({
+  "code": zod.string().optional(),
+  "name": zod.string().optional(),
+  "shortName": zod.string().nullish(),
+  "leaderName": zod.string().nullish(),
+  "phoneNumber": zod.string().nullish(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CreateDepartmentResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetDepartmentByIdParams = zod.object({
+  "id": zod.number()
+})
+
+export const GetDepartmentByIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const UpdateDepartmentParams = zod.object({
+  "id": zod.number()
+})
+
+export const UpdateDepartmentBody = zod.object({
+  "code": zod.string().nullish(),
+  "name": zod.string().nullish(),
+  "shortName": zod.string().nullish(),
+  "leaderName": zod.string().nullish(),
+  "phoneNumber": zod.string().nullish(),
+  "displayOrder": zod.number().optional(),
+  "isActive": zod.boolean().nullish()
+})
+
+export const UpdateDepartmentResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const DeleteDepartmentParams = zod.object({
+  "id": zod.number()
+})
+
+export const DeleteDepartmentResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const bulkDeleteDepartmentsBodyRegExpOne = new RegExp('^-?(?:0|[1-9]\\d\*)$');
+export const bulkDeleteDepartmentsBodyRegExpTwo = new RegExp('^-?(?:0|[1-9]\\d\*)$');
+
+
+export const BulkDeleteDepartmentsBodyItem = zod.union([zod.number().stringFormat('int32', bulkDeleteDepartmentsBodyRegExpOne),zod.stringFormat('int32', bulkDeleteDepartmentsBodyRegExpTwo)])
+export const BulkDeleteDepartmentsBody = zod.array(BulkDeleteDepartmentsBodyItem)
+
+export const BulkDeleteDepartmentsResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetDocSourcesResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const CreateDocSourceBody = zod.object({
+  "code": zod.string().optional(),
+  "name": zod.string().optional(),
+  "level": zod.string().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CreateDocSourceResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetDocSourceByIdParams = zod.object({
+  "id": zod.number()
+})
+
+export const GetDocSourceByIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const UpdateDocSourceParams = zod.object({
+  "id": zod.number()
+})
+
+export const UpdateDocSourceBody = zod.object({
+  "code": zod.string().nullish(),
+  "name": zod.string().nullish(),
+  "level": zod.string().nullish(),
+  "displayOrder": zod.number().optional()
+})
+
+export const UpdateDocSourceResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const DeleteDocSourceParams = zod.object({
+  "id": zod.number()
+})
+
+export const DeleteDocSourceResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const bulkDeleteDocSourcesBodyRegExpOne = new RegExp('^-?(?:0|[1-9]\\d\*)$');
+export const bulkDeleteDocSourcesBodyRegExpTwo = new RegExp('^-?(?:0|[1-9]\\d\*)$');
+
+
+export const BulkDeleteDocSourcesBodyItem = zod.union([zod.number().stringFormat('int32', bulkDeleteDocSourcesBodyRegExpOne),zod.stringFormat('int32', bulkDeleteDocSourcesBodyRegExpTwo)])
+export const BulkDeleteDocSourcesBody = zod.array(BulkDeleteDocSourcesBodyItem)
+
+export const BulkDeleteDocSourcesResponse = zod.object({
   "isError": zod.boolean().optional(),
   "data": zod.unknown().optional(),
   "statusCode": zod.number().optional(),
@@ -137,430 +471,6 @@ export const BulkDeleteDocumentsBodyItem = zod.uuid()
 export const BulkDeleteDocumentsBody = zod.array(BulkDeleteDocumentsBodyItem)
 
 export const BulkDeleteDocumentsResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetTasksQueryParams = zod.object({
-  "Keyword": zod.string().optional(),
-  "DepartmentId": zod.number().optional(),
-  "Status": zod.string().optional(),
-  "Tab": zod.string().optional(),
-  "Page": zod.number().optional(),
-  "PageSize": zod.number().optional(),
-  "SortBy": zod.string().optional(),
-  "IsDescending": zod.boolean().optional(),
-  "Query": zod.string().optional(),
-  "Skip": zod.number().optional(),
-  "Take": zod.number().optional()
-})
-
-export const GetTasksResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const CreateTaskBody = zod.object({
-  "documentId": zod.uuid().optional(),
-  "taskCode": zod.string().nullish(),
-  "taskContent": zod.string().optional(),
-  "mainDepartmentId": zod.number().optional(),
-  "coDepartmentIds": zod.string().nullish(),
-  "assigneeName": zod.string().nullish(),
-  "dueDate": zod.iso.datetime({}).nullish(),
-  "initialNote": zod.string().nullish(),
-  "createdBy": zod.string().nullish()
-})
-
-export const CreateTaskResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetTaskByIdParams = zod.object({
-  "id": zod.uuid()
-})
-
-export const GetTaskByIdResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const UpdateTaskParams = zod.object({
-  "id": zod.uuid()
-})
-
-export const UpdateTaskBody = zod.object({
-  "taskContent": zod.string().nullish(),
-  "mainDepartmentId": zod.number().optional(),
-  "coDepartmentIds": zod.string().nullish(),
-  "assigneeName": zod.string().nullish(),
-  "dueDate": zod.iso.datetime({}).nullish(),
-  "status": zod.string().nullish(),
-  "completedDate": zod.iso.date().nullish(),
-  "latestResult": zod.string().nullish()
-})
-
-export const UpdateTaskResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const DeleteTaskParams = zod.object({
-  "id": zod.uuid()
-})
-
-export const DeleteTaskResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const CompleteTaskByIdParams = zod.object({
-  "id": zod.uuid()
-})
-
-export const CompleteTaskByIdBody = zod.object({
-  "latestResult": zod.string().nullish(),
-  "completedDate": zod.iso.date().nullish()
-})
-
-export const CompleteTaskByIdResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const BulkDeleteTasksBodyItem = zod.uuid()
-export const BulkDeleteTasksBody = zod.array(BulkDeleteTasksBodyItem)
-
-export const BulkDeleteTasksResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const ExportTasksQueryParams = zod.object({
-  "DepartmentId": zod.number().optional(),
-  "Tab": zod.string().optional(),
-  "Keyword": zod.string().optional()
-})
-
-export const ExportTasksResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetTaskLogsParams = zod.object({
-  "taskId": zod.uuid()
-})
-
-export const GetTaskLogsResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const CreateTaskLogParams = zod.object({
-  "taskId": zod.uuid()
-})
-
-export const CreateTaskLogBody = zod.object({
-  "progressNote": zod.string().optional(),
-  "updatedBy": zod.string().nullish()
-})
-
-export const CreateTaskLogResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetDashboardResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetDocSourcesResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const CreateDocSourceBody = zod.object({
-  "code": zod.string().optional(),
-  "name": zod.string().optional(),
-  "level": zod.string().optional(),
-  "displayOrder": zod.number().optional()
-})
-
-export const CreateDocSourceResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetDocSourceByIdParams = zod.object({
-  "id": zod.number()
-})
-
-export const GetDocSourceByIdResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const UpdateDocSourceParams = zod.object({
-  "id": zod.number()
-})
-
-export const UpdateDocSourceBody = zod.object({
-  "code": zod.string().nullish(),
-  "name": zod.string().nullish(),
-  "level": zod.string().nullish(),
-  "displayOrder": zod.number().optional()
-})
-
-export const UpdateDocSourceResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const DeleteDocSourceParams = zod.object({
-  "id": zod.number()
-})
-
-export const DeleteDocSourceResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const bulkDeleteDocSourcesBodyRegExpOne = new RegExp('^-?(?:0|[1-9]\\d\*)$');
-export const bulkDeleteDocSourcesBodyRegExpTwo = new RegExp('^-?(?:0|[1-9]\\d\*)$');
-
-
-export const BulkDeleteDocSourcesBodyItem = zod.union([zod.number().stringFormat('int32', bulkDeleteDocSourcesBodyRegExpOne),zod.stringFormat('int32', bulkDeleteDocSourcesBodyRegExpTwo)])
-export const BulkDeleteDocSourcesBody = zod.array(BulkDeleteDocSourcesBodyItem)
-
-export const BulkDeleteDocSourcesResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetCategoriesQueryParams = zod.object({
-  "type": zod.string().optional()
-})
-
-export const GetCategoriesResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const CreateCategoryBody = zod.object({
-  "type": zod.string().optional(),
-  "code": zod.string().optional(),
-  "name": zod.string().optional(),
-  "displayOrder": zod.number().optional()
-})
-
-export const CreateCategoryResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetCategoryByIdParams = zod.object({
-  "id": zod.number()
-})
-
-export const GetCategoryByIdResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const UpdateCategoryParams = zod.object({
-  "id": zod.number()
-})
-
-export const UpdateCategoryBody = zod.object({
-  "type": zod.string().nullish(),
-  "code": zod.string().nullish(),
-  "name": zod.string().nullish(),
-  "displayOrder": zod.number().optional()
-})
-
-export const UpdateCategoryResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const DeleteCategoryParams = zod.object({
-  "id": zod.number()
-})
-
-export const DeleteCategoryResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const bulkDeleteCategorysBodyRegExpOne = new RegExp('^-?(?:0|[1-9]\\d\*)$');
-export const bulkDeleteCategorysBodyRegExpTwo = new RegExp('^-?(?:0|[1-9]\\d\*)$');
-
-
-export const BulkDeleteCategorysBodyItem = zod.union([zod.number().stringFormat('int32', bulkDeleteCategorysBodyRegExpOne),zod.stringFormat('int32', bulkDeleteCategorysBodyRegExpTwo)])
-export const BulkDeleteCategorysBody = zod.array(BulkDeleteCategorysBodyItem)
-
-export const BulkDeleteCategorysResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetDepartmentsQueryParams = zod.object({
-  "activeOnly": zod.boolean().optional()
-})
-
-export const GetDepartmentsResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const CreateDepartmentBody = zod.object({
-  "code": zod.string().optional(),
-  "name": zod.string().optional(),
-  "shortName": zod.string().nullish(),
-  "leaderName": zod.string().nullish(),
-  "phoneNumber": zod.string().nullish(),
-  "displayOrder": zod.number().optional()
-})
-
-export const CreateDepartmentResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetDepartmentByIdParams = zod.object({
-  "id": zod.number()
-})
-
-export const GetDepartmentByIdResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const UpdateDepartmentParams = zod.object({
-  "id": zod.number()
-})
-
-export const UpdateDepartmentBody = zod.object({
-  "code": zod.string().nullish(),
-  "name": zod.string().nullish(),
-  "shortName": zod.string().nullish(),
-  "leaderName": zod.string().nullish(),
-  "phoneNumber": zod.string().nullish(),
-  "displayOrder": zod.number().optional(),
-  "isActive": zod.boolean().nullish()
-})
-
-export const UpdateDepartmentResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const DeleteDepartmentParams = zod.object({
-  "id": zod.number()
-})
-
-export const DeleteDepartmentResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const bulkDeleteDepartmentsBodyRegExpOne = new RegExp('^-?(?:0|[1-9]\\d\*)$');
-export const bulkDeleteDepartmentsBodyRegExpTwo = new RegExp('^-?(?:0|[1-9]\\d\*)$');
-
-
-export const BulkDeleteDepartmentsBodyItem = zod.union([zod.number().stringFormat('int32', bulkDeleteDepartmentsBodyRegExpOne),zod.stringFormat('int32', bulkDeleteDepartmentsBodyRegExpTwo)])
-export const BulkDeleteDepartmentsBody = zod.array(BulkDeleteDepartmentsBodyItem)
-
-export const BulkDeleteDepartmentsResponse = zod.object({
   "isError": zod.boolean().optional(),
   "data": zod.unknown().optional(),
   "statusCode": zod.number().optional(),
@@ -769,69 +679,6 @@ export const BulkDeleteLeaveReasonsResponse = zod.object({
 })
 
 
-export const GetAttendanceQueryParams = zod.object({
-  "year": zod.number().optional(),
-  "month": zod.number().optional(),
-  "departmentId": zod.number().optional()
-})
-
-export const GetAttendanceResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const SetAttendanceCellBody = zod.object({
-  "employeeId": zod.uuid().optional(),
-  "date": zod.iso.date().optional(),
-  "leaveReasonId": zod.number().optional(),
-  "note": zod.string().nullish()
-})
-
-export const SetAttendanceCellResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const BulkSetAttendanceBody = zod.object({
-  "items": zod.array(zod.object({
-  "employeeId": zod.uuid().optional(),
-  "date": zod.iso.date().optional(),
-  "leaveReasonId": zod.number().optional(),
-  "note": zod.string().nullish()
-})).optional()
-})
-
-export const BulkSetAttendanceResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
-export const GetAttendanceHistoryParams = zod.object({
-  "employeeId": zod.uuid()
-})
-
-export const GetAttendanceHistoryQueryParams = zod.object({
-  "year": zod.number().optional(),
-  "month": zod.number().optional()
-})
-
-export const GetAttendanceHistoryResponse = zod.object({
-  "isError": zod.boolean().optional(),
-  "data": zod.unknown().optional(),
-  "statusCode": zod.number().optional(),
-  "errorMessage": zod.string().nullish()
-})
-
-
 export const GetSalaryQueryParams = zod.object({
   "Year": zod.number().optional(),
   "Month": zod.number().optional(),
@@ -852,9 +699,155 @@ export const ExportSalaryQueryParams = zod.object({
   "DepartmentId": zod.number().optional()
 })
 
-export const ExportSalaryResponse = zod.object({
+
+export const GetTaskLogsParams = zod.object({
+  "taskId": zod.uuid()
+})
+
+export const GetTaskLogsResponse = zod.object({
   "isError": zod.boolean().optional(),
   "data": zod.unknown().optional(),
   "statusCode": zod.number().optional(),
   "errorMessage": zod.string().nullish()
+})
+
+
+export const CreateTaskLogParams = zod.object({
+  "taskId": zod.uuid()
+})
+
+export const CreateTaskLogBody = zod.object({
+  "progressNote": zod.string().optional(),
+  "updatedBy": zod.string().nullish()
+})
+
+export const CreateTaskLogResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetTasksQueryParams = zod.object({
+  "Keyword": zod.string().optional(),
+  "DepartmentId": zod.number().optional(),
+  "Status": zod.string().optional(),
+  "Tab": zod.string().optional(),
+  "Page": zod.number().optional(),
+  "PageSize": zod.number().optional(),
+  "SortBy": zod.string().optional(),
+  "IsDescending": zod.boolean().optional(),
+  "Query": zod.string().optional(),
+  "Skip": zod.number().optional(),
+  "Take": zod.number().optional()
+})
+
+export const GetTasksResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const CreateTaskBody = zod.object({
+  "documentId": zod.uuid().optional(),
+  "taskCode": zod.string().nullish(),
+  "taskContent": zod.string().optional(),
+  "mainDepartmentId": zod.number().optional(),
+  "coDepartmentIds": zod.string().nullish(),
+  "assigneeName": zod.string().nullish(),
+  "dueDate": zod.iso.datetime({}).nullish(),
+  "initialNote": zod.string().nullish(),
+  "createdBy": zod.string().nullish()
+})
+
+export const CreateTaskResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetTaskByIdParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const GetTaskByIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const UpdateTaskParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const UpdateTaskBody = zod.object({
+  "taskContent": zod.string().nullish(),
+  "mainDepartmentId": zod.number().optional(),
+  "coDepartmentIds": zod.string().nullish(),
+  "assigneeName": zod.string().nullish(),
+  "dueDate": zod.iso.datetime({}).nullish(),
+  "status": zod.string().nullish(),
+  "completedDate": zod.iso.date().nullish(),
+  "latestResult": zod.string().nullish()
+})
+
+export const UpdateTaskResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const DeleteTaskParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const DeleteTaskResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const CompleteTaskByIdParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const CompleteTaskByIdBody = zod.object({
+  "latestResult": zod.string().nullish(),
+  "completedDate": zod.iso.date().nullish()
+})
+
+export const CompleteTaskByIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const BulkDeleteTasksBodyItem = zod.uuid()
+export const BulkDeleteTasksBody = zod.array(BulkDeleteTasksBodyItem)
+
+export const BulkDeleteTasksResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const ExportTasksQueryParams = zod.object({
+  "DepartmentId": zod.number().optional(),
+  "Tab": zod.string().optional(),
+  "Keyword": zod.string().optional()
 })

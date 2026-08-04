@@ -16,6 +16,7 @@ export * from './createEmployeeRequest';
 export * from './createLeaveReasonRequest';
 export * from './createTaskLogRequest';
 export * from './createTaskRequest';
+export * from './exportAttendancesParams';
 export * from './exportSalaryParams';
 export * from './exportTasksParams';
 export * from './getAttendanceHistoryParams';
