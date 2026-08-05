@@ -347,64 +347,6 @@ export function AttendancePage() {
           }
         />
 
-        {/* Legend bar */}
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm text-xs font-semibold">
-          <span className="text-muted-foreground">Chú giải:</span>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
-            <span>✓</span>
-            <span>Có mặt</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-            <span className="material-symbols-outlined text-xs">star</span>
-            <span>Đi trực ngày nghỉ (+1 công)</span>
-          </div>
-          {reasons.map((r) => (
-            <div
-              key={r.id}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-slate-900 dark:text-slate-100"
-              style={{ backgroundColor: `${r.color}25` }}
-            >
-              <span className="font-bold" style={{ color: r.color || undefined }}>
-                {r.symbol}
-              </span>
-              <span>{r.name}</span>
-            </div>
-          ))}
-          <div className="ml-auto flex items-center gap-2">
-            {isCurrentMonth ? (
-              <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs">
-                <button
-                  type="button"
-                  className={cn(
-                    'px-3 py-1.5 font-bold transition-colors',
-                    !showFullMonth
-                      ? 'bg-primary text-white'
-                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  )}
-                  onClick={() => setShowFullMonth(false)}
-                >
-                  Hôm nay
-                </button>
-                <button
-                  type="button"
-                  className={cn(
-                    'px-3 py-1.5 font-bold transition-colors',
-                    showFullMonth
-                      ? 'bg-primary text-white'
-                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  )}
-                  onClick={() => setShowFullMonth(true)}
-                >
-                  Cả tháng
-                </button>
-              </div>
-            ) : null}
-<span className="text-muted-foreground italic">
-                Kéo chuột chọn nhiều ô • chuột phải menu nhanh • ESC bỏ chọn
-              </span>
-          </div>
-        </div>
-
         {/* Bulk action bar - hiển thị khi có ô được chọn */}
         {selectedCells.length > 0 ? (
           <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-primary/30 bg-primary/5 p-2.5 shadow-sm animate-in slide-in-from-top-2">
@@ -809,10 +751,68 @@ export function AttendancePage() {
               </div>
             </div>
           ) : null}
-        </div>
-      </div>
+         </div>
 
-      {/* Right Click Context Menu for Bulk Actions */}
+         {/* Legend bar — dưới grid */}
+         <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm text-xs font-semibold">
+           <span className="text-muted-foreground">Chú giải:</span>
+           <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+             <span>✓</span>
+             <span>Có mặt</span>
+           </div>
+           <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+             <span className="material-symbols-outlined text-xs">star</span>
+             <span>Đi trực ngày nghỉ (+1 công)</span>
+           </div>
+           {reasons.map((r) => (
+             <div
+               key={r.id}
+               className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-slate-900 dark:text-slate-100"
+               style={{ backgroundColor: `${r.color}25` }}
+             >
+               <span className="font-bold" style={{ color: r.color || undefined }}>
+                 {r.symbol}
+               </span>
+               <span>{r.name}</span>
+             </div>
+           ))}
+           <div className="ml-auto flex items-center gap-2">
+             {isCurrentMonth ? (
+               <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs">
+                 <button
+                   type="button"
+                   className={cn(
+                     'px-3 py-1.5 font-bold transition-colors',
+                     !showFullMonth
+                       ? 'bg-primary text-white'
+                       : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                   )}
+                   onClick={() => setShowFullMonth(false)}
+                 >
+                   Hôm nay
+                 </button>
+                 <button
+                   type="button"
+                   className={cn(
+                     'px-3 py-1.5 font-bold transition-colors',
+                     showFullMonth
+                       ? 'bg-primary text-white'
+                       : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                   )}
+                   onClick={() => setShowFullMonth(true)}
+                 >
+                   Cả tháng
+                 </button>
+               </div>
+             ) : null}
+             <span className="text-muted-foreground italic">
+               Kéo chuột chọn nhiều ô • chuột phải menu nhanh • ESC bỏ chọn
+             </span>
+           </div>
+         </div>
+       </div>
+
+       {/* Right Click Context Menu for Bulk Actions */}
       {contextMenu ? (
         <div
           className="fixed z-50 bg-popover border shadow-lg rounded-xl p-1.5 w-48 text-xs font-semibold space-y-1 animate-in fade-in-0 zoom-in-95"
