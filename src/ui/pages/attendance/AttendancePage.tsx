@@ -376,38 +376,35 @@ export function AttendancePage() {
             </div>
             <div className="h-6 w-px bg-slate-300 dark:bg-slate-700" />
             <Button
-              size="sm"
               variant="outline"
-              className="h-9 rounded-xl px-3 font-bold gap-1.5 text-emerald-700 border-emerald-300 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950"
+              className="h-10 rounded-xl px-4 font-bold gap-2 text-emerald-700 border-emerald-300 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950"
               onClick={() => handleBulkSetReason(null)}
             >
-              <span className="text-emerald-600 font-black">✓</span>
+              <span className="text-emerald-600 font-black text-base">✓</span>
               Có mặt
             </Button>
             {reasons.map((r) => (
               <Button
                 key={r.id}
-                size="sm"
                 variant="outline"
-                className="h-9 rounded-xl px-3 font-bold gap-1.5 text-slate-700 border-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800"
+                className="h-10 rounded-xl px-4 font-bold gap-2 text-sm text-slate-700 border-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800"
                 onClick={() => handleBulkSetReason(r.id)}
               >
-                <span className="font-black" style={{ color: r.color || undefined }}>
+                <span className="font-black text-base" style={{ color: r.color || undefined }}>
                   {r.symbol}
                 </span>
                 {r.name}
               </Button>
             ))}
             <div className="flex-1" />
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-9 rounded-xl px-3 font-bold text-slate-500 hover:text-slate-800 gap-1"
-              onClick={() => setSelectedCells([])}
-            >
-              <span className="material-symbols-outlined text-[18px]">close</span>
-              Bỏ chọn
-            </Button>
+             <Button
+               variant="ghost"
+               className="h-10 rounded-xl px-4 font-bold text-slate-500 hover:text-slate-800 gap-2"
+               onClick={() => setSelectedCells([])}
+             >
+               <span className="material-symbols-outlined text-lg">close</span>
+               Bỏ chọn
+             </Button>
           </div>
         ) : null}
 
@@ -425,10 +422,10 @@ export function AttendancePage() {
           {reasons.map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-slate-900 dark:text-slate-100"
-              style={{ backgroundColor: `${r.color}25` }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100"
+              style={{ backgroundColor: `${r.color}40` }}
             >
-              <span className="font-bold" style={{ color: r.color || undefined }}>
+              <span className="font-black text-base" style={{ color: r.color || undefined }}>
                 {r.symbol}
               </span>
               <span>{r.name}</span>
@@ -487,10 +484,10 @@ export function AttendancePage() {
           <div className={cn('rounded-2xl border bg-card shadow-sm overflow-hidden transition-all', selectedEmp ? 'lg:col-span-8 xl:col-span-9' : 'lg:col-span-12')}>
             <div
               key={`${year}-${month}-${showTodayOnly ? 'today' : 'full'}`}
-              className={cn(
-                'overflow-auto max-h-[75vh] scrollbar-thin animate-in duration-300',
-                navDir.current === 1 ? 'slide-in-from-right-8 fade-in' : 'slide-in-from-left-8 fade-in',
-              )}
+               className={cn(
+                 'animate-in duration-300',
+                 navDir.current === 1 ? 'slide-in-from-right-8 fade-in' : 'slide-in-from-left-8 fade-in',
+               )}
             >
               <table className="w-full text-xs border-collapse" onContextMenu={handleContextMenu}>
                 <thead>
@@ -629,28 +626,28 @@ export function AttendancePage() {
                                           onClick={(e) => handleCellClick(emp.employeeId, dateStr, day.leaveReasonId, day.note, e)}
                                         >
                                           {reason ? (
-                                            <span
-                                              className="px-1 py-0.5 rounded text-[11px]"
-                                              style={{
-                                                backgroundColor: `${reason.color}30`,
-                                                color: reason.color || undefined,
-                                              }}
-                                            >
-                                              {reason.symbol}
-                                            </span>
+                                           <span
+                                             className="px-1.5 py-0.5 rounded text-xs"
+                                             style={{
+                                               backgroundColor: `${reason.color}55`,
+                                               color: reason.color || undefined,
+                                             }}
+                                           >
+                                             {reason.symbol}
+                                           </span>
                                           ) : isTruc ? (
-                                            <span
-                                              className="material-symbols-outlined text-[13px] text-amber-500"
-                                              style={{ fontSize: 14 }}
-                                            >
-                                              star
-                                            </span>
+                                           <span
+                                             className="material-symbols-outlined text-amber-500 font-bold"
+                                             style={{ fontSize: 18 }}
+                                           >
+                                             star
+                                           </span>
                                           ) : day.isDayOff ? (
-                                            <span className="text-[10px] font-semibold text-slate-300 dark:text-slate-600">
-                                              —
-                                            </span>
+                                           <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-700/50 rounded px-1">
+                                             —
+                                           </span>
                                           ) : (
-                                            <span className="text-emerald-600 dark:text-emerald-400">✓</span>
+                                            <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">✓</span>
                                           )}
                                         </button>
                                       </PopoverTrigger>
@@ -672,35 +669,33 @@ export function AttendancePage() {
                                     ) : null}
 
                                     <div className="grid grid-cols-2 gap-1.5">
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className={cn(
-                                          'h-8 text-xs justify-start gap-1.5',
-                                          !activeCell?.leaveReasonId && 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                                        )}
-                                        onClick={() => handleSaveCell(null)}
-                                      >
-                                        <span className="text-emerald-600 font-bold">✓</span>
-                                        <span>Có mặt</span>
-                                      </Button>
-                                      {reasons.map((r) => (
-                                        <Button
-                                          key={r.id}
-                                          size="sm"
-                                          variant="outline"
-                                          className={cn(
-                                            'h-8 text-xs justify-start gap-1.5 truncate',
-                                            activeCell?.leaveReasonId === r.id && 'border-primary bg-primary/10'
-                                          )}
-                                          onClick={() => handleSaveCell(r.id)}
-                                        >
-                                          <span className="font-bold" style={{ color: r.color || undefined }}>
-                                            {r.symbol}
-                                          </span>
-                                          <span className="truncate">{r.name}</span>
-                                        </Button>
-                                      ))}
+                                       <Button
+                                         variant="outline"
+                                         className={cn(
+                                           'h-10 text-sm justify-start gap-2 font-bold',
+                                           !activeCell?.leaveReasonId && 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                                         )}
+                                         onClick={() => handleSaveCell(null)}
+                                       >
+                                         <span className="text-emerald-600 font-black text-base">✓</span>
+                                         <span>Có mặt</span>
+                                       </Button>
+                                       {reasons.map((r) => (
+                                         <Button
+                                           key={r.id}
+                                           variant="outline"
+                                           className={cn(
+                                             'h-9 text-sm justify-start gap-2 font-bold truncate',
+                                             activeCell?.leaveReasonId === r.id && 'border-primary bg-primary/10'
+                                           )}
+                                           onClick={() => handleSaveCell(r.id)}
+                                         >
+                                           <span className="font-black text-base" style={{ color: r.color || undefined }}>
+                                             {r.symbol}
+                                           </span>
+                                           <span className="truncate">{r.name}</span>
+                                         </Button>
+                                       ))}
                                     </div>
 
                                     <div className="space-y-1">
@@ -852,22 +847,22 @@ export function AttendancePage() {
         <div className="px-2 py-1 text-[10px] text-muted-foreground border-b font-mono">
             Đã chọn {selectedCells.length} ô
           </div>
-          <button
-            type="button"
-            className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-emerald-50 text-emerald-700 dark:hover:bg-emerald-950 flex items-center gap-1.5"
-            onClick={() => handleBulkSetReason(null)}
-          >
-            <span>✓</span>
-            <span>Đặt Có mặt</span>
-          </button>
+           <button
+             type="button"
+             className="w-full text-left px-3 py-2 rounded-lg hover:bg-emerald-50 text-emerald-700 dark:hover:bg-emerald-950 flex items-center gap-2 truncate text-sm font-semibold"
+             onClick={() => handleBulkSetReason(null)}
+           >
+             <span className="text-emerald-600 font-black text-base">✓</span>
+             <span>Đặt Có mặt</span>
+           </button>
           {reasons.map((r) => (
             <button
               key={r.id}
               type="button"
-              className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-accent flex items-center gap-1.5 truncate"
+              className="w-full text-left px-3 py-2 rounded-lg hover:bg-accent flex items-center gap-2 truncate text-sm font-semibold"
               onClick={() => handleBulkSetReason(r.id)}
             >
-              <span className="font-bold" style={{ color: r.color || undefined }}>
+              <span className="font-black text-base" style={{ color: r.color || undefined }}>
                 {r.symbol}
               </span>
               <span className="truncate">Đặt {r.name}</span>
