@@ -138,6 +138,7 @@ export interface EmployeeVm {
   phoneNumber?: string | null
   avatarUrl?: string | null
   isActive: boolean
+  displayOrder: number
   joinDate?: string | null
   createdAt: string
 }
@@ -166,6 +167,26 @@ export interface AttendanceDayVm {
   date: string
   leaveReasonId?: number | null
   note?: string | null
+  hasRecord: boolean
+  isDayOff: boolean
+  dayOffSymbol?: string | null
+  dayOffColor?: string | null
+  dayOffName?: string | null
+}
+
+export interface DayOffVm {
+  id: number
+  name: string
+  symbol?: string | null
+  color?: string | null
+  recurringType: number
+  date?: string | null
+  yearlyMonth?: number | null
+  yearlyDay?: number | null
+  weekDay?: number | null
+  isActive: boolean
+  displayOrder: number
+  createdAt: string
 }
 
 export interface AttendanceEmployeeVm {

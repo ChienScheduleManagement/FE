@@ -19,6 +19,7 @@ export interface CreateEmployeeRequest {
   phoneNumber?: string | null;
   /** @nullable */
   avatarUrl?: string | null;
+  displayOrder?: number;
   /** @nullable */
   joinDate?: string | null;
 }

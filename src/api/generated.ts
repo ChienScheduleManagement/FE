@@ -28,6 +28,7 @@ import type {
   ChangePasswordRequest,
   CompleteTaskRequest,
   CreateCategoryRequest,
+  CreateDayOffRequest,
   CreateDepartmentRequest,
   CreateDocSourceRequest,
   CreateDocumentRequest,
@@ -51,6 +52,7 @@ import type {
   Result,
   SetAttendanceCellRequest,
   UpdateCategoryRequest,
+  UpdateDayOffRequest,
   UpdateDepartmentRequest,
   UpdateDocSourceRequest,
   UpdateDocumentRequest,
@@ -1161,6 +1163,349 @@ export function useGetDashboard<TData = Awaited<ReturnType<typeof getDashboard>>
 
 
 
+export const getDayOffs = (
+    
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/day-offs`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetDayOffsQueryKey = () => {
+    return [
+    `/api/day-offs`
+    ] as const;
+    }
+
+    
+export const getGetDayOffsQueryOptions = <TData = Awaited<ReturnType<typeof getDayOffs>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffs>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDayOffsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDayOffs>>> = ({ signal }) => getDayOffs(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDayOffs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDayOffsQueryResult = NonNullable<Awaited<ReturnType<typeof getDayOffs>>>
+export type GetDayOffsQueryError = unknown
+
+
+export function useGetDayOffs<TData = Awaited<ReturnType<typeof getDayOffs>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffs>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDayOffs>>,
+          TError,
+          Awaited<ReturnType<typeof getDayOffs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDayOffs<TData = Awaited<ReturnType<typeof getDayOffs>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffs>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDayOffs>>,
+          TError,
+          Awaited<ReturnType<typeof getDayOffs>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDayOffs<TData = Awaited<ReturnType<typeof getDayOffs>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffs>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDayOffs<TData = Awaited<ReturnType<typeof getDayOffs>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffs>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDayOffsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const createDayOff = (
+    createDayOffRequest: CreateDayOffRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/day-offs`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createDayOffRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getCreateDayOffMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDayOff>>, TError,{data: CreateDayOffRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof createDayOff>>, TError,{data: CreateDayOffRequest}, TContext> => {
+
+const mutationKey = ['createDayOff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createDayOff>>, {data: CreateDayOffRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createDayOff(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateDayOffMutationResult = NonNullable<Awaited<ReturnType<typeof createDayOff>>>
+    export type CreateDayOffMutationBody = CreateDayOffRequest
+    export type CreateDayOffMutationError = unknown
+
+    export const useCreateDayOff = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createDayOff>>, TError,{data: CreateDayOffRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createDayOff>>,
+        TError,
+        {data: CreateDayOffRequest},
+        TContext
+      > => {
+      return useMutation(getCreateDayOffMutationOptions(options), queryClient);
+    }
+    
+export const getDayOffById = (
+    id: number,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/day-offs/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetDayOffByIdQueryKey = (id: number,) => {
+    return [
+    `/api/day-offs/${id}`
+    ] as const;
+    }
+
+    
+export const getGetDayOffByIdQueryOptions = <TData = Awaited<ReturnType<typeof getDayOffById>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDayOffByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDayOffById>>> = ({ signal }) => getDayOffById(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDayOffById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetDayOffByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getDayOffById>>>
+export type GetDayOffByIdQueryError = unknown
+
+
+export function useGetDayOffById<TData = Awaited<ReturnType<typeof getDayOffById>>, TError = unknown>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDayOffById>>,
+          TError,
+          Awaited<ReturnType<typeof getDayOffById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDayOffById<TData = Awaited<ReturnType<typeof getDayOffById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getDayOffById>>,
+          TError,
+          Awaited<ReturnType<typeof getDayOffById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetDayOffById<TData = Awaited<ReturnType<typeof getDayOffById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetDayOffById<TData = Awaited<ReturnType<typeof getDayOffById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDayOffById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetDayOffByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const updateDayOff = (
+    id: number,
+    updateDayOffRequest: UpdateDayOffRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/day-offs/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateDayOffRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getUpdateDayOffMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDayOff>>, TError,{id: number;data: UpdateDayOffRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDayOff>>, TError,{id: number;data: UpdateDayOffRequest}, TContext> => {
+
+const mutationKey = ['updateDayOff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDayOff>>, {id: number;data: UpdateDayOffRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateDayOff(id,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDayOffMutationResult = NonNullable<Awaited<ReturnType<typeof updateDayOff>>>
+    export type UpdateDayOffMutationBody = UpdateDayOffRequest
+    export type UpdateDayOffMutationError = unknown
+
+    export const useUpdateDayOff = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDayOff>>, TError,{id: number;data: UpdateDayOffRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateDayOff>>,
+        TError,
+        {id: number;data: UpdateDayOffRequest},
+        TContext
+      > => {
+      return useMutation(getUpdateDayOffMutationOptions(options), queryClient);
+    }
+    
+export const deleteDayOff = (
+    id: number,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/day-offs/${id}`, method: 'DELETE', signal
+    },
+      options);
+    }
+  
+
+
+export const getDeleteDayOffMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDayOff>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDayOff>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteDayOff'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDayOff>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteDayOff(id,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDayOffMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDayOff>>>
+    
+    export type DeleteDayOffMutationError = unknown
+
+    export const useDeleteDayOff = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDayOff>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDayOff>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteDayOffMutationOptions(options), queryClient);
+    }
+    
 export const getDepartments = (
     params?: GetDepartmentsParams,
  options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal

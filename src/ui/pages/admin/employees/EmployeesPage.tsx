@@ -36,6 +36,7 @@ interface FormValues {
   allowance: string
   phoneNumber: string
   avatarUrl: string
+  displayOrder: string
   joinDate: string
 }
 
@@ -48,6 +49,7 @@ const EMPTY_FORM: FormValues = {
   allowance: '',
   phoneNumber: '',
   avatarUrl: '',
+  displayOrder: '0',
   joinDate: '',
 }
 
@@ -193,6 +195,7 @@ export function EmployeesPage() {
       allowance: String(emp.allowance),
       phoneNumber: emp.phoneNumber ?? '',
       avatarUrl: emp.avatarUrl ?? '',
+      displayOrder: String(emp.displayOrder ?? 0),
       joinDate: emp.joinDate ? emp.joinDate.split('T')[0] : '',
     })
     setErrors({})
@@ -210,9 +213,11 @@ export function EmployeesPage() {
     if (!form.fullName.trim()) nextErrors.fullName = 'Họ tên không được để trống.'
     if (!form.departmentId) nextErrors.departmentId = 'Đơn vị công tác không được để trống.'
     const baseSalary = Number(form.baseSalary)
-    if (isNaN(baseSalary) || baseSalary < 0) nextErrors.baseSalary = 'Lương cơ bản không được âm.'
+    if (Number.isNaN(baseSalary) || baseSalary < 0) nextErrors.baseSalary = 'Lương cơ bản không được âm.'
     const allowance = Number(form.allowance)
-    if (isNaN(allowance) || allowance < 0) nextErrors.allowance = 'Phụ cấp không được âm.'
+    if (Number.isNaN(allowance) || allowance < 0) nextErrors.allowance = 'Phụ cấp không được âm.'
+    const displayOrder = Number(form.displayOrder)
+    if (Number.isNaN(displayOrder) || displayOrder < 0) nextErrors.displayOrder = 'Thứ tự hiển thị không được âm.'
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)
       return
@@ -229,6 +234,7 @@ export function EmployeesPage() {
         allowance,
         phoneNumber: form.phoneNumber || null,
         avatarUrl: form.avatarUrl || null,
+        displayOrder,
         joinDate: form.joinDate || null,
       }
       if (editing) {
@@ -431,6 +437,19 @@ export function EmployeesPage() {
                 value={form.phoneNumber}
                 onChange={(e) => setField('phoneNumber', e.target.value)}
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="emp-display-order">Thứ tự hiển thị</Label>
+              <Input
+                id="emp-display-order"
+                type="number"
+                min={0}
+                value={form.displayOrder}
+                onChange={(e) => setField('displayOrder', e.target.value)}
+              />
+              {errors.displayOrder ? (
+                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
+              ) : null}
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="emp-avatar">Ảnh đại diện (URL)</Label>

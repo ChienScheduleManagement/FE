@@ -29,6 +29,7 @@ export interface UpdateEmployeeRequest {
   avatarUrl?: string | null;
   /** @nullable */
   isActive?: boolean | null;
+  displayOrder?: number;
   /** @nullable */
   joinDate?: string | null;
 }

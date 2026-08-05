@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -32,12 +32,15 @@ interface SelectedCell {
   date: string
 }
 
+const WEEKDAY_LABELS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
+
 export function AttendancePage() {
   const queryClient = useQueryClient()
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [departmentId, setDepartmentId] = useState<string>('all')
+  const [showFullMonth, setShowFullMonth] = useState(false)
 
   // Selected employee for right panel
   const [selectedEmp, setSelectedEmp] = useState<AttendanceEmployeeVm | null>(null)
@@ -45,9 +48,13 @@ export function AttendancePage() {
   // Multi-cell selection
   const [selectedCells, setSelectedCells] = useState<SelectedCell[]>([])
   const [isMouseDown, setIsMouseDown] = useState(false)
+  const mouseDownPos = useRef<{ x: number; y: number } | null>(null)
 
   // Context menu position
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+
+  // Direction for month-nav animation
+  const navDir = useRef(0)
 
   // Active popover cell
   const [activeCell, setActiveCell] = useState<{
@@ -89,6 +96,19 @@ export function AttendancePage() {
   const history = historyRaw ? unwrapApiResponse<AttendanceChangeVm[]>(historyRaw) : []
 
   const daysInMonth = gridData?.daysInMonth ?? new Date(year, month, 0).getDate()
+  const todayStr = `${year}-${String(month).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1
+  const showTodayOnly = isCurrentMonth && !showFullMonth
+  const visibleDays = showTodayOnly
+    ? [now.getDate()]
+    : Array.from({ length: daysInMonth }, (_, i) => i + 1)
+
+  // Day-off info theo ngày (rules là chung cho đơn vị nên giống nhau mọi nhân viên)
+  const firstEmpDays = gridData?.employees[0]?.days ?? []
+  const dayOffInfo = (dateStr: string) => {
+    const d = firstEmpDays.find((x) => x.date === dateStr)
+    return d?.isDayOff ? { symbol: d.dayOffSymbol, color: d.dayOffColor, name: d.dayOffName } : null
+  }
 
   // Invalidate attendance query
   const invalidateGrid = () => {
@@ -98,8 +118,28 @@ export function AttendancePage() {
     }
   }
 
+  // Month navigation
+  const changeMonth = (delta: number) => {
+    navDir.current = delta
+    const d = new Date(year, month - 1 + delta, 1)
+    setYear(d.getFullYear())
+    setMonth(d.getMonth() + 1)
+    setShowFullMonth(false)
+  }
+
   // Handle cell click (single popover)
-  const handleCellClick = (employeeId: string, date: string, leaveReasonId?: number | null, note?: string | null) => {
+  const handleCellClick = (
+    employeeId: string,
+    date: string,
+    leaveReasonId?: number | null,
+    note?: string | null,
+    e?: React.MouseEvent,
+  ) => {
+    if (e?.ctrlKey || e?.metaKey) return
+    const start = mouseDownPos.current
+    if (start && (Math.abs(e!.clientX - start.x) > 4 || Math.abs(e!.clientY - start.y) > 4)) return // là kéo chuột, không phải click
+    mouseDownPos.current = null
+    setSelectedCells([])
     setActiveCell({ employeeId, date, leaveReasonId, note: note ?? '' })
     setCellNote(note ?? '')
   }
@@ -124,6 +164,7 @@ export function AttendancePage() {
   // Mouse handlers for drag select
   const handleCellMouseDown = (employeeId: string, date: string, e: React.MouseEvent) => {
     if (e.button !== 0) return // Left click only
+    mouseDownPos.current = { x: e.clientX, y: e.clientY }
     setIsMouseDown(true)
     if (e.ctrlKey || e.metaKey) {
       setSelectedCells((prev) => {
@@ -150,6 +191,14 @@ export function AttendancePage() {
     window.addEventListener('mouseup', handleMouseUp)
     return () => window.removeEventListener('mouseup', handleMouseUp)
   }, [])
+
+  // Đóng menu chuột phải khi click ra ngoài
+  useEffect(() => {
+    if (!contextMenu) return
+    const handleClose = () => setContextMenu(null)
+    window.addEventListener('mousedown', handleClose)
+    return () => window.removeEventListener('mousedown', handleClose)
+  }, [contextMenu])
 
   // Handle right click menu
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -179,11 +228,20 @@ export function AttendancePage() {
     }
   }
 
-  // Utility to check if day is weekend
-  const isWeekend = (dayNum: number) => {
-    const d = new Date(year, month - 1, dayNum)
-    return d.getDay() === 0 || d.getDay() === 6
-  }
+  const weekdayLabel = (dayNum: number) => WEEKDAY_LABELS[new Date(year, month - 1, dayNum).getDay()]
+
+  // Daily totals for footer: present / leave per day
+  const dayTotals = visibleDays.map((dayNum) => {
+    let present = 0
+    let leave = 0
+    for (const emp of gridData?.employees ?? []) {
+      const day = emp.days.find((x) => Number(x.date.split('-')[2]) === dayNum)
+      if (!day) continue
+      if (day.leaveReasonId) leave++
+      else present++
+    }
+    return { day: dayNum, present, leave }
+  })
 
   return (
     <>
@@ -191,15 +249,36 @@ export function AttendancePage() {
         <title>Chấm công - {APP_NAME}</title>
       </Helmet>
 
-      <div className="flex flex-col gap-5" onClick={() => setContextMenu(null)}>
+      <div className="flex flex-col gap-5">
         <PageHeader
           icon="event_available"
           title="Bảng chấm công"
           description={`Chấm công và quản lý ngày nghỉ cán bộ - Tháng ${month}/${year}`}
           actions={
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-9"
+                  aria-label="Tháng trước"
+                  onClick={() => changeMonth(-1)}
+                >
+                  <span className="material-symbols-outlined text-base">chevron_left</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-9"
+                  aria-label="Tháng sau"
+                  onClick={() => changeMonth(1)}
+                >
+                  <span className="material-symbols-outlined text-base">chevron_right</span>
+                </Button>
+              </div>
+
               <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-[110px]">
                   <SelectValue placeholder="Tháng" />
                 </SelectTrigger>
                 <SelectContent>
@@ -212,7 +291,7 @@ export function AttendancePage() {
               </Select>
 
               <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-                <SelectTrigger className="w-[110px]">
+                <SelectTrigger className="w-[100px]">
                   <SelectValue placeholder="Năm" />
                 </SelectTrigger>
                 <SelectContent>
@@ -224,8 +303,22 @@ export function AttendancePage() {
                 </SelectContent>
               </Select>
 
+              {!isCurrentMonth ? (
+                <Button
+                  variant="outline"
+                  className="size-9 px-0"
+                  title="Về tháng hiện tại"
+                  onClick={() => {
+                    setYear(now.getFullYear())
+                    setMonth(now.getMonth() + 1)
+                  }}
+                >
+                  <span className="material-symbols-outlined text-base">today</span>
+                </Button>
+              ) : null}
+
               <Select value={departmentId} onValueChange={setDepartmentId}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[170px]">
                   <SelectValue placeholder="Tất cả đơn vị" />
                 </SelectTrigger>
                 <SelectContent>
@@ -246,7 +339,11 @@ export function AttendancePage() {
           <span className="text-muted-foreground">Chú giải:</span>
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
             <span>✓</span>
-            <span>Có mặt (Mặc định)</span>
+            <span>Có mặt</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+            <span className="material-symbols-outlined text-xs">star</span>
+            <span>Đi trực ngày nghỉ (+1 công)</span>
           </div>
           {reasons.map((r) => (
             <div
@@ -260,44 +357,137 @@ export function AttendancePage() {
               <span>{r.name}</span>
             </div>
           ))}
-          <div className="ml-auto text-muted-foreground italic">
-            * Kéo chuột hoặc Ctrl + Click để chọn nhiều ô
+          <div className="ml-auto flex items-center gap-2">
+            {isCurrentMonth ? (
+              <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs">
+                <button
+                  type="button"
+                  className={cn(
+                    'px-3 py-1.5 font-bold transition-colors',
+                    !showFullMonth
+                      ? 'bg-primary text-white'
+                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  )}
+                  onClick={() => setShowFullMonth(false)}
+                >
+                  Hôm nay
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    'px-3 py-1.5 font-bold transition-colors',
+                    showFullMonth
+                      ? 'bg-primary text-white'
+                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  )}
+                  onClick={() => setShowFullMonth(true)}
+                >
+                  Cả tháng
+                </button>
+              </div>
+            ) : null}
+            <span className="text-muted-foreground italic">
+              Kéo chuột chọn nhiều ô • chuột phải menu nhanh
+            </span>
           </div>
         </div>
+
+        {/* Bulk action bar - hiển thị khi có ô được chọn */}
+        {selectedCells.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-primary/30 bg-primary/5 p-2.5 shadow-sm animate-in slide-in-from-top-2">
+            <div className="flex items-center gap-2 mr-1">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-white text-xs font-black">
+                {selectedCells.length}
+              </span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">ô đã chọn</span>
+            </div>
+            <div className="h-6 w-px bg-slate-300 dark:bg-slate-700" />
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 rounded-xl px-3 font-bold gap-1.5 text-emerald-700 border-emerald-300 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950"
+              onClick={() => handleBulkSetReason(null)}
+            >
+              <span className="text-emerald-600 font-black">✓</span>
+              Có mặt
+            </Button>
+            {reasons.map((r) => (
+              <Button
+                key={r.id}
+                size="sm"
+                variant="outline"
+                className="h-9 rounded-xl px-3 font-bold gap-1.5 text-slate-700 border-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800"
+                onClick={() => handleBulkSetReason(r.id)}
+              >
+                <span className="font-black" style={{ color: r.color || undefined }}>
+                  {r.symbol}
+                </span>
+                {r.name}
+              </Button>
+            ))}
+            <div className="flex-1" />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-9 rounded-xl px-3 font-bold text-slate-500 hover:text-slate-800 gap-1"
+              onClick={() => setSelectedCells([])}
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
+              Bỏ chọn
+            </Button>
+          </div>
+        ) : null}
 
         {/* Main Grid + Right Panel */}
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Data Grid */}
           <div className={cn('rounded-2xl border bg-card shadow-sm overflow-hidden transition-all', selectedEmp ? 'lg:col-span-8 xl:col-span-9' : 'lg:col-span-12')}>
-            <div className="overflow-x-auto scrollbar-thin">
+            <div
+              key={`${year}-${month}-${showTodayOnly ? 'today' : 'full'}`}
+              className={cn(
+                'overflow-auto max-h-[75vh] scrollbar-thin animate-in duration-300',
+                navDir.current === 1 ? 'slide-in-from-right-8 fade-in' : 'slide-in-from-left-8 fade-in',
+              )}
+            >
               <table className="w-full text-xs border-collapse" onContextMenu={handleContextMenu}>
                 <thead>
-                  <tr className="bg-slate-100 dark:bg-slate-800 border-b text-slate-700 dark:text-slate-300 font-bold">
-                    <th className="p-2 border-r text-center sticky left-0 z-20 bg-slate-100 dark:bg-slate-800 min-w-[40px]">
+                  <tr className="bg-slate-100 dark:bg-slate-800 border-b text-slate-700 dark:text-slate-300 font-bold sticky top-0 z-30">
+                    <th className="p-2 border-r text-center sticky left-0 top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[40px]">
                       STT
                     </th>
-                    <th className="p-2 border-r text-left sticky left-[40px] z-20 bg-slate-100 dark:bg-slate-800 min-w-[160px]">
+                    <th className="p-2 border-r text-left sticky left-[40px] top-0 z-30 bg-slate-100 dark:bg-slate-800 min-w-[160px]">
                       Họ tên
                     </th>
                     <th className="p-2 border-r text-left min-w-[120px]">Chức vụ</th>
-                    {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
-                      const weekend = isWeekend(d)
+                    {visibleDays.map((d) => {
+                      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+                      const off = dayOffInfo(dateStr)
+                      const isToday = dateStr === todayStr
                       return (
                         <th
                           key={d}
                           className={cn(
-                            'p-1.5 border-r text-center min-w-[34px]',
-                            weekend && 'bg-slate-200/70 dark:bg-slate-700/50 text-slate-500'
+                            'p-1 border-r text-center min-w-[36px] sticky top-0 z-20',
+                            off
+                              ? (off.color === '#94a3b8' || off.color === '#cbd5e1'
+                                  ? 'bg-slate-200/70 dark:bg-slate-700/50 text-slate-500'
+                                  : 'bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-300')
+                              : undefined,
+                            isToday && 'bg-primary/10 text-primary dark:bg-primary/20 ring-1 ring-inset ring-primary/30',
                           )}
+                          title={off ? `Ngày nghỉ: ${off.name ?? ''}` : undefined}
                         >
-                          <div>{String(d).padStart(2, '0')}</div>
+                          <div className="text-[11px] leading-tight">{String(d).padStart(2, '0')}</div>
+                          <div className={cn('text-[9px] font-semibold leading-tight', isToday ? 'text-primary' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
+                            {off?.symbol ?? weekdayLabel(d)}
+                          </div>
                         </th>
                       )
                     })}
-                    <th className="p-2 border-r text-center min-w-[65px] bg-slate-50 dark:bg-slate-800">
+                    <th className="p-2 border-r text-center min-w-[65px] bg-slate-50 dark:bg-slate-800 sticky top-0 z-20">
                       Công
                     </th>
-                    <th className="p-2 text-center min-w-[65px] bg-slate-50 dark:bg-slate-800">
+                    <th className="p-2 text-center min-w-[65px] bg-slate-50 dark:bg-slate-800 sticky top-0 z-20">
                       Nghỉ
                     </th>
                   </tr>
@@ -305,13 +495,13 @@ export function AttendancePage() {
                 <tbody>
                   {gridLoading ? (
                     <tr>
-                      <td colSpan={daysInMonth + 5} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground">
                         Đang tải dữ liệu chấm công...
                       </td>
                     </tr>
                   ) : !gridData?.employees.length ? (
                     <tr>
-                      <td colSpan={daysInMonth + 5} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground">
                         Chưa có dữ liệu cán bộ.
                       </td>
                     </tr>
@@ -326,43 +516,56 @@ export function AttendancePage() {
                             isEmpSelected && 'bg-primary/5 dark:bg-primary/10'
                           )}
                         >
-                          <td className="p-2 border-r text-center sticky left-0 z-10 bg-card font-semibold text-slate-500">
+                          <td className="p-2 border-r text-center sticky left-0 z-20 bg-card font-semibold text-slate-500">
                             {index + 1}
                           </td>
-                          <td
-                            className="p-2 border-r sticky left-[40px] z-10 bg-card cursor-pointer hover:text-primary transition-colors"
-                            onClick={() => setSelectedEmp(emp)}
-                          >
-                            <div className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[150px]">
-                              {emp.fullName}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground font-mono">{emp.employeeCode}</div>
+                          <td className="p-2 border-r sticky left-[40px] z-20 bg-card">
+                            <button
+                              type="button"
+                              className="w-full text-left cursor-pointer hover:text-primary transition-colors"
+                              onClick={() => setSelectedEmp(emp)}
+                            >
+                              <div className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[150px]">
+                                {emp.fullName}
+                              </div>
+                              <div className="text-[10px] text-muted-foreground font-mono">{emp.employeeCode}</div>
+                            </button>
                           </td>
                           <td className="p-2 border-r text-slate-600 dark:text-slate-400 truncate max-w-[120px]">
                             {emp.position ?? '—'}
                           </td>
 
                           {/* Days Cells */}
-                          {emp.days.map((day) => {
+                          {visibleDays.map((d) => {
+                            const day = emp.days.find((x) => Number(x.date.split('-')[2]) === d)
+                            if (!day) return null
                             const dateStr = day.date
-                            const dayNum = Number(dateStr.split('-')[2])
-                            const weekend = isWeekend(dayNum)
+                            const isToday = dateStr === todayStr
                             const isSelected = selectedCells.some(
                               (c) => c.employeeId === emp.employeeId && c.date === dateStr
                             )
                             const reason = day.leaveReasonId ? reasonMap.get(day.leaveReasonId) : null
+                            const isTruc = day.isDayOff && day.hasRecord && !reason
+                            const cellTitle = reason
+                              ? `${reason.name}${day.note ? ` — ${day.note}` : ''}`
+                              : isTruc
+                                ? `Đi trực ngày nghỉ${day.note ? ` — ${day.note}` : ''}`
+                                : day.isDayOff
+                                  ? `Ngày nghỉ (${day.dayOffName ?? ''})`
+                                  : 'Có mặt'
 
                             return (
                               <td
                                 key={dateStr}
+                                title={cellTitle}
                                 className={cn(
                                   'p-1 border-r text-center cursor-pointer select-none transition-all relative',
-                                  weekend && 'bg-slate-100/60 dark:bg-slate-800/30',
+                                  day.isDayOff && 'bg-slate-100/60 dark:bg-slate-800/30',
+                                  isToday && 'bg-primary/5 dark:bg-primary/10',
                                   isSelected && 'ring-2 ring-primary ring-inset bg-primary/20 z-10'
                                 )}
                                 onMouseDown={(e) => handleCellMouseDown(emp.employeeId, dateStr, e)}
                                 onMouseEnter={() => handleCellMouseEnter(emp.employeeId, dateStr)}
-                                onClick={() => handleCellClick(emp.employeeId, dateStr, day.leaveReasonId, day.note)}
                               >
                                 <Popover
                                   open={
@@ -373,7 +576,12 @@ export function AttendancePage() {
                                   }}
                                 >
                                   <PopoverTrigger asChild>
-                                    <div className="w-full h-7 flex items-center justify-center rounded font-bold">
+                                    <button
+                                      type="button"
+                                      aria-label={`${emp.fullName} ngày ${dateStr}`}
+                                      className="w-full h-7 flex items-center justify-center rounded font-bold cursor-pointer"
+                                      onClick={(e) => handleCellClick(emp.employeeId, dateStr, day.leaveReasonId, day.note, e)}
+                                    >
                                       {reason ? (
                                         <span
                                           className="px-1 py-0.5 rounded text-[11px]"
@@ -384,16 +592,33 @@ export function AttendancePage() {
                                         >
                                           {reason.symbol}
                                         </span>
+                                      ) : isTruc ? (
+                                        <span
+                                          className="material-symbols-outlined text-[13px] text-amber-500"
+                                          style={{ fontSize: 14 }}
+                                        >
+                                          star
+                                        </span>
+                                      ) : day.isDayOff ? (
+                                        <span className="text-[10px] font-semibold text-slate-300 dark:text-slate-600">
+                                          —
+                                        </span>
                                       ) : (
                                         <span className="text-emerald-600 dark:text-emerald-400">✓</span>
                                       )}
-                                    </div>
+                                    </button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3 space-y-3" side="bottom" align="center">
                                     <div className="font-bold text-xs border-b pb-1.5 flex justify-between items-center">
                                       <span>{emp.fullName}</span>
                                       <span className="text-muted-foreground font-mono">{dateStr}</span>
                                     </div>
+                                    {day.isDayOff && !isTruc ? (
+                                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-red-600 dark:text-red-300">
+                                        <span className="material-symbols-outlined text-sm">event_busy</span>
+                                        Ngày nghỉ theo lịch ({day.dayOffName ?? '—'}). Đánh Có mặt để tính công trực.
+                                      </div>
+                                    ) : null}
 
                                     <div className="grid grid-cols-2 gap-1.5">
                                       <Button
@@ -458,6 +683,31 @@ export function AttendancePage() {
                     })
                   )}
                 </tbody>
+                {gridData?.employees.length ? (
+                  <tfoot>
+                    <tr className="sticky bottom-0 z-10 bg-slate-50 dark:bg-slate-800 font-bold text-[10px] border-t">
+                      <td colSpan={3} className="p-1.5 border-r text-right text-muted-foreground sticky left-0 z-20 bg-slate-50 dark:bg-slate-800">
+                        Có mặt / Nghỉ
+                      </td>
+                      {dayTotals.map((t) => (
+                        <td
+                          key={t.day}
+                          className={cn(
+                            'p-1 text-center border-r whitespace-nowrap',
+                            dayOffInfo(`${year}-${String(month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}`) &&
+                              'bg-slate-100/70 dark:bg-slate-700/30'
+                          )}
+                        >
+                          <span className="text-emerald-600 dark:text-emerald-400">{t.present}</span>
+                          <span className="text-slate-300 dark:text-slate-600">/</span>
+                          <span className="text-amber-600 dark:text-amber-400">{t.leave}</span>
+                        </td>
+                      ))}
+                      <td className="p-1.5 border-r" />
+                      <td className="p-1.5" />
+                    </tr>
+                  </tfoot>
+                ) : null}
               </table>
             </div>
           </div>
@@ -546,7 +796,7 @@ export function AttendancePage() {
         <div
           className="fixed z-50 bg-popover border shadow-lg rounded-xl p-1.5 w-48 text-xs font-semibold space-y-1 animate-in fade-in-0 zoom-in-95"
           style={{ top: contextMenu.y, left: contextMenu.x }}
-          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           <div className="px-2 py-1 text-[10px] text-muted-foreground border-b font-mono">
             Đã chọn {selectedCells.length} ô
@@ -572,14 +822,6 @@ export function AttendancePage() {
               <span className="truncate">Đặt {r.name}</span>
             </button>
           ))}
-          <button
-            type="button"
-            className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-red-50 text-red-600 dark:hover:bg-red-950 border-t flex items-center gap-1.5"
-            onClick={() => handleBulkSetReason(null)}
-          >
-            <span className="material-symbols-outlined text-sm">delete</span>
-            <span>Xóa / Đặt có mặt</span>
-          </button>
         </div>
       ) : null}
     </>

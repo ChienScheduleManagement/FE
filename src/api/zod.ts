@@ -211,6 +211,84 @@ export const GetDashboardResponse = zod.object({
 })
 
 
+export const GetDayOffsResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const CreateDayOffBody = zod.object({
+  "name": zod.string().optional(),
+  "symbol": zod.string().nullish(),
+  "color": zod.string().nullish(),
+  "recurringType": zod.number().optional(),
+  "date": zod.iso.date().nullish(),
+  "yearlyMonth": zod.number().optional(),
+  "yearlyDay": zod.number().optional(),
+  "weekDay": zod.number().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CreateDayOffResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetDayOffByIdParams = zod.object({
+  "id": zod.number()
+})
+
+export const GetDayOffByIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const UpdateDayOffParams = zod.object({
+  "id": zod.number()
+})
+
+export const UpdateDayOffBody = zod.object({
+  "name": zod.string().nullish(),
+  "symbol": zod.string().nullish(),
+  "color": zod.string().nullish(),
+  "recurringType": zod.union([zod.null(),zod.number()]).optional(),
+  "date": zod.iso.date().nullish(),
+  "yearlyMonth": zod.number().optional(),
+  "yearlyDay": zod.number().optional(),
+  "weekDay": zod.number().optional(),
+  "isActive": zod.boolean().nullish(),
+  "displayOrder": zod.number().optional()
+})
+
+export const UpdateDayOffResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const DeleteDayOffParams = zod.object({
+  "id": zod.number()
+})
+
+export const DeleteDayOffResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
 export const GetDepartmentsQueryParams = zod.object({
   "activeOnly": zod.boolean().optional()
 })
@@ -507,6 +585,7 @@ export const CreateEmployeeBody = zod.object({
   "allowance": zod.union([zod.number().stringFormat('double', createEmployeeBodyAllowanceRegExpOne),zod.stringFormat('double', createEmployeeBodyAllowanceRegExpTwo)]).optional(),
   "phoneNumber": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
+  "displayOrder": zod.number().optional(),
   "joinDate": zod.iso.date().nullish()
 })
 
@@ -550,6 +629,7 @@ export const UpdateEmployeeBody = zod.object({
   "phoneNumber": zod.string().nullish(),
   "avatarUrl": zod.string().nullish(),
   "isActive": zod.boolean().nullish(),
+  "displayOrder": zod.number().optional(),
   "joinDate": zod.iso.date().nullish()
 })
 

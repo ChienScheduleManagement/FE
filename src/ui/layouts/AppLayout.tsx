@@ -30,6 +30,7 @@ const NAV_HR: NavItem[] = [
   { label: 'Báo cáo', to: '/reports', icon: 'bar_chart' },
   { label: 'Phòng ban', to: '/admin/departments', icon: 'account_balance' },
   { label: 'Chức vụ', to: '/admin/positions', icon: 'workspace_premium' },
+  { label: 'Lịch nghỉ', to: '/admin/day-offs', icon: 'event_busy' },
   { label: 'Danh mục lý do nghỉ', to: '/admin/leave-reasons', icon: 'clinical_notes' },
 ]
 
