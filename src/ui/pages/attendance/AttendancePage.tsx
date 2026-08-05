@@ -4,21 +4,18 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   useGetAttendance,
   useGetLeaveReasons,
-  setAttendanceCell,
   bulkSetAttendance,
   useGetAttendanceHistory,
   useGetDepartments,
+  exportAttendances,
 } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, toastSmartPromise } from '@/api/utils'
+import { showError, showSuccess, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import type {
   AttendanceGridVm,
@@ -58,15 +55,6 @@ export function AttendancePage() {
   // Direction for month-nav animation
   const navDir = useRef(0)
 
-  // Active popover cell
-  const [activeCell, setActiveCell] = useState<{
-    employeeId: string
-    date: string
-    leaveReasonId?: number | null
-    note?: string
-  } | null>(null)
-  const [cellNote, setCellNote] = useState('')
-
   // Queries
   const { data: gridRaw, isLoading: gridLoading, isError: gridIsError, error: gridError } = useGetAttendance({
     year,
@@ -101,26 +89,56 @@ export function AttendancePage() {
   const todayStr = `${year}-${String(month).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1
   const showTodayOnly = isCurrentMonth && !showFullMonth && !showThisWeek
+  const [exporting, setExporting] = useState(false)
+
+  // Current selected week calculation
   const visibleDays = showTodayOnly
     ? [now.getDate()]
     : showThisWeek
       ? (() => {
-          const start = new Date(year, month - 1, 1)
-          const dayOfWeek = start.getDay()
-          const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-          const monday = new Date(year, month - 1, 1 + mondayOffset)
-          const sunday = new Date(monday)
-          sunday.setDate(sunday.getDate() + 6)
+          // Lấy ngày hiện tại
+          const today = new Date()
+          const currentDayOfWeek = today.getDay() // 0 là CN, 1 là T2...
+          // Tính khoảng cách đến Thứ 2 của tuần này
+          const diffToMonday = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek
+          const monday = new Date(today)
+          monday.setDate(today.getDate() + diffToMonday)
+
           const days: number[] = []
-          for (let d = monday.getDate(); d <= sunday.getDate(); d++) {
-            const checkDate = new Date(year, month - 1, d)
-            if (checkDate.getMonth() === month - 1) days.push(d)
+          // Lấy 7 ngày từ Thứ 2 đến Chủ nhật của tuần này
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(monday)
+            d.setDate(monday.getDate() + i)
+            // Chỉ lấy những ngày thuộc tháng đang chọn
+            if (d.getFullYear() === year && d.getMonth() + 1 === month) {
+              days.push(d.getDate())
+            }
           }
-          return days
+          return days.length > 0 ? days : [now.getDate()]
         })()
       : showFullMonth
         ? Array.from({ length: daysInMonth }, (_, i) => i + 1)
         : [now.getDate()]
+
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const blob = await exportAttendances(
+        {
+          year,
+          month,
+          departmentId: departmentId === 'all' ? undefined : Number(departmentId),
+        },
+        { responseType: 'blob' },
+      )
+      downloadBlob(blob as unknown as Blob, `Bang-cham-cong-thang-${month}-${year}.xlsx`)
+      showSuccess('Xuất bảng chấm công thành công!')
+    } catch (err) {
+      showError(err)
+    } finally {
+      setExporting(false)
+    }
+  }
 
   // Day-off info theo ngày (rules là chung cho đơn vị nên giống nhau mọi nhân viên)
   const firstEmpDays = gridData?.employees[0]?.days ?? []
@@ -146,41 +164,9 @@ export function AttendancePage() {
     setShowFullMonth(false)
   }
 
-  // Handle cell click (single popover)
-  const handleCellClick = (
-    employeeId: string,
-    date: string,
-    leaveReasonId?: number | null,
-    note?: string | null,
-    e?: React.MouseEvent,
-  ) => {
-    if (e?.ctrlKey || e?.metaKey) return
-    const start = mouseDownPos.current
-    if (start && (Math.abs(e!.clientX - start.x) > 4 || Math.abs(e!.clientY - start.y) > 4)) return // là kéo chuột, không phải click
-    mouseDownPos.current = null
-    setSelectedCells([])
-    setActiveCell({ employeeId, date, leaveReasonId, note: note ?? '' })
-    setCellNote(note ?? '')
-  }
 
-  // Save single cell
-  const handleSaveCell = async (reasonId: number | null) => {
-    if (!activeCell) return
-    try {
-      await setAttendanceCell({
-        employeeId: activeCell.employeeId,
-        date: activeCell.date,
-        leaveReasonId: reasonId ?? undefined,
-        note: cellNote || undefined,
-      })
-      invalidateGrid()
-      setActiveCell(null)
-    } catch (err) {
-      showError(err)
-    }
-  }
 
-  // Mouse handlers for drag select
+  // Handle cell mouse down (Left click to select)
   const handleCellMouseDown = (employeeId: string, date: string, e: React.MouseEvent) => {
     if (e.button !== 0) return // Left click only
     mouseDownPos.current = { x: e.clientX, y: e.clientY }
@@ -219,22 +205,26 @@ export function AttendancePage() {
     return () => window.removeEventListener('mousedown', handleClose)
   }, [contextMenu])
 
-  // ESC để bỏ chọn ô + đóng menu/popover
+  // ESC để bỏ chọn ô + đóng menu
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
       setSelectedCells([])
       setContextMenu(null)
-      setActiveCell(null)
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [])
 
-  // Handle right click menu
-  const handleContextMenu = (e: React.MouseEvent) => {
-    if (selectedCells.length === 0) return
+  // Handle right click menu (trên ô được chọn hoặc ô đang click chuột phải)
+  const handleCellContextMenu = (employeeId: string, date: string, e: React.MouseEvent) => {
     e.preventDefault()
+    e.stopPropagation()
+    // Nếu ô vừa chuột phải chưa nằm trong danh sách đã chọn, chọn nó làm ô duy nhất
+    const exists = selectedCells.some((c) => c.employeeId === employeeId && c.date === date)
+    if (!exists) {
+      setSelectedCells([{ employeeId, date }])
+    }
     setContextMenu({ x: e.clientX, y: e.clientY })
   }
 
@@ -287,6 +277,47 @@ export function AttendancePage() {
           description={`Chấm công và quản lý ngày nghỉ cán bộ - Tháng ${month}/${year}`}
           actions={
             <div className="flex flex-wrap items-center gap-2">
+              {isCurrentMonth ? (
+                <div className="flex rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-xs bg-slate-100 dark:bg-slate-800 p-0.5 mr-1 shadow-sm">
+                  <button
+                    type="button"
+                    className={cn(
+                      'px-3 py-1.5 font-bold rounded-lg transition-all',
+                      !showFullMonth && !showThisWeek
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                    )}
+                    onClick={() => { setShowFullMonth(false); setShowThisWeek(false) }}
+                  >
+                    Hôm nay
+                  </button>
+                  <button
+                    type="button"
+                    className={cn(
+                      'px-3 py-1.5 font-bold rounded-lg transition-all',
+                      showThisWeek
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                    )}
+                    onClick={() => { setShowThisWeek(true); setShowFullMonth(false) }}
+                  >
+                    Tuần này
+                  </button>
+                  <button
+                    type="button"
+                    className={cn(
+                      'px-3 py-1.5 font-bold rounded-lg transition-all',
+                      showFullMonth
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                    )}
+                    onClick={() => { setShowFullMonth(true); setShowThisWeek(false) }}
+                  >
+                    Cả tháng
+                  </button>
+                </div>
+              ) : null}
+
               <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
@@ -348,6 +379,13 @@ export function AttendancePage() {
                 </Button>
               ) : null}
 
+              <Button variant="outline" onClick={handleExport} disabled={exporting}>
+                <span className="material-symbols-outlined text-base mr-1">
+                  {exporting ? 'progress_activity' : 'file_download'}
+                </span>
+                {exporting ? 'Đang xuất...' : 'Xuất Excel'}
+              </Button>
+
               <Select value={departmentId} onValueChange={setDepartmentId}>
                 <SelectTrigger className="w-[170px]">
                   <SelectValue placeholder="Tất cả đơn vị" />
@@ -408,76 +446,6 @@ export function AttendancePage() {
           </div>
         ) : null}
 
-        {/* Legend bar — trên grid */}
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm text-xs font-semibold">
-          <span className="text-muted-foreground">Chú giải:</span>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
-            <span>✓</span>
-            <span>Có mặt</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-            <span className="material-symbols-outlined text-xs">star</span>
-            <span>Đi trực ngày nghỉ (+1 công)</span>
-          </div>
-          {reasons.map((r) => (
-            <div
-              key={r.id}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100"
-              style={{ backgroundColor: `${r.color}40` }}
-            >
-              <span className="font-black text-base" style={{ color: r.color || undefined }}>
-                {r.symbol}
-              </span>
-              <span>{r.name}</span>
-            </div>
-          ))}
-          <div className="ml-auto flex items-center gap-2">
-            {isCurrentMonth ? (
-              <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs">
-                <button
-                  type="button"
-                  className={cn(
-                    'px-3 py-1.5 font-bold transition-colors',
-                    !showFullMonth && !showThisWeek
-                      ? 'bg-primary text-white'
-                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  )}
-                  onClick={() => { setShowFullMonth(false); setShowThisWeek(false) }}
-                >
-                  Hôm nay
-                </button>
-                <button
-                  type="button"
-                  className={cn(
-                    'px-3 py-1.5 font-bold transition-colors',
-                    showThisWeek
-                      ? 'bg-primary text-white'
-                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  )}
-                  onClick={() => { setShowThisWeek(true); setShowFullMonth(false) }}
-                >
-                  Tuần này
-                </button>
-                <button
-                  type="button"
-                  className={cn(
-                    'px-3 py-1.5 font-bold transition-colors',
-                    showFullMonth
-                      ? 'bg-primary text-white'
-                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  )}
-                  onClick={() => { setShowFullMonth(true); setShowThisWeek(false) }}
-                >
-                  Cả tháng
-                </button>
-              </div>
-            ) : null}
-            <span className="text-muted-foreground italic">
-              Kéo chuột chọn nhiều ô • chuột phải menu nhanh • ESC bỏ chọn
-            </span>
-          </div>
-        </div>
-
         {/* Main Grid + Right Panel */}
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Data Grid */}
@@ -489,7 +457,7 @@ export function AttendancePage() {
                  navDir.current === 1 ? 'slide-in-from-right-8 fade-in' : 'slide-in-from-left-8 fade-in',
                )}
             >
-              <table className="w-full text-xs border-collapse" onContextMenu={handleContextMenu}>
+              <table className="w-full text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100 dark:bg-slate-800 border-b text-slate-700 dark:text-slate-300 font-bold sticky top-0 z-30">
                     <th className="p-2 border-r text-center sticky left-0 top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[40px]">
@@ -509,27 +477,28 @@ export function AttendancePage() {
                         <th
                           key={d}
                           className={cn(
-                            'p-1 border-r text-center min-w-[36px] sticky top-0 z-20',
-                            off
-                              ? (off.color === '#94a3b8' || off.color === '#cbd5e1'
-                                  ? 'bg-slate-300/80 dark:bg-slate-700/70 text-slate-600 dark:text-slate-400'
-                                  : 'bg-red-200/80 text-red-700 dark:bg-red-950/80 dark:text-red-300')
-                              : undefined,
-                            isToday && 'bg-primary/10 text-primary dark:bg-primary/20 ring-1 ring-inset ring-primary/30',
+                            'p-1 border-r text-center min-w-[38px] sticky top-0 z-20 transition-colors',
+                            isToday
+                              ? 'bg-blue-600 text-white dark:bg-blue-600 shadow-sm font-black'
+                              : off
+                                ? (off.color === '#94a3b8' || off.color === '#cbd5e1'
+                                    ? 'bg-slate-300/80 dark:bg-slate-700/70 text-slate-600 dark:text-slate-400'
+                                    : 'bg-red-200/80 text-red-700 dark:bg-red-950/80 dark:text-red-300')
+                                : undefined,
                           )}
-                          title={off ? `Ngày nghỉ: ${off.name ?? ''}` : undefined}
+                          title={off ? `Ngày nghỉ: ${off.name ?? ''}` : isToday ? 'Hôm nay' : undefined}
                         >
-                          <div className="text-[11px] leading-tight">{String(d).padStart(2, '0')}</div>
-                          <div className={cn('text-[9px] font-semibold leading-tight', isToday ? 'text-primary' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
+                          <div className={cn('text-[11px] leading-tight', isToday && 'scale-110 font-black')}>{String(d).padStart(2, '0')}</div>
+                          <div className={cn('text-[9px] font-bold leading-tight', isToday ? 'text-blue-100' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
                             {off?.symbol ?? weekdayLabel(d)}
                           </div>
                         </th>
                       )
                     })}
-                    <th className="p-2 border-r text-center min-w-[65px] bg-slate-50 dark:bg-slate-800 sticky top-0 right-[65px] z-30">
+                    <th className="p-2 border-r text-center min-w-[65px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-[65px] z-30">
                       Công
                     </th>
-                    <th className="p-2 text-center min-w-[65px] bg-slate-50 dark:bg-slate-800 sticky top-0 right-0 z-30">
+                    <th className="p-2 text-center min-w-[65px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-0 z-30">
                       Nghỉ
                     </th>
                   </tr>
@@ -573,7 +542,7 @@ export function AttendancePage() {
                               <div className="text-[10px] text-muted-foreground font-mono">{emp.employeeCode}</div>
                             </button>
                           </td>
-                          <td className="p-2 border-r text-left sticky left-[200px] z-20 bg-card text-slate-600 dark:text-slate-400 truncate max-w-[120px]">
+                          <td className="p-2 border-r text-left sticky left-[200px] z-20 bg-card text-slate-600 dark:bg-slate-400 truncate max-w-[120px]">
                             {emp.position ?? '—'}
                           </td>
 
@@ -601,127 +570,58 @@ export function AttendancePage() {
                                 key={dateStr}
                                 className={cn(
                                   'p-1 border-r text-center cursor-pointer select-none transition-all relative',
-                                  day.isDayOff && 'bg-slate-200/60 dark:bg-slate-700/40',
-                                  isToday && 'bg-primary/5 dark:bg-primary/10',
+                                  reason
+                                    ? undefined
+                                    : isToday
+                                      ? 'bg-blue-50/90 dark:bg-blue-950/40 ring-1 ring-blue-400/50 ring-inset'
+                                      : day.isDayOff && 'bg-slate-200/60 dark:bg-slate-700/40',
                                   isSelected && 'ring-2 ring-primary ring-inset bg-primary/20 z-10'
                                 )}
+                                style={{
+                                  backgroundColor: reason ? `${reason.color}45` : undefined,
+                                }}
                                 onMouseDown={(e) => handleCellMouseDown(emp.employeeId, dateStr, e)}
                                 onMouseEnter={() => handleCellMouseEnter(emp.employeeId, dateStr)}
+                                onContextMenu={(e) => handleCellContextMenu(emp.employeeId, dateStr, e)}
                               >
-                                <Popover
-                                  open={
-                                    activeCell?.employeeId === emp.employeeId && activeCell?.date === dateStr
-                                  }
-                                  onOpenChange={(open: boolean) => {
-                                    if (!open) setActiveCell(null)
-                                  }}
-                                >
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <PopoverTrigger asChild>
-                                        <button
-                                          type="button"
-                                          aria-label={`${emp.fullName} ngày ${dateStr}`}
-                                          className="w-full h-7 flex items-center justify-center rounded font-bold cursor-pointer"
-                                          onClick={(e) => handleCellClick(emp.employeeId, dateStr, day.leaveReasonId, day.note, e)}
-                                        >
-                                          {reason ? (
-                                           <span
-                                             className="px-1.5 py-0.5 rounded text-xs"
-                                             style={{
-                                               backgroundColor: `${reason.color}55`,
-                                               color: reason.color || undefined,
-                                             }}
-                                           >
-                                             {reason.symbol}
-                                           </span>
-                                          ) : isTruc ? (
-                                           <span
-                                             className="material-symbols-outlined text-amber-500 font-bold"
-                                             style={{ fontSize: 18 }}
-                                           >
-                                             star
-                                           </span>
-                                          ) : day.isDayOff ? (
-                                           <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-700/50 rounded px-1">
-                                             —
-                                           </span>
-                                          ) : (
-                                            <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">✓</span>
-                                          )}
-                                        </button>
-                                      </PopoverTrigger>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top" className="font-semibold max-w-[220px]">
-                                      {cellTitle}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                  <PopoverContent className="w-64 p-3 space-y-3" side="bottom" align="center">
-                                    <div className="font-bold text-xs border-b pb-1.5 flex justify-between items-center">
-                                      <span>{emp.fullName}</span>
-                                      <span className="text-muted-foreground font-mono">{dateStr}</span>
-                                    </div>
-                                    {day.isDayOff && !isTruc ? (
-                                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-red-600 dark:text-red-300">
-                                        <span className="material-symbols-outlined text-sm">event_busy</span>
-                                        Ngày nghỉ theo lịch ({day.dayOffName ?? '—'}). Đánh Có mặt để tính công trực.
-                                      </div>
-                                    ) : null}
-
-                                    <div className="grid grid-cols-2 gap-1.5">
-                                       <Button
-                                         variant="outline"
-                                         className={cn(
-                                           'h-10 text-sm justify-start gap-2 font-bold',
-                                           !activeCell?.leaveReasonId && 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                                         )}
-                                         onClick={() => handleSaveCell(null)}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="w-full h-7 flex items-center justify-center rounded font-bold">
+                                      {reason ? (
+                                       <span
+                                         className="font-black text-sm"
+                                         style={{ color: reason.color || undefined }}
                                        >
-                                         <span className="text-emerald-600 font-black text-base">✓</span>
-                                         <span>Có mặt</span>
-                                       </Button>
-                                       {reasons.map((r) => (
-                                         <Button
-                                           key={r.id}
-                                           variant="outline"
-                                           className={cn(
-                                             'h-9 text-sm justify-start gap-2 font-bold truncate',
-                                             activeCell?.leaveReasonId === r.id && 'border-primary bg-primary/10'
-                                           )}
-                                           onClick={() => handleSaveCell(r.id)}
-                                         >
-                                           <span className="font-black text-base" style={{ color: r.color || undefined }}>
-                                             {r.symbol}
-                                           </span>
-                                           <span className="truncate">{r.name}</span>
-                                         </Button>
-                                       ))}
+                                         {reason.symbol}
+                                       </span>
+                                      ) : isTruc ? (
+                                       <span
+                                         className="material-symbols-outlined text-amber-500 font-bold"
+                                         style={{ fontSize: 18 }}
+                                       >
+                                         star
+                                       </span>
+                                      ) : day.isDayOff ? (
+                                       <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-700/50 rounded px-1">
+                                         —
+                                       </span>
+                                      ) : (
+                                        <span className={cn('font-bold text-sm', isToday ? 'text-blue-700 dark:text-blue-300' : 'text-emerald-600 dark:text-emerald-400')}>✓</span>
+                                      )}
                                     </div>
-
-                                    <div className="space-y-1">
-                                      <Label className="text-[11px]">Ghi chú:</Label>
-                                      <Input
-                                        className="h-7 text-xs"
-                                        placeholder="Nhập ghi chú..."
-                                        value={cellNote}
-                                        onChange={(e) => setCellNote(e.target.value)}
-                                        onKeyDown={(e) => {
-                                          if (e.key === 'Enter') {
-                                            void handleSaveCell(activeCell?.leaveReasonId ?? null)
-                                          }
-                                        }}
-                                      />
-                                    </div>
-                                  </PopoverContent>
-                                </Popover>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="font-semibold max-w-[220px]">
+                                    {cellTitle}
+                                  </TooltipContent>
+                                </Tooltip>
                               </td>
                             )
                           })}
 
-                          <td className="p-2 border-r text-center font-bold text-emerald-600 dark:text-emerald-400 bg-slate-50/50 dark:bg-slate-800/30 sticky right-[65px] z-20">
+                          <td className="p-2 border-r text-center font-bold text-emerald-600 dark:text-emerald-400 bg-white dark:bg-slate-900 sticky right-[65px] z-20">
                             {emp.workDays}
                           </td>
-                          <td className="p-2 text-center font-bold text-amber-600 dark:text-amber-400 bg-slate-50/50 dark:bg-slate-800/30 sticky right-0 z-20">
+                          <td className="p-2 text-center font-bold text-amber-600 dark:text-amber-400 bg-white dark:bg-slate-900 sticky right-0 z-20">
                             {emp.leaveDays}
                           </td>
                         </tr>
@@ -755,6 +655,34 @@ export function AttendancePage() {
                   </tfoot>
                 ) : null}
               </table>
+            </div>
+          </div>
+
+          {/* Legend bar — đặt dưới cùng của bảng */}
+          <div className="lg:col-span-12 flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm text-xs font-semibold">
+            <span className="text-muted-foreground font-bold">Chú giải:</span>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+              <span className="font-bold text-sm">✓</span>
+              <span>Có mặt</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+              <span className="material-symbols-outlined text-xs">star</span>
+              <span>Đi trực ngày nghỉ (+1 công)</span>
+            </div>
+            {reasons.map((r) => (
+              <div
+                key={r.id}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100"
+                style={{ backgroundColor: `${r.color}40` }}
+              >
+                <span className="font-black text-base" style={{ color: r.color || undefined }}>
+                  {r.symbol}
+                </span>
+                <span>{r.name}</span>
+              </div>
+            ))}
+            <div className="ml-auto text-muted-foreground italic text-[11px]">
+              Kéo chuột chọn nhiều ô • Chuột phải menu nhanh • Phím ESC bỏ chọn
             </div>
           </div>
 
@@ -872,4 +800,13 @@ export function AttendancePage() {
       ) : null}
     </>
   )
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
 }
