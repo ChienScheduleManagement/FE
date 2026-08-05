@@ -457,16 +457,16 @@ export function AttendancePage() {
                  navDir.current === 1 ? 'slide-in-from-right-8 fade-in' : 'slide-in-from-left-8 fade-in',
                )}
             >
-              <table className="w-full text-xs border-collapse">
+              <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="bg-slate-100 dark:bg-slate-800 border-b text-slate-700 dark:text-slate-300 font-bold sticky top-0 z-30">
-                    <th className="p-2 border-r text-center sticky left-0 top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[40px]">
+                  <tr className="bg-slate-100 dark:bg-slate-800 border-b text-slate-800 dark:text-slate-200 font-bold sticky top-0 z-30">
+                    <th className="p-2.5 border-r text-center sticky left-0 top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[44px]">
                       STT
                     </th>
-                    <th className="p-2 border-r text-left sticky left-[40px] top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[160px]">
+                    <th className="p-2.5 border-r text-left sticky left-[44px] top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[170px]">
                       Họ tên
                     </th>
-                    <th className="p-2 border-r text-left sticky left-[200px] top-0 z-30 bg-slate-100 dark:bg-slate-800 min-w-[120px]">
+                    <th className="p-2.5 border-r text-left sticky left-[214px] top-0 z-30 bg-slate-100 dark:bg-slate-800 min-w-[130px]">
                       Chức vụ
                     </th>
                     {visibleDays.map((d) => {
@@ -477,7 +477,7 @@ export function AttendancePage() {
                         <th
                           key={d}
                           className={cn(
-                            'p-1 border-r text-center min-w-[38px] sticky top-0 z-20 transition-colors',
+                            'p-1.5 border-r text-center min-w-[42px] sticky top-0 z-20 transition-colors',
                             isToday
                               ? 'bg-blue-600 text-white dark:bg-blue-600 shadow-sm font-black'
                               : off
@@ -488,17 +488,17 @@ export function AttendancePage() {
                           )}
                           title={off ? `Ngày nghỉ: ${off.name ?? ''}` : isToday ? 'Hôm nay' : undefined}
                         >
-                          <div className={cn('text-[11px] leading-tight', isToday && 'scale-110 font-black')}>{String(d).padStart(2, '0')}</div>
-                          <div className={cn('text-[9px] font-bold leading-tight', isToday ? 'text-blue-100' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
+                          <div className={cn('text-xs leading-tight font-extrabold', isToday && 'scale-110 font-black')}>{String(d).padStart(2, '0')}</div>
+                          <div className={cn('text-[10px] font-bold leading-tight mt-0.5', isToday ? 'text-blue-100' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
                             {off?.symbol ?? weekdayLabel(d)}
                           </div>
                         </th>
                       )
                     })}
-                    <th className="p-2 border-r text-center min-w-[65px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-[65px] z-30">
+                    <th className="p-2.5 border-r text-center min-w-[70px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-[70px] z-30 text-sm">
                       Công
                     </th>
-                    <th className="p-2 text-center min-w-[65px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-0 z-30">
+                    <th className="p-2.5 text-center min-w-[70px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-0 z-30 text-sm">
                       Nghỉ
                     </th>
                   </tr>
@@ -506,13 +506,13 @@ export function AttendancePage() {
                 <tbody>
                   {gridLoading ? (
                     <tr>
-                      <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground text-sm">
                         Đang tải dữ liệu chấm công...
                       </td>
                     </tr>
                   ) : !gridData?.employees.length ? (
                     <tr>
-                      <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground text-sm">
                         Chưa có dữ liệu cán bộ.
                       </td>
                     </tr>
@@ -527,22 +527,22 @@ export function AttendancePage() {
                             isEmpSelected && 'bg-primary/5 dark:bg-primary/10'
                           )}
                         >
-                          <td className="p-2 border-r text-center sticky left-0 z-20 bg-card font-semibold text-slate-500">
+                          <td className="p-2.5 border-r text-center sticky left-0 z-20 bg-card font-semibold text-slate-500 text-sm">
                             {index + 1}
                           </td>
-                          <td className="p-2 border-r sticky left-[40px] z-20 bg-card">
+                          <td className="p-2.5 border-r sticky left-[44px] z-20 bg-card">
                             <button
                               type="button"
                               className="w-full text-left cursor-pointer hover:text-primary transition-colors"
                               onClick={() => setSelectedEmp(emp)}
                             >
-                              <div className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[150px]">
+                              <div className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[160px] text-sm">
                                 {emp.fullName}
                               </div>
-                              <div className="text-[10px] text-muted-foreground font-mono">{emp.employeeCode}</div>
+                              <div className="text-xs text-muted-foreground font-mono">{emp.employeeCode}</div>
                             </button>
                           </td>
-                          <td className="p-2 border-r text-left sticky left-[200px] z-20 bg-card text-slate-600 dark:bg-slate-400 truncate max-w-[120px]">
+                          <td className="p-2.5 border-r text-left sticky left-[214px] z-20 bg-card text-slate-600 dark:text-slate-400 truncate max-w-[130px] text-xs font-medium">
                             {emp.position ?? '—'}
                           </td>
 
@@ -586,10 +586,10 @@ export function AttendancePage() {
                               >
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <div className="w-full h-7 flex items-center justify-center rounded font-bold">
+                                    <div className="w-full h-8 flex items-center justify-center rounded font-bold">
                                       {reason ? (
                                        <span
-                                         className="font-black text-sm"
+                                         className="font-black text-base"
                                          style={{ color: reason.color || undefined }}
                                        >
                                          {reason.symbol}
@@ -597,16 +597,16 @@ export function AttendancePage() {
                                       ) : isTruc ? (
                                        <span
                                          className="material-symbols-outlined text-amber-500 font-bold"
-                                         style={{ fontSize: 18 }}
+                                         style={{ fontSize: 20 }}
                                        >
                                          star
                                        </span>
                                       ) : day.isDayOff ? (
-                                       <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-700/50 rounded px-1">
+                                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-700/50 rounded px-1">
                                          —
                                        </span>
                                       ) : (
-                                        <span className={cn('font-bold text-sm', isToday ? 'text-blue-700 dark:text-blue-300' : 'text-emerald-600 dark:text-emerald-400')}>✓</span>
+                                        <span className={cn('font-bold text-base', isToday ? 'text-blue-700 dark:text-blue-300' : 'text-emerald-600 dark:text-emerald-400')}>✓</span>
                                       )}
                                     </div>
                                   </TooltipTrigger>
@@ -618,10 +618,10 @@ export function AttendancePage() {
                             )
                           })}
 
-                          <td className="p-2 border-r text-center font-bold text-emerald-600 dark:text-emerald-400 bg-white dark:bg-slate-900 sticky right-[65px] z-20">
+                          <td className="p-2.5 border-r text-center font-extrabold text-emerald-600 dark:text-emerald-400 bg-white dark:bg-slate-900 sticky right-[70px] z-20 text-sm">
                             {emp.workDays}
                           </td>
-                          <td className="p-2 text-center font-bold text-amber-600 dark:text-amber-400 bg-white dark:bg-slate-900 sticky right-0 z-20">
+                          <td className="p-2.5 text-center font-extrabold text-amber-600 dark:text-amber-400 bg-white dark:bg-slate-900 sticky right-0 z-20 text-sm">
                             {emp.leaveDays}
                           </td>
                         </tr>
@@ -631,8 +631,8 @@ export function AttendancePage() {
                 </tbody>
                 {gridData?.employees.length ? (
                   <tfoot>
-                    <tr className="sticky bottom-0 z-10 bg-slate-50 dark:bg-slate-800 font-bold text-[10px] border-t">
-                      <td colSpan={3} className="p-1.5 border-r text-right text-muted-foreground sticky left-0 z-20 bg-slate-50 dark:bg-slate-800">
+                    <tr className="sticky bottom-0 z-10 bg-slate-50 dark:bg-slate-800 font-bold text-xs border-t">
+                      <td colSpan={3} className="p-2 border-r text-right text-muted-foreground sticky left-0 z-20 bg-slate-50 dark:bg-slate-800">
                         Có mặt / Nghỉ
                       </td>
                       {dayTotals.map((t) => (
@@ -644,13 +644,13 @@ export function AttendancePage() {
                                'bg-slate-200/60 dark:bg-slate-700/50'
                           )}
                         >
-                          <span className="text-emerald-600 dark:text-emerald-400">{t.present}</span>
-                          <span className="text-slate-300 dark:text-slate-600">/</span>
-                          <span className="text-amber-600 dark:text-amber-400">{t.leave}</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t.present}</span>
+                          <span className="text-slate-300 dark:text-slate-600 mx-0.5">/</span>
+                          <span className="text-amber-600 dark:text-amber-400 font-bold">{t.leave}</span>
                         </td>
                       ))}
-                      <td className="p-1.5 border-r sticky right-[65px] bg-slate-50 dark:bg-slate-800" />
-                      <td className="p-1.5 sticky right-0 bg-slate-50 dark:bg-slate-800" />
+                      <td className="p-2 border-r sticky right-[70px] bg-slate-50 dark:bg-slate-800" />
+                      <td className="p-2 sticky right-0 bg-slate-50 dark:bg-slate-800" />
                     </tr>
                   </tfoot>
                 ) : null}
