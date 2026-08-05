@@ -16,6 +16,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
@@ -199,6 +200,18 @@ export function AttendancePage() {
     window.addEventListener('mousedown', handleClose)
     return () => window.removeEventListener('mousedown', handleClose)
   }, [contextMenu])
+
+  // ESC để bỏ chọn ô + đóng menu/popover
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setSelectedCells([])
+      setContextMenu(null)
+      setActiveCell(null)
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [])
 
   // Handle right click menu
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -386,9 +399,9 @@ export function AttendancePage() {
                 </button>
               </div>
             ) : null}
-            <span className="text-muted-foreground italic">
-              Kéo chuột chọn nhiều ô • chuột phải menu nhanh
-            </span>
+<span className="text-muted-foreground italic">
+                Kéo chuột chọn nhiều ô • chuột phải menu nhanh • ESC bỏ chọn
+              </span>
           </div>
         </div>
 
@@ -455,10 +468,12 @@ export function AttendancePage() {
                     <th className="p-2 border-r text-center sticky left-0 top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[40px]">
                       STT
                     </th>
-                    <th className="p-2 border-r text-left sticky left-[40px] top-0 z-30 bg-slate-100 dark:bg-slate-800 min-w-[160px]">
+                    <th className="p-2 border-r text-left sticky left-[40px] top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[160px]">
                       Họ tên
                     </th>
-                    <th className="p-2 border-r text-left min-w-[120px]">Chức vụ</th>
+                    <th className="p-2 border-r text-left sticky left-[200px] top-0 z-30 bg-slate-100 dark:bg-slate-800 min-w-[120px]">
+                      Chức vụ
+                    </th>
                     {visibleDays.map((d) => {
                       const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
                       const off = dayOffInfo(dateStr)
@@ -470,8 +485,8 @@ export function AttendancePage() {
                             'p-1 border-r text-center min-w-[36px] sticky top-0 z-20',
                             off
                               ? (off.color === '#94a3b8' || off.color === '#cbd5e1'
-                                  ? 'bg-slate-200/70 dark:bg-slate-700/50 text-slate-500'
-                                  : 'bg-red-50 text-red-600 dark:bg-red-950/60 dark:text-red-300')
+                                  ? 'bg-slate-300/80 dark:bg-slate-700/70 text-slate-600 dark:text-slate-400'
+                                  : 'bg-red-200/80 text-red-700 dark:bg-red-950/80 dark:text-red-300')
                               : undefined,
                             isToday && 'bg-primary/10 text-primary dark:bg-primary/20 ring-1 ring-inset ring-primary/30',
                           )}
@@ -484,10 +499,10 @@ export function AttendancePage() {
                         </th>
                       )
                     })}
-                    <th className="p-2 border-r text-center min-w-[65px] bg-slate-50 dark:bg-slate-800 sticky top-0 z-20">
+                    <th className="p-2 border-r text-center min-w-[65px] bg-slate-50 dark:bg-slate-800 sticky top-0 right-[65px] z-30">
                       Công
                     </th>
-                    <th className="p-2 text-center min-w-[65px] bg-slate-50 dark:bg-slate-800 sticky top-0 z-20">
+                    <th className="p-2 text-center min-w-[65px] bg-slate-50 dark:bg-slate-800 sticky top-0 right-0 z-30">
                       Nghỉ
                     </th>
                   </tr>
@@ -531,7 +546,7 @@ export function AttendancePage() {
                               <div className="text-[10px] text-muted-foreground font-mono">{emp.employeeCode}</div>
                             </button>
                           </td>
-                          <td className="p-2 border-r text-slate-600 dark:text-slate-400 truncate max-w-[120px]">
+                          <td className="p-2 border-r text-left sticky left-[200px] z-20 bg-card text-slate-600 dark:text-slate-400 truncate max-w-[120px]">
                             {emp.position ?? '—'}
                           </td>
 
@@ -557,10 +572,9 @@ export function AttendancePage() {
                             return (
                               <td
                                 key={dateStr}
-                                title={cellTitle}
                                 className={cn(
                                   'p-1 border-r text-center cursor-pointer select-none transition-all relative',
-                                  day.isDayOff && 'bg-slate-100/60 dark:bg-slate-800/30',
+                                  day.isDayOff && 'bg-slate-200/60 dark:bg-slate-700/40',
                                   isToday && 'bg-primary/5 dark:bg-primary/10',
                                   isSelected && 'ring-2 ring-primary ring-inset bg-primary/20 z-10'
                                 )}
@@ -575,39 +589,46 @@ export function AttendancePage() {
                                     if (!open) setActiveCell(null)
                                   }}
                                 >
-                                  <PopoverTrigger asChild>
-                                    <button
-                                      type="button"
-                                      aria-label={`${emp.fullName} ngày ${dateStr}`}
-                                      className="w-full h-7 flex items-center justify-center rounded font-bold cursor-pointer"
-                                      onClick={(e) => handleCellClick(emp.employeeId, dateStr, day.leaveReasonId, day.note, e)}
-                                    >
-                                      {reason ? (
-                                        <span
-                                          className="px-1 py-0.5 rounded text-[11px]"
-                                          style={{
-                                            backgroundColor: `${reason.color}30`,
-                                            color: reason.color || undefined,
-                                          }}
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <PopoverTrigger asChild>
+                                        <button
+                                          type="button"
+                                          aria-label={`${emp.fullName} ngày ${dateStr}`}
+                                          className="w-full h-7 flex items-center justify-center rounded font-bold cursor-pointer"
+                                          onClick={(e) => handleCellClick(emp.employeeId, dateStr, day.leaveReasonId, day.note, e)}
                                         >
-                                          {reason.symbol}
-                                        </span>
-                                      ) : isTruc ? (
-                                        <span
-                                          className="material-symbols-outlined text-[13px] text-amber-500"
-                                          style={{ fontSize: 14 }}
-                                        >
-                                          star
-                                        </span>
-                                      ) : day.isDayOff ? (
-                                        <span className="text-[10px] font-semibold text-slate-300 dark:text-slate-600">
-                                          —
-                                        </span>
-                                      ) : (
-                                        <span className="text-emerald-600 dark:text-emerald-400">✓</span>
-                                      )}
-                                    </button>
-                                  </PopoverTrigger>
+                                          {reason ? (
+                                            <span
+                                              className="px-1 py-0.5 rounded text-[11px]"
+                                              style={{
+                                                backgroundColor: `${reason.color}30`,
+                                                color: reason.color || undefined,
+                                              }}
+                                            >
+                                              {reason.symbol}
+                                            </span>
+                                          ) : isTruc ? (
+                                            <span
+                                              className="material-symbols-outlined text-[13px] text-amber-500"
+                                              style={{ fontSize: 14 }}
+                                            >
+                                              star
+                                            </span>
+                                          ) : day.isDayOff ? (
+                                            <span className="text-[10px] font-semibold text-slate-300 dark:text-slate-600">
+                                              —
+                                            </span>
+                                          ) : (
+                                            <span className="text-emerald-600 dark:text-emerald-400">✓</span>
+                                          )}
+                                        </button>
+                                      </PopoverTrigger>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="font-semibold max-w-[220px]">
+                                      {cellTitle}
+                                    </TooltipContent>
+                                  </Tooltip>
                                   <PopoverContent className="w-64 p-3 space-y-3" side="bottom" align="center">
                                     <div className="font-bold text-xs border-b pb-1.5 flex justify-between items-center">
                                       <span>{emp.fullName}</span>
@@ -672,10 +693,10 @@ export function AttendancePage() {
                             )
                           })}
 
-                          <td className="p-2 border-r text-center font-bold text-emerald-600 dark:text-emerald-400 bg-slate-50/50 dark:bg-slate-800/30">
+                          <td className="p-2 border-r text-center font-bold text-emerald-600 dark:text-emerald-400 bg-slate-50/50 dark:bg-slate-800/30 sticky right-[65px] z-20">
                             {emp.workDays}
                           </td>
-                          <td className="p-2 text-center font-bold text-amber-600 dark:text-amber-400 bg-slate-50/50 dark:bg-slate-800/30">
+                          <td className="p-2 text-center font-bold text-amber-600 dark:text-amber-400 bg-slate-50/50 dark:bg-slate-800/30 sticky right-0 z-20">
                             {emp.leaveDays}
                           </td>
                         </tr>
@@ -694,8 +715,8 @@ export function AttendancePage() {
                           key={t.day}
                           className={cn(
                             'p-1 text-center border-r whitespace-nowrap',
-                            dayOffInfo(`${year}-${String(month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}`) &&
-                              'bg-slate-100/70 dark:bg-slate-700/30'
+                           dayOffInfo(`${year}-${String(month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}`) &&
+                               'bg-slate-200/60 dark:bg-slate-700/50'
                           )}
                         >
                           <span className="text-emerald-600 dark:text-emerald-400">{t.present}</span>
@@ -703,8 +724,8 @@ export function AttendancePage() {
                           <span className="text-amber-600 dark:text-amber-400">{t.leave}</span>
                         </td>
                       ))}
-                      <td className="p-1.5 border-r" />
-                      <td className="p-1.5" />
+                      <td className="p-1.5 border-r sticky right-[65px] bg-slate-50 dark:bg-slate-800" />
+                      <td className="p-1.5 sticky right-0 bg-slate-50 dark:bg-slate-800" />
                     </tr>
                   </tfoot>
                 ) : null}
