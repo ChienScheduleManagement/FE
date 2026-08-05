@@ -19,6 +19,8 @@ const NAV_PROGRESS: NavItem[] = [
   { label: 'Tổng quan', to: '/dashboard', icon: 'dashboard' },
   { label: 'Văn bản', to: '/documents', icon: 'description', activePrefixes: ['/documents'] },
   { label: 'Nhiệm vụ', to: '/tasks', icon: 'task_alt', activePrefixes: ['/tasks'] },
+  { label: 'Nguồn văn bản', to: '/admin/doc-sources', icon: 'import_contacts' },
+  { label: 'Danh mục', to: '/admin/categories', icon: 'category' },
 ]
 
 const NAV_HR: NavItem[] = [
@@ -26,13 +28,9 @@ const NAV_HR: NavItem[] = [
   { label: 'Chấm công', to: '/attendance', icon: 'event_available' },
   { label: 'Tính lương', to: '/salary', icon: 'payments' },
   { label: 'Báo cáo', to: '/reports', icon: 'bar_chart' },
-  { label: 'Danh mục lý do nghỉ', to: '/admin/leave-reasons', icon: 'clinical_notes' },
-]
-
-const NAV_ADMIN: NavItem[] = [
   { label: 'Phòng ban', to: '/admin/departments', icon: 'account_balance' },
-  { label: 'Danh mục', to: '/admin/categories', icon: 'category' },
-  { label: 'Nguồn văn bản', to: '/admin/doc-sources', icon: 'import_contacts' },
+  { label: 'Chức vụ', to: '/admin/positions', icon: 'workspace_premium' },
+  { label: 'Danh mục lý do nghỉ', to: '/admin/leave-reasons', icon: 'clinical_notes' },
 ]
 
 const SIDEBAR_STORAGE_KEY = 'schedule_sidebar_collapsed'
@@ -128,15 +126,6 @@ function SidebarContent({
           </p>
         ) : null}
         {NAV_HR.map((item) => (
-          <NavLink key={item.to} item={item} collapsed={collapsed} onNavigate={onNavigate} />
-        ))}
-
-        {!collapsed ? (
-          <p className="px-3 pb-1 pt-4 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-            Quản trị danh mục
-          </p>
-        ) : null}
-        {NAV_ADMIN.map((item) => (
           <NavLink key={item.to} item={item} collapsed={collapsed} onNavigate={onNavigate} />
         ))}
       </nav>

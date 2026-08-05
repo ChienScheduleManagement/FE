@@ -33,6 +33,7 @@ import type {
   CreateDocumentRequest,
   CreateEmployeeRequest,
   CreateLeaveReasonRequest,
+  CreatePositionRequest,
   CreateTaskLogRequest,
   CreateTaskRequest,
   ExportAttendancesParams,
@@ -55,6 +56,7 @@ import type {
   UpdateDocumentRequest,
   UpdateEmployeeRequest,
   UpdateLeaveReasonRequest,
+  UpdatePositionRequest,
   UpdateTaskRequest
 } from './model';
 
@@ -3165,6 +3167,407 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getBulkDeleteLeaveReasonsMutationOptions(options), queryClient);
+    }
+    
+export const getPositions = (
+    
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/positions`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetPositionsQueryKey = () => {
+    return [
+    `/api/positions`
+    ] as const;
+    }
+
+    
+export const getGetPositionsQueryOptions = <TData = Awaited<ReturnType<typeof getPositions>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositions>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPositionsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPositions>>> = ({ signal }) => getPositions(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPositions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPositionsQueryResult = NonNullable<Awaited<ReturnType<typeof getPositions>>>
+export type GetPositionsQueryError = unknown
+
+
+export function useGetPositions<TData = Awaited<ReturnType<typeof getPositions>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPositions>>,
+          TError,
+          Awaited<ReturnType<typeof getPositions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPositions<TData = Awaited<ReturnType<typeof getPositions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPositions>>,
+          TError,
+          Awaited<ReturnType<typeof getPositions>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPositions<TData = Awaited<ReturnType<typeof getPositions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositions>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetPositions<TData = Awaited<ReturnType<typeof getPositions>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositions>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPositionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const createPosition = (
+    createPositionRequest: CreatePositionRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/positions`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createPositionRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getCreatePositionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPosition>>, TError,{data: CreatePositionRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof createPosition>>, TError,{data: CreatePositionRequest}, TContext> => {
+
+const mutationKey = ['createPosition'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPosition>>, {data: CreatePositionRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createPosition(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePositionMutationResult = NonNullable<Awaited<ReturnType<typeof createPosition>>>
+    export type CreatePositionMutationBody = CreatePositionRequest
+    export type CreatePositionMutationError = unknown
+
+    export const useCreatePosition = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPosition>>, TError,{data: CreatePositionRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createPosition>>,
+        TError,
+        {data: CreatePositionRequest},
+        TContext
+      > => {
+      return useMutation(getCreatePositionMutationOptions(options), queryClient);
+    }
+    
+export const getPositionById = (
+    id: number,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/positions/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetPositionByIdQueryKey = (id: number,) => {
+    return [
+    `/api/positions/${id}`
+    ] as const;
+    }
+
+    
+export const getGetPositionByIdQueryOptions = <TData = Awaited<ReturnType<typeof getPositionById>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositionById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPositionByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPositionById>>> = ({ signal }) => getPositionById(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPositionById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetPositionByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getPositionById>>>
+export type GetPositionByIdQueryError = unknown
+
+
+export function useGetPositionById<TData = Awaited<ReturnType<typeof getPositionById>>, TError = unknown>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositionById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPositionById>>,
+          TError,
+          Awaited<ReturnType<typeof getPositionById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPositionById<TData = Awaited<ReturnType<typeof getPositionById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositionById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getPositionById>>,
+          TError,
+          Awaited<ReturnType<typeof getPositionById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetPositionById<TData = Awaited<ReturnType<typeof getPositionById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositionById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetPositionById<TData = Awaited<ReturnType<typeof getPositionById>>, TError = unknown>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPositionById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetPositionByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const updatePosition = (
+    id: number,
+    updatePositionRequest: UpdatePositionRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/positions/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updatePositionRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getUpdatePositionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updatePosition>>, TError,{id: number;data: UpdatePositionRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof updatePosition>>, TError,{id: number;data: UpdatePositionRequest}, TContext> => {
+
+const mutationKey = ['updatePosition'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updatePosition>>, {id: number;data: UpdatePositionRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updatePosition(id,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdatePositionMutationResult = NonNullable<Awaited<ReturnType<typeof updatePosition>>>
+    export type UpdatePositionMutationBody = UpdatePositionRequest
+    export type UpdatePositionMutationError = unknown
+
+    export const useUpdatePosition = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updatePosition>>, TError,{id: number;data: UpdatePositionRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updatePosition>>,
+        TError,
+        {id: number;data: UpdatePositionRequest},
+        TContext
+      > => {
+      return useMutation(getUpdatePositionMutationOptions(options), queryClient);
+    }
+    
+export const deletePosition = (
+    id: number,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/positions/${id}`, method: 'DELETE', signal
+    },
+      options);
+    }
+  
+
+
+export const getDeletePositionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePosition>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof deletePosition>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deletePosition'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deletePosition>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deletePosition(id,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeletePositionMutationResult = NonNullable<Awaited<ReturnType<typeof deletePosition>>>
+    
+    export type DeletePositionMutationError = unknown
+
+    export const useDeletePosition = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePosition>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deletePosition>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeletePositionMutationOptions(options), queryClient);
+    }
+    
+export const bulkDeletePositions = (
+    numberString: (number | string)[],
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/positions/bulk`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: numberString, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkDeletePositionsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeletePositions>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkDeletePositions>>, TError,{data: (number | string)[]}, TContext> => {
+
+const mutationKey = ['bulkDeletePositions'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkDeletePositions>>, {data: (number | string)[]}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkDeletePositions(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkDeletePositionsMutationResult = NonNullable<Awaited<ReturnType<typeof bulkDeletePositions>>>
+    export type BulkDeletePositionsMutationBody = (number | string)[]
+    export type BulkDeletePositionsMutationError = unknown
+
+    export const useBulkDeletePositions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeletePositions>>, TError,{data: (number | string)[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkDeletePositions>>,
+        TError,
+        {data: (number | string)[]},
+        TContext
+      > => {
+      return useMutation(getBulkDeletePositionsMutationOptions(options), queryClient);
     }
     
 export const getSalary = (

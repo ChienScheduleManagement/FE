@@ -153,6 +153,15 @@ export interface LeaveReasonVm {
   displayOrder: number
 }
 
+export interface PositionVm {
+  id: number
+  code: string
+  name: string
+  displayOrder: number
+  isActive: boolean
+  createdAt: string
+}
+
 export interface AttendanceDayVm {
   date: string
   leaveReasonId?: number | null

@@ -679,6 +679,87 @@ export const BulkDeleteLeaveReasonsResponse = zod.object({
 })
 
 
+export const GetPositionsResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const CreatePositionBody = zod.object({
+  "code": zod.string().optional(),
+  "name": zod.string().optional(),
+  "displayOrder": zod.number().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const CreatePositionResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetPositionByIdParams = zod.object({
+  "id": zod.number()
+})
+
+export const GetPositionByIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const UpdatePositionParams = zod.object({
+  "id": zod.number()
+})
+
+export const UpdatePositionBody = zod.object({
+  "code": zod.string().nullish(),
+  "name": zod.string().nullish(),
+  "displayOrder": zod.number().optional(),
+  "isActive": zod.boolean().nullish()
+})
+
+export const UpdatePositionResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const DeletePositionParams = zod.object({
+  "id": zod.number()
+})
+
+export const DeletePositionResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const bulkDeletePositionsBodyRegExpOne = new RegExp('^-?(?:0|[1-9]\\d\*)$');
+export const bulkDeletePositionsBodyRegExpTwo = new RegExp('^-?(?:0|[1-9]\\d\*)$');
+
+
+export const BulkDeletePositionsBodyItem = zod.union([zod.number().stringFormat('int32', bulkDeletePositionsBodyRegExpOne),zod.stringFormat('int32', bulkDeletePositionsBodyRegExpTwo)])
+export const BulkDeletePositionsBody = zod.array(BulkDeletePositionsBodyItem)
+
+export const BulkDeletePositionsResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
 export const GetSalaryQueryParams = zod.object({
   "Year": zod.number().optional(),
   "Month": zod.number().optional(),

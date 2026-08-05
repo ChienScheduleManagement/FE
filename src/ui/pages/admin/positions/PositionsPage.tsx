@@ -1,0 +1,377 @@
+import { useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useQueryClient } from '@tanstack/react-query'
+import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
+import { bulkDeletePositions, createPosition, deletePosition, updatePosition, useGetPositions } from '@/api/generated'
+import { unwrapApiResponse } from '@/lib/apiHandler'
+import { showError, toastSmartPromise } from '@/api/utils'
+import { APP_NAME } from '@/constants/ui'
+import { PageHeader } from '@/components/PageHeader'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
+import { selectColumn } from '@/components/DataTable/selectColumn'
+import { TooltipButton } from '@/components/TooltipButton'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
+import type { PositionVm } from '@/types/api'
+
+interface FormValues {
+  code: string
+  name: string
+  displayOrder: string
+  isActive: boolean
+}
+
+const EMPTY_FORM: FormValues = {
+  code: '',
+  name: '',
+  displayOrder: '0',
+  isActive: true,
+}
+
+export function PositionsPage() {
+  const queryClient = useQueryClient()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editing, setEditing] = useState<PositionVm | null>(null)
+  const [deleting, setDeleting] = useState<PositionVm | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState<FormValues>(EMPTY_FORM)
+  const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
+
+  const { data: raw, isLoading, isError, error } = useGetPositions()
+
+  useEffect(() => {
+    if (isError) showError(error)
+  }, [isError, error])
+
+  const positions = raw ? unwrapApiResponse<PositionVm[]>(raw) : undefined
+
+  const columns: ColumnDef<PositionVm>[] = [
+    selectColumn<PositionVm>(),
+    {
+      accessorKey: 'code',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Mã chức vụ" />,
+      cell: ({ row }) => (
+        <span className="font-semibold text-primary">{row.original.code}</span>
+      ),
+      size: 140,
+    },
+    {
+      accessorKey: 'name',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Tên chức vụ" />,
+      cell: ({ row }) => (
+        <span className="font-medium text-slate-900 dark:text-slate-100">{row.original.name}</span>
+      ),
+    },
+    {
+      accessorKey: 'displayOrder',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Thứ tự" />,
+      cell: ({ row }) => <span className="text-sm">{row.original.displayOrder}</span>,
+      size: 80,
+    },
+    {
+      accessorKey: 'isActive',
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Trạng thái" />,
+      cell: ({ row }) => (
+        <span
+          className={cn(
+            'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
+            row.original.isActive
+              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400'
+              : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
+          )}
+        >
+          {row.original.isActive ? 'Đang dùng' : 'Tạm dừng'}
+        </span>
+      ),
+      size: 100,
+    },
+    {
+      id: 'actions',
+      header: () => <span className="text-right">Thao tác</span>,
+      cell: ({ row }) => (
+        <div className="flex justify-end gap-1">
+          <TooltipButton
+            variant="ghost"
+            size="icon"
+            label="Chỉnh sửa"
+            onClick={() => openEdit(row.original)}
+          >
+            <span className="material-symbols-outlined text-lg">edit</span>
+          </TooltipButton>
+          <TooltipButton
+            variant="ghost"
+            size="icon"
+            label="Xóa"
+            className="text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40"
+            onClick={() => setDeleting(row.original)}
+          >
+            <span className="material-symbols-outlined text-lg">delete</span>
+          </TooltipButton>
+        </div>
+      ),
+      size: 110,
+    },
+  ]
+
+  const invalidate = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['/api/positions'] })
+  }
+
+  const openCreate = () => {
+    setEditing(null)
+    setForm(EMPTY_FORM)
+    setErrors({})
+    setDialogOpen(true)
+  }
+
+  const openEdit = (p: PositionVm) => {
+    setEditing(p)
+    setForm({
+      code: p.code,
+      name: p.name,
+      displayOrder: String(p.displayOrder),
+      isActive: p.isActive,
+    })
+    setErrors({})
+    setDialogOpen(true)
+  }
+
+  const setField = (key: keyof FormValues, value: string | boolean) => {
+    setForm((prev) => ({ ...prev, [key]: value }))
+    setErrors((prev) => ({ ...prev, [key]: undefined }))
+  }
+
+  const handleSave = async () => {
+    const nextErrors: typeof errors = {}
+    if (!form.code.trim()) nextErrors.code = 'Mã chức vụ không được để trống.'
+    if (!form.name.trim()) nextErrors.name = 'Tên chức vụ không được để trống.'
+    if (Number(form.displayOrder) < 0) nextErrors.displayOrder = 'Độ ưu tiên không được âm.'
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors)
+      return
+    }
+
+    setSaving(true)
+    try {
+      const payload = {
+        code: form.code,
+        name: form.name,
+        displayOrder: Number(form.displayOrder) || 0,
+        isActive: form.isActive,
+      }
+      if (editing) {
+        await toastSmartPromise(
+          updatePosition(editing.id, payload).then(unwrapApiResponse),
+          { loading: 'Đang cập nhật...', success: 'Cập nhật chức vụ thành công!' },
+        )
+      } else {
+        await toastSmartPromise(
+          createPosition(payload).then(unwrapApiResponse),
+          { loading: 'Đang thêm...', success: 'Thêm chức vụ thành công!' },
+        )
+      }
+      await invalidate()
+      setDialogOpen(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deleting) return
+    setDeleteLoading(true)
+    try {
+      await toastSmartPromise(
+        deletePosition(deleting.id).then(unwrapApiResponse),
+        { loading: 'Đang xóa...', success: 'Xóa chức vụ thành công!' },
+      )
+      await invalidate()
+      setDeleting(null)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    const ids = Object.keys(rowSelection).map(Number)
+    if (!ids.length) return
+    setBulkDeleting(true)
+    try {
+      await toastSmartPromise(
+        bulkDeletePositions(ids).then(unwrapApiResponse),
+        { loading: 'Đang xóa nhiều chức vụ...', success: 'Đã xóa các chức vụ đã chọn!' },
+      )
+      await invalidate()
+      setBulkDeleteOpen(false)
+      setRowSelection({})
+    } finally {
+      setBulkDeleting(false)
+    }
+  }
+
+  return (
+    <>
+      <Helmet>
+        <title>Chức vụ - {APP_NAME}</title>
+      </Helmet>
+      <div className="flex flex-col gap-5">
+        <PageHeader
+          icon="workspace_premium"
+          title="Quản lý chức vụ"
+          description="Quản lý danh mục chức vụ của cán bộ, công chức trong xã"
+          actions={
+            <Button onClick={openCreate}>
+              <span className="material-symbols-outlined text-base mr-1">add</span>
+              Thêm chức vụ
+            </Button>
+          }
+        />
+
+        <div className="rounded-2xl border bg-card shadow-sm p-4">
+          <BulkActionBar
+            selectedCount={Object.keys(rowSelection).length}
+            actions={[
+              {
+                label: 'Xóa nhiều',
+                icon: 'delete_sweep',
+                onClick: () => setBulkDeleteOpen(true),
+                colorClass:
+                  'text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:border-red-900 dark:hover:bg-red-950/40',
+              },
+            ]}
+            onClearSelection={() => setRowSelection({})}
+          />
+          <DataTable
+            columns={columns}
+            data={positions ?? []}
+            searchKey="tên, mã"
+            loading={isLoading}
+            getRowId={(row) => row.id}
+            enableRowSelection
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
+          />
+        </div>
+      </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Chỉnh sửa chức vụ' : 'Thêm chức vụ mới'}</DialogTitle>
+            <DialogDescription>
+              Nhập thông tin chức vụ. Các trường có dấu (*) là bắt buộc.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="pos-code">
+                Mã chức vụ <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="pos-code"
+                placeholder="VD: CT_UBND"
+                value={form.code}
+                onChange={(e) => setField('code', e.target.value)}
+              />
+              {errors.code ? (
+                <p className="text-xs font-medium text-red-500">{errors.code}</p>
+              ) : null}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pos-order">Thứ tự</Label>
+              <Input
+                id="pos-order"
+                type="number"
+                min={0}
+                value={form.displayOrder}
+                onChange={(e) => setField('displayOrder', e.target.value)}
+              />
+              {errors.displayOrder ? (
+                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
+              ) : null}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pos-name">
+                Tên chức vụ <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="pos-name"
+                placeholder="VD: Chủ tịch UBND xã"
+                value={form.name}
+                onChange={(e) => setField('name', e.target.value)}
+              />
+              {errors.name ? (
+                <p className="text-xs font-medium text-red-500">{errors.name}</p>
+              ) : null}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="pos-active">Trạng thái</Label>
+              <select
+                id="pos-active"
+                value={String(form.isActive)}
+                onChange={(e) => setField('isActive', e.target.value === 'true')}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="true">Đang dùng</option>
+                <option value="false">Tạm dừng</option>
+              </select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? (
+                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined text-base mr-1">save</span>
+              )}
+              {saving ? 'Đang lưu...' : editing ? 'Cập nhật' : 'Thêm mới'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmDialog
+        open={!!deleting}
+        onOpenChange={(open) => { if (!open) setDeleting(null) }}
+        title="Xóa chức vụ"
+        description={
+          <>
+            Bạn có chắc chắn muốn xóa{' '}
+            <span className="font-semibold text-foreground">{deleting?.name}</span>?
+          </>
+        }
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        title="Xóa nhiều chức vụ"
+        description={`Bạn có chắc chắn muốn xóa ${Object.keys(rowSelection).length} chức vụ đã chọn? Hành động này không thể hoàn tác.`}
+        loading={bulkDeleting}
+        onConfirm={handleBulkDelete}
+      />
+    </>
+  )
+}

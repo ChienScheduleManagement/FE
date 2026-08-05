@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -94,6 +94,61 @@ export function DataTable<TData, TValue>({
     }, {} as VisibilityState)
   )
   const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({})
+  const [panning, setPanning] = useState(false)
+  const [spaceActive, setSpaceActive] = useState(false)
+  const scrollXRef = useRef<HTMLDivElement>(null)
+  const scrollYRef = useRef<HTMLDivElement>(null)
+  const spaceHeldRef = useRef(false)
+  const panStart = useRef<{ x: number; y: number; scrollLeft: number; scrollTop: number } | null>(null)
+
+  // Kéo để cuộn: giữ phím Space + kéo chuột trái (hoặc chỉ cần kéo) để pan bảng.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== 'Space') return
+      spaceHeldRef.current = true
+      setSpaceActive(true)
+      if (scrollXRef.current?.contains(e.target as Node)) {
+        e.preventDefault()
+      }
+    }
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code !== 'Space') return
+      spaceHeldRef.current = false
+      setSpaceActive(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+    }
+  }, [])
+
+  const handlePanMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const xEl = scrollXRef.current
+    const yEl = scrollYRef.current
+    if (!xEl) return
+    const isSpacePan = spaceHeldRef.current && e.button === 0
+    if (!isSpacePan) return
+    e.preventDefault()
+    panStart.current = { x: e.clientX, y: e.clientY, scrollLeft: xEl.scrollLeft, scrollTop: yEl?.scrollTop ?? 0 }
+    setPanning(true)
+  }
+
+  const handlePanMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const xEl = scrollXRef.current
+    const start = panStart.current
+    if (!start || !xEl) return
+    const dx = e.clientX - start.x
+    const dy = e.clientY - start.y
+    xEl.scrollLeft = start.scrollLeft - dx
+    if (scrollYRef.current) scrollYRef.current.scrollTop = start.scrollTop - dy
+  }
+
+  const handlePanMouseUp = () => {
+    panStart.current = null
+    setPanning(false)
+  }
 
   const rowSelection = controlledRowSelection ?? internalRowSelection
   const setRowSelection = onRowSelectionChange ?? setInternalRowSelection
@@ -158,8 +213,22 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       {!hideToolbar && <DataTableToolbar table={table} searchKey={searchKey || ''} />}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-x-auto relative shadow-sm scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-        <div className="overflow-y-auto max-h-[60vh] scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+      <div
+        ref={scrollXRef}
+        onMouseDown={handlePanMouseDown}
+        onMouseMove={handlePanMouseMove}
+        onMouseUp={handlePanMouseUp}
+        onMouseLeave={handlePanMouseUp}
+        style={{ cursor: panning ? 'grabbing' : spaceActive ? 'grab' : undefined }}
+        className={cn(
+          "rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-x-auto relative shadow-sm scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800",
+          panning && "select-none",
+        )}
+      >
+        <div
+          ref={scrollYRef}
+          className="overflow-y-auto max-h-[60vh] scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
+        >
           <Table className="relative min-w-full border-separate border-spacing-0">
             <TableHeader className="sticky top-0 z-30 bg-slate-50/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-[0_1px_0_rgba(0,0,0,0.05)]">
               {table.getHeaderGroups().map((headerGroup) => (

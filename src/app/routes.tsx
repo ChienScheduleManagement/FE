@@ -79,6 +79,10 @@ const LeaveReasonsPage = lazyRouteComponent(
   () => import('@/ui/pages/admin/leave-reasons/LeaveReasonsPage'),
   'LeaveReasonsPage',
 )
+const PositionsPage = lazyRouteComponent(
+  () => import('@/ui/pages/admin/positions/PositionsPage'),
+  'PositionsPage',
+)
 
 // ================= ROOT =================
 const rootRoute = createRootRoute({
@@ -210,6 +214,12 @@ const leaveReasonsRoute = createRoute({
   component: LeaveReasonsPage,
 })
 
+const positionsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/positions',
+  component: PositionsPage,
+})
+
 // ================= BACKWARD COMPAT (redirect cũ) =================
 const homeRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
@@ -262,6 +272,7 @@ export const routeTree = rootRoute.addChildren([
     docSourcesRoute,
     employeesRoute,
     leaveReasonsRoute,
+    positionsRoute,
     attendanceRoute,
     salaryRoute,
     reportsRoute,
