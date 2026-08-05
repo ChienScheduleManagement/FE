@@ -42,6 +42,7 @@ export function AttendancePage() {
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [departmentId, setDepartmentId] = useState<string>('all')
   const [showFullMonth, setShowFullMonth] = useState(false)
+  const [showThisWeek, setShowThisWeek] = useState(false)
 
   // Selected employee for right panel
   const [selectedEmp, setSelectedEmp] = useState<AttendanceEmployeeVm | null>(null)
@@ -99,10 +100,27 @@ export function AttendancePage() {
   const daysInMonth = gridData?.daysInMonth ?? new Date(year, month, 0).getDate()
   const todayStr = `${year}-${String(month).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1
-  const showTodayOnly = isCurrentMonth && !showFullMonth
+  const showTodayOnly = isCurrentMonth && !showFullMonth && !showThisWeek
   const visibleDays = showTodayOnly
     ? [now.getDate()]
-    : Array.from({ length: daysInMonth }, (_, i) => i + 1)
+    : showThisWeek
+      ? (() => {
+          const start = new Date(year, month - 1, 1)
+          const dayOfWeek = start.getDay()
+          const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+          const monday = new Date(year, month - 1, 1 + mondayOffset)
+          const sunday = new Date(monday)
+          sunday.setDate(sunday.getDate() + 6)
+          const days: number[] = []
+          for (let d = monday.getDate(); d <= sunday.getDate(); d++) {
+            const checkDate = new Date(year, month - 1, d)
+            if (checkDate.getMonth() === month - 1) days.push(d)
+          }
+          return days
+        })()
+      : showFullMonth
+        ? Array.from({ length: daysInMonth }, (_, i) => i + 1)
+        : [now.getDate()]
 
   // Day-off info theo ngày (rules là chung cho đơn vị nên giống nhau mọi nhân viên)
   const firstEmpDays = gridData?.employees[0]?.days ?? []
@@ -392,6 +410,76 @@ export function AttendancePage() {
             </Button>
           </div>
         ) : null}
+
+        {/* Legend bar — trên grid */}
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm text-xs font-semibold">
+          <span className="text-muted-foreground">Chú giải:</span>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+            <span>✓</span>
+            <span>Có mặt</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+            <span className="material-symbols-outlined text-xs">star</span>
+            <span>Đi trực ngày nghỉ (+1 công)</span>
+          </div>
+          {reasons.map((r) => (
+            <div
+              key={r.id}
+              className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-slate-900 dark:text-slate-100"
+              style={{ backgroundColor: `${r.color}25` }}
+            >
+              <span className="font-bold" style={{ color: r.color || undefined }}>
+                {r.symbol}
+              </span>
+              <span>{r.name}</span>
+            </div>
+          ))}
+          <div className="ml-auto flex items-center gap-2">
+            {isCurrentMonth ? (
+              <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs">
+                <button
+                  type="button"
+                  className={cn(
+                    'px-3 py-1.5 font-bold transition-colors',
+                    !showFullMonth && !showThisWeek
+                      ? 'bg-primary text-white'
+                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  )}
+                  onClick={() => { setShowFullMonth(false); setShowThisWeek(false) }}
+                >
+                  Hôm nay
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    'px-3 py-1.5 font-bold transition-colors',
+                    showThisWeek
+                      ? 'bg-primary text-white'
+                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  )}
+                  onClick={() => { setShowThisWeek(true); setShowFullMonth(false) }}
+                >
+                  Tuần này
+                </button>
+                <button
+                  type="button"
+                  className={cn(
+                    'px-3 py-1.5 font-bold transition-colors',
+                    showFullMonth
+                      ? 'bg-primary text-white'
+                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  )}
+                  onClick={() => { setShowFullMonth(true); setShowThisWeek(false) }}
+                >
+                  Cả tháng
+                </button>
+              </div>
+            ) : null}
+            <span className="text-muted-foreground italic">
+              Kéo chuột chọn nhiều ô • chuột phải menu nhanh • ESC bỏ chọn
+            </span>
+          </div>
+        </div>
 
         {/* Main Grid + Right Panel */}
         <div className="grid gap-4 lg:grid-cols-12">
@@ -751,75 +839,17 @@ export function AttendancePage() {
               </div>
             </div>
           ) : null}
-         </div>
+        </div>
+      </div>
 
-         {/* Legend bar — dưới grid */}
-         <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm text-xs font-semibold">
-           <span className="text-muted-foreground">Chú giải:</span>
-           <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
-             <span>✓</span>
-             <span>Có mặt</span>
-           </div>
-           <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-             <span className="material-symbols-outlined text-xs">star</span>
-             <span>Đi trực ngày nghỉ (+1 công)</span>
-           </div>
-           {reasons.map((r) => (
-             <div
-               key={r.id}
-               className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-slate-900 dark:text-slate-100"
-               style={{ backgroundColor: `${r.color}25` }}
-             >
-               <span className="font-bold" style={{ color: r.color || undefined }}>
-                 {r.symbol}
-               </span>
-               <span>{r.name}</span>
-             </div>
-           ))}
-           <div className="ml-auto flex items-center gap-2">
-             {isCurrentMonth ? (
-               <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-xs">
-                 <button
-                   type="button"
-                   className={cn(
-                     'px-3 py-1.5 font-bold transition-colors',
-                     !showFullMonth
-                       ? 'bg-primary text-white'
-                       : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                   )}
-                   onClick={() => setShowFullMonth(false)}
-                 >
-                   Hôm nay
-                 </button>
-                 <button
-                   type="button"
-                   className={cn(
-                     'px-3 py-1.5 font-bold transition-colors',
-                     showFullMonth
-                       ? 'bg-primary text-white'
-                       : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                   )}
-                   onClick={() => setShowFullMonth(true)}
-                 >
-                   Cả tháng
-                 </button>
-               </div>
-             ) : null}
-             <span className="text-muted-foreground italic">
-               Kéo chuột chọn nhiều ô • chuột phải menu nhanh • ESC bỏ chọn
-             </span>
-           </div>
-         </div>
-       </div>
-
-       {/* Right Click Context Menu for Bulk Actions */}
+      {/* Right Click Context Menu for Bulk Actions */}
       {contextMenu ? (
-        <div
-          className="fixed z-50 bg-popover border shadow-lg rounded-xl p-1.5 w-48 text-xs font-semibold space-y-1 animate-in fade-in-0 zoom-in-95"
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <div className="px-2 py-1 text-[10px] text-muted-foreground border-b font-mono">
+      <div
+        className="fixed z-50 bg-popover border shadow-lg rounded-xl p-1.5 w-48 text-xs font-semibold space-y-1 animate-in fade-in-0 zoom-in-95"
+        style={{ top: contextMenu.y, left: contextMenu.x }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <div className="px-2 py-1 text-[10px] text-muted-foreground border-b font-mono">
             Đã chọn {selectedCells.length} ô
           </div>
           <button
