@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DateTimePicker } from '@/components/ui/date-time-picker'
 import {
   createEmploymentHistories,
   deleteEmploymentHistories,
@@ -336,22 +337,22 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
                   <Label htmlFor="hist-from">
                     Từ ngày <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <DateTimePicker
                     id="hist-from"
-                    type="date"
                     value={form.effectiveFrom}
-                    onChange={(e) => setForm((prev) => ({ ...prev, effectiveFrom: e.target.value }))}
+                    placeholder="Chọn ngày..."
+                    onChange={(v) => setForm((prev) => ({ ...prev, effectiveFrom: v }))}
                   />
                   {errors.effectiveFrom && <p className="text-xs text-red-500">{errors.effectiveFrom}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                   <Label htmlFor="hist-to">Đến ngày (để trống nếu đến nay)</Label>
-                  <Input
+                  <DateTimePicker
                     id="hist-to"
-                    type="date"
                     value={form.effectiveTo}
-                    onChange={(e) => setForm((prev) => ({ ...prev, effectiveTo: e.target.value }))}
+                    placeholder="Chọn ngày..."
+                    onChange={(v) => setForm((prev) => ({ ...prev, effectiveTo: v }))}
                   />
                   {errors.effectiveTo && <p className="text-xs text-red-500">{errors.effectiveTo}</p>}
                 </div>

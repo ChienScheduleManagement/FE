@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -367,11 +368,11 @@ export function DayOffsPage() {
                 <Label htmlFor="do-date">
                   Ngày cụ thể <span className="text-red-500">*</span>
                 </Label>
-                <Input
+                <DateTimePicker
                   id="do-date"
-                  type="date"
                   value={form.date}
-                  onChange={(e) => setField('date', e.target.value)}
+                  placeholder="Chọn ngày nghỉ..."
+                  onChange={(v) => setField('date', v)}
                 />
                 {errors.date ? <p className="text-xs font-medium text-red-500">{errors.date}</p> : null}
               </div>
