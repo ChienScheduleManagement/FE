@@ -38,6 +38,7 @@ interface FormValues {
   avatarUrl: string
   displayOrder: string
   joinDate: string
+  isActive: boolean
 }
 
 const EMPTY_FORM: FormValues = {
@@ -51,6 +52,7 @@ const EMPTY_FORM: FormValues = {
   avatarUrl: '',
   displayOrder: '0',
   joinDate: '',
+  isActive: true,
 }
 
 import { EmploymentHistoryDialog } from './EmploymentHistoryDialog'
@@ -208,12 +210,13 @@ export function EmployeesPage() {
       avatarUrl: emp.avatarUrl ?? '',
       displayOrder: String(emp.displayOrder ?? 0),
       joinDate: emp.joinDate ? emp.joinDate.split('T')[0] : '',
+      isActive: emp.isActive,
     })
     setErrors({})
     setDialogOpen(true)
   }
 
-  const setField = (key: keyof FormValues, value: string) => {
+  const setField = <K extends keyof FormValues>(key: K, value: FormValues[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
     setErrors((prev) => ({ ...prev, [key]: undefined }))
   }
@@ -247,6 +250,7 @@ export function EmployeesPage() {
         avatarUrl: form.avatarUrl || null,
         displayOrder,
         joinDate: form.joinDate || null,
+        ...(editing ? { isActive: form.isActive } : {}),
       }
       if (editing) {
         await toastSmartPromise(
@@ -449,6 +453,23 @@ export function EmployeesPage() {
                 onChange={(e) => setField('phoneNumber', e.target.value)}
               />
             </div>
+            {editing ? (
+              <div className="space-y-1.5">
+                <Label htmlFor="emp-active">Trạng thái</Label>
+                <Select
+                  value={form.isActive ? 'true' : 'false'}
+                  onValueChange={(v) => setField('isActive', v === 'true')}
+                >
+                  <SelectTrigger id="emp-active">
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Đang làm</SelectItem>
+                    <SelectItem value="false">Nghỉ việc</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
             <div className="space-y-1.5">
               <Label htmlFor="emp-display-order">Thứ tự hiển thị</Label>
               <Input
