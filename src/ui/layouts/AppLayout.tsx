@@ -27,6 +27,7 @@ const NAV_HR: NavItem[] = [
   { label: 'Chấm công', to: '/attendance', icon: 'event_available' },
   { label: 'Danh sách nhân viên', to: '/admin/employees', icon: 'badge' },
   { label: 'Tính lương', to: '/salary', icon: 'payments' },
+  { label: 'Mức lương cơ sở', to: '/admin/base-salaries', icon: 'attach_money' },
   { label: 'Báo cáo', to: '/reports', icon: 'bar_chart' },
   { label: 'Phòng ban', to: '/admin/departments', icon: 'account_balance' },
   { label: 'Chức vụ', to: '/admin/positions', icon: 'workspace_premium' },
