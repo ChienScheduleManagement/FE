@@ -169,6 +169,7 @@ export function AttendancePage() {
   // Handle cell mouse down (Left click to select)
   const handleCellMouseDown = (employeeId: string, date: string, e: React.MouseEvent) => {
     if (e.button !== 0) return // Left click only
+    if (date > todayStr) return // Chặn ngày tương lai
     mouseDownPos.current = { x: e.clientX, y: e.clientY }
     setIsMouseDown(true)
     if (e.ctrlKey || e.metaKey) {
@@ -184,6 +185,7 @@ export function AttendancePage() {
 
   const handleCellMouseEnter = (employeeId: string, date: string) => {
     if (!isMouseDown) return
+    if (date > todayStr) return // Chặn ngày tương lai
     setSelectedCells((prev) => {
       const exists = prev.some((c) => c.employeeId === employeeId && c.date === date)
       if (exists) return prev
@@ -220,6 +222,7 @@ export function AttendancePage() {
   const handleCellContextMenu = (employeeId: string, date: string, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    if (date > todayStr) return // Chặn ngày tương lai
     // Nếu ô vừa chuột phải chưa nằm trong danh sách đã chọn, chọn nó làm ô duy nhất
     const exists = selectedCells.some((c) => c.employeeId === employeeId && c.date === date)
     if (!exists) {
@@ -552,24 +555,30 @@ export function AttendancePage() {
                             if (!day) return null
                             const dateStr = day.date
                             const isToday = dateStr === todayStr
+                            const isFuture = dateStr > todayStr
                             const isSelected = selectedCells.some(
                               (c) => c.employeeId === emp.employeeId && c.date === dateStr
                             )
                             const reason = day.leaveReasonId ? reasonMap.get(day.leaveReasonId) : null
                             const isTruc = day.isDayOff && day.hasRecord && !reason
-                            const cellTitle = reason
-                              ? `${reason.name}${day.note ? ` — ${day.note}` : ''}`
-                              : isTruc
-                                ? `Đi trực ngày nghỉ${day.note ? ` — ${day.note}` : ''}`
-                                : day.isDayOff
-                                  ? `Ngày nghỉ (${day.dayOffName ?? ''})`
-                                  : 'Có mặt'
+                            const cellTitle = isFuture
+                              ? 'Chưa đến ngày (Không thể chấm công)'
+                              : reason
+                                ? `${reason.name}${day.note ? ` — ${day.note}` : ''}`
+                                : isTruc
+                                  ? `Đi trực ngày nghỉ${day.note ? ` — ${day.note}` : ''}`
+                                  : day.isDayOff
+                                    ? `Ngày nghỉ (${day.dayOffName ?? ''})`
+                                    : 'Có mặt'
 
                             return (
                               <td
                                 key={dateStr}
                                 className={cn(
-                                  'p-1 border-r text-center cursor-pointer select-none transition-all relative',
+                                  'p-1 border-r text-center select-none transition-all relative',
+                                  isFuture
+                                    ? 'bg-slate-100/50 dark:bg-slate-900/40 cursor-not-allowed opacity-60'
+                                    : 'cursor-pointer',
                                   reason
                                     ? undefined
                                     : isToday
@@ -578,7 +587,7 @@ export function AttendancePage() {
                                   isSelected && 'ring-2 ring-primary ring-inset bg-primary/20 z-10'
                                 )}
                                 style={{
-                                  backgroundColor: reason ? `${reason.color}45` : undefined,
+                                  backgroundColor: !isFuture && reason ? `${reason.color}45` : undefined,
                                 }}
                                 onMouseDown={(e) => handleCellMouseDown(emp.employeeId, dateStr, e)}
                                 onMouseEnter={() => handleCellMouseEnter(emp.employeeId, dateStr)}
@@ -587,7 +596,9 @@ export function AttendancePage() {
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <div className="w-full h-8 flex items-center justify-center rounded font-bold">
-                                      {reason ? (
+                                      {isFuture ? (
+                                        <span className="text-xs font-bold text-slate-300 dark:text-slate-600">—</span>
+                                      ) : reason ? (
                                        <span
                                          className="font-black text-base"
                                          style={{ color: reason.color || undefined }}
