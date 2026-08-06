@@ -86,7 +86,7 @@ export function AttendancePage() {
   const history = historyRaw ? unwrapApiResponse<AttendanceChangeVm[]>(historyRaw) : []
 
   const daysInMonth = gridData?.daysInMonth ?? new Date(year, month, 0).getDate()
-  const todayStr = `${year}-${String(month).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1
   const showTodayOnly = isCurrentMonth && !showFullMonth && !showThisWeek
   const [exporting, setExporting] = useState(false)
