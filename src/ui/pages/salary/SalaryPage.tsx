@@ -148,15 +148,15 @@ export function SalaryPage() {
             <thead>
               <tr className="border-b bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
                 <th className="p-3 text-center w-12">STT</th>
-                <th className="p-3 w-28">Mã CB</th>
-                <th className="p-3 min-w-[160px]">Họ tên</th>
-                <th className="p-3 min-w-[120px]">Chức vụ</th>
-                <th className="p-3 min-w-[150px]">Đơn vị</th>
+                <th className="p-3 w-24">Mã CB</th>
+                <th className="p-3">Họ tên</th>
+                <th className="p-3">Chức vụ</th>
+                <th className="p-3">Đơn vị</th>
                 <th className="p-3 text-center w-24">Công QĐ</th>
                 <th className="p-3 text-center w-24">Nghỉ</th>
-                <th className="p-3 text-right min-w-[120px]">Lương cơ bản</th>
-                <th className="p-3 text-right min-w-[110px]">Phụ cấp</th>
-                <th className="p-3 text-right min-w-[130px]">Thực lĩnh</th>
+                <th className="p-3 text-right">Lương cơ bản</th>
+                <th className="p-3 text-right">Phụ cấp</th>
+                <th className="p-3 text-right pr-6">Thực lĩnh</th>
               </tr>
             </thead>
             <tbody>
@@ -195,7 +195,7 @@ export function SalaryPage() {
                     <td className="p-3 text-right font-mono">
                       {item.allowance.toLocaleString('vi-VN')}
                     </td>
-                    <td className="p-3 text-right font-mono font-black text-emerald-600 dark:text-emerald-400">
+                    <td className="p-3 text-right font-mono font-black text-emerald-600 dark:text-emerald-400 pr-6">
                       {item.netSalary.toLocaleString('vi-VN')}
                     </td>
                   </tr>
