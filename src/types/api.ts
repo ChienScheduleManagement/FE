@@ -242,3 +242,19 @@ export interface SalaryVm {
   standardDays: number
   items: SalaryItemVm[]
 }
+
+export interface EmploymentHistoryVm {
+  id: string
+  employeeId: string
+  employeeName: string
+  departmentId: number
+  departmentName: string
+  positionId?: number | null
+  positionName?: string | null
+  contractId?: string | null
+  effectiveFrom: string
+  effectiveTo?: string | null
+  reason?: string | null
+  createdAt: string
+}
+

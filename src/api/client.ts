@@ -178,6 +178,10 @@ export const apiOrvalClient = async <T>(
       ...config,
       ...options,
     })
+    if (res.config.responseType === 'blob' || res.config.responseType === 'arraybuffer') {
+      return res.data as T
+    }
+
     const data = res.data as {
       isError?: boolean
       errorMessage?: string | null

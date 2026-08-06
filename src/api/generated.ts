@@ -33,6 +33,7 @@ import type {
   CreateDocSourceRequest,
   CreateDocumentRequest,
   CreateEmployeeRequest,
+  CreateEmploymentHistoryRequest,
   CreateLeaveReasonRequest,
   CreatePositionRequest,
   CreateTaskLogRequest,
@@ -57,6 +58,7 @@ import type {
   UpdateDocSourceRequest,
   UpdateDocumentRequest,
   UpdateEmployeeRequest,
+  UpdateEmploymentHistoryRequest,
   UpdateLeaveReasonRequest,
   UpdatePositionRequest,
   UpdateTaskRequest
@@ -3111,6 +3113,349 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getBulkDeleteEmployeesMutationOptions(options), queryClient);
+    }
+    
+export const gETEmploymentHistoriesEmployeeEmployeeId = (
+    employeeId: string,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employment-histories/employee/${employeeId}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGETEmploymentHistoriesEmployeeEmployeeIdQueryKey = (employeeId: string,) => {
+    return [
+    `/api/employment-histories/employee/${employeeId}`
+    ] as const;
+    }
+
+    
+export const getGETEmploymentHistoriesEmployeeEmployeeIdQueryOptions = <TData = Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError = unknown>(employeeId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGETEmploymentHistoriesEmployeeEmployeeIdQueryKey(employeeId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>> = ({ signal }) => gETEmploymentHistoriesEmployeeEmployeeId(employeeId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(employeeId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GETEmploymentHistoriesEmployeeEmployeeIdQueryResult = NonNullable<Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>>
+export type GETEmploymentHistoriesEmployeeEmployeeIdQueryError = unknown
+
+
+export function useGETEmploymentHistoriesEmployeeEmployeeId<TData = Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError = unknown>(
+ employeeId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>,
+          TError,
+          Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGETEmploymentHistoriesEmployeeEmployeeId<TData = Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError = unknown>(
+ employeeId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>,
+          TError,
+          Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGETEmploymentHistoriesEmployeeEmployeeId<TData = Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError = unknown>(
+ employeeId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGETEmploymentHistoriesEmployeeEmployeeId<TData = Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError = unknown>(
+ employeeId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gETEmploymentHistoriesEmployeeEmployeeId>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGETEmploymentHistoriesEmployeeEmployeeIdQueryOptions(employeeId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const getEmploymentHistoriesById = (
+    id: string,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employment-histories/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetEmploymentHistoriesByIdQueryKey = (id: string,) => {
+    return [
+    `/api/employment-histories/${id}`
+    ] as const;
+    }
+
+    
+export const getGetEmploymentHistoriesByIdQueryOptions = <TData = Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEmploymentHistoriesByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEmploymentHistoriesById>>> = ({ signal }) => getEmploymentHistoriesById(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEmploymentHistoriesByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getEmploymentHistoriesById>>>
+export type GetEmploymentHistoriesByIdQueryError = unknown
+
+
+export function useGetEmploymentHistoriesById<TData = Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEmploymentHistoriesById>>,
+          TError,
+          Awaited<ReturnType<typeof getEmploymentHistoriesById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEmploymentHistoriesById<TData = Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEmploymentHistoriesById>>,
+          TError,
+          Awaited<ReturnType<typeof getEmploymentHistoriesById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEmploymentHistoriesById<TData = Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetEmploymentHistoriesById<TData = Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmploymentHistoriesById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEmploymentHistoriesByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const updateEmploymentHistories = (
+    id: string,
+    updateEmploymentHistoryRequest: UpdateEmploymentHistoryRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employment-histories/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateEmploymentHistoryRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getUpdateEmploymentHistoriesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEmploymentHistories>>, TError,{id: string;data: UpdateEmploymentHistoryRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateEmploymentHistories>>, TError,{id: string;data: UpdateEmploymentHistoryRequest}, TContext> => {
+
+const mutationKey = ['updateEmploymentHistories'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateEmploymentHistories>>, {id: string;data: UpdateEmploymentHistoryRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateEmploymentHistories(id,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateEmploymentHistoriesMutationResult = NonNullable<Awaited<ReturnType<typeof updateEmploymentHistories>>>
+    export type UpdateEmploymentHistoriesMutationBody = UpdateEmploymentHistoryRequest
+    export type UpdateEmploymentHistoriesMutationError = unknown
+
+    export const useUpdateEmploymentHistories = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEmploymentHistories>>, TError,{id: string;data: UpdateEmploymentHistoryRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateEmploymentHistories>>,
+        TError,
+        {id: string;data: UpdateEmploymentHistoryRequest},
+        TContext
+      > => {
+      return useMutation(getUpdateEmploymentHistoriesMutationOptions(options), queryClient);
+    }
+    
+export const deleteEmploymentHistories = (
+    id: string,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employment-histories/${id}`, method: 'DELETE', signal
+    },
+      options);
+    }
+  
+
+
+export const getDeleteEmploymentHistoriesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEmploymentHistories>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteEmploymentHistories>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteEmploymentHistories'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteEmploymentHistories>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteEmploymentHistories(id,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteEmploymentHistoriesMutationResult = NonNullable<Awaited<ReturnType<typeof deleteEmploymentHistories>>>
+    
+    export type DeleteEmploymentHistoriesMutationError = unknown
+
+    export const useDeleteEmploymentHistories = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEmploymentHistories>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteEmploymentHistories>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeleteEmploymentHistoriesMutationOptions(options), queryClient);
+    }
+    
+export const createEmploymentHistories = (
+    createEmploymentHistoryRequest: CreateEmploymentHistoryRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/employment-histories`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createEmploymentHistoryRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getCreateEmploymentHistoriesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEmploymentHistories>>, TError,{data: CreateEmploymentHistoryRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof createEmploymentHistories>>, TError,{data: CreateEmploymentHistoryRequest}, TContext> => {
+
+const mutationKey = ['createEmploymentHistories'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEmploymentHistories>>, {data: CreateEmploymentHistoryRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createEmploymentHistories(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateEmploymentHistoriesMutationResult = NonNullable<Awaited<ReturnType<typeof createEmploymentHistories>>>
+    export type CreateEmploymentHistoriesMutationBody = CreateEmploymentHistoryRequest
+    export type CreateEmploymentHistoriesMutationError = unknown
+
+    export const useCreateEmploymentHistories = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEmploymentHistories>>, TError,{data: CreateEmploymentHistoryRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createEmploymentHistories>>,
+        TError,
+        {data: CreateEmploymentHistoryRequest},
+        TContext
+      > => {
+      return useMutation(getCreateEmploymentHistoriesMutationOptions(options), queryClient);
     }
     
 export const getLeaveReasons = (

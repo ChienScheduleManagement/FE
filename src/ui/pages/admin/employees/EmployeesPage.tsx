@@ -53,11 +53,14 @@ const EMPTY_FORM: FormValues = {
   joinDate: '',
 }
 
+import { EmploymentHistoryDialog } from './EmploymentHistoryDialog'
+
 export function EmployeesPage() {
   const queryClient = useQueryClient()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<EmployeeVm | null>(null)
   const [deleting, setDeleting] = useState<EmployeeVm | null>(null)
+  const [historyEmp, setHistoryEmp] = useState<EmployeeVm | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
@@ -153,6 +156,14 @@ export function EmployeesPage() {
           <TooltipButton
             variant="ghost"
             size="icon"
+            label="Quá trình công tác"
+            onClick={() => setHistoryEmp(row.original)}
+          >
+            <span className="material-symbols-outlined text-lg text-blue-600 dark:text-blue-400">history_edu</span>
+          </TooltipButton>
+          <TooltipButton
+            variant="ghost"
+            size="icon"
             label="Chỉnh sửa"
             onClick={() => openEdit(row.original)}
           >
@@ -169,7 +180,7 @@ export function EmployeesPage() {
           </TooltipButton>
         </div>
       ),
-      size: 110,
+      size: 140,
     },
   ]
 
@@ -508,6 +519,12 @@ export function EmployeesPage() {
         description={`Bạn có chắc chắn muốn xóa ${Object.keys(rowSelection).length} cán bộ đã chọn? Hành động này không thể hoàn tác.`}
         loading={bulkDeleting}
         onConfirm={handleBulkDelete}
+      />
+
+      <EmploymentHistoryDialog
+        employee={historyEmp}
+        open={!!historyEmp}
+        onOpenChange={(o) => { if (!o) setHistoryEmp(null) }}
       />
     </>
   )

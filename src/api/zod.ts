@@ -664,6 +664,81 @@ export const BulkDeleteEmployeesResponse = zod.object({
 })
 
 
+export const GETEmploymentHistoriesEmployeeEmployeeIdParams = zod.object({
+  "employeeId": zod.uuid()
+})
+
+export const GETEmploymentHistoriesEmployeeEmployeeIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const GetEmploymentHistoriesByIdParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const GetEmploymentHistoriesByIdResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const UpdateEmploymentHistoriesParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const UpdateEmploymentHistoriesBody = zod.object({
+  "departmentId": zod.number().optional(),
+  "positionId": zod.number().optional(),
+  "contractId": zod.uuid().nullish(),
+  "effectiveFrom": zod.iso.date().nullish(),
+  "effectiveTo": zod.iso.date().nullish(),
+  "reason": zod.string().nullish()
+})
+
+export const UpdateEmploymentHistoriesResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const DeleteEmploymentHistoriesParams = zod.object({
+  "id": zod.uuid()
+})
+
+export const DeleteEmploymentHistoriesResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
+export const CreateEmploymentHistoriesBody = zod.object({
+  "employeeId": zod.uuid().optional(),
+  "departmentId": zod.number().optional(),
+  "positionId": zod.number().optional(),
+  "contractId": zod.uuid().nullish(),
+  "effectiveFrom": zod.iso.date().optional(),
+  "effectiveTo": zod.iso.date().nullish(),
+  "reason": zod.string().nullish()
+})
+
+export const CreateEmploymentHistoriesResponse = zod.object({
+  "isError": zod.boolean().optional(),
+  "data": zod.unknown().optional(),
+  "statusCode": zod.number().optional(),
+  "errorMessage": zod.string().nullish()
+})
+
+
 export const GetLeaveReasonsResponse = zod.object({
   "isError": zod.boolean().optional(),
   "data": zod.unknown().optional(),
