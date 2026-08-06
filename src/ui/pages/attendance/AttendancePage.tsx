@@ -159,9 +159,14 @@ export function AttendancePage() {
   const changeMonth = (delta: number) => {
     navDir.current = delta
     const d = new Date(year, month - 1 + delta, 1)
-    setYear(d.getFullYear())
-    setMonth(d.getMonth() + 1)
-    setShowFullMonth(false)
+    const newYear = d.getFullYear()
+    const newMonth = d.getMonth() + 1
+    setYear(newYear)
+    setMonth(newMonth)
+    // Nếu chuyển sang tháng khác tháng hiện tại, mở full toàn bộ các ngày trong tháng đó ra luôn
+    const isTargetCurrentMonth = newYear === now.getFullYear() && newMonth === now.getMonth() + 1
+    setShowFullMonth(!isTargetCurrentMonth)
+    setShowThisWeek(false)
   }
 
 

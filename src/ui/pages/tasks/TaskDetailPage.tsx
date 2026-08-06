@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Link, useParams, useRouter } from '@tanstack/react-router'
+import { useParams, useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import {
   completeTaskById,
@@ -23,6 +23,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { CompleteTaskDialog } from './components/CompleteTaskDialog'
 import { getTaskStatusMeta } from '@/constants/task'
 import type { TaskLogVm, TaskItemVm } from '@/types/api'
+import { BackButton } from '@/components/BackButton'
 
 export function toLocalDateString(date: Date): string {
   const y = date.getFullYear()
@@ -83,6 +84,8 @@ export function TaskDetailPage() {
       )
       setLogNote('')
       await invalidate()
+    } catch (err) {
+      showError(err)
     } finally {
       setLogSubmitting(false)
     }
@@ -103,15 +106,17 @@ export function TaskDetailPage() {
   const handleDelete = async () => {
     setDeleteLoading(true)
     try {
-      await toastSmartPromise(
-        deleteTask(id).then(unwrapApiResponse),
-        { loading: 'Đang xóa nhiệm vụ...', success: 'Xóa nhiệm vụ thành công!' },
-      )
+      await toastSmartPromise(deleteTask(id).then(unwrapApiResponse), {
+        loading: 'Đang xóa nhiệm vụ...',
+        success: 'Xóa nhiệm vụ thành công!',
+      })
       await invalidate()
-      setDeleteOpen(false)
-      router.navigate({ to: '/tasks', replace: true })
+      await router.navigate({ to: '/tasks', replace: true })
+    } catch (err) {
+      showError(err)
     } finally {
       setDeleteLoading(false)
+      setDeleteOpen(false)
     }
   }
 
@@ -125,12 +130,7 @@ export function TaskDetailPage() {
       <div className="flex flex-col gap-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Link
-              to="/tasks"
-              className="inline-flex size-9 items-center justify-center rounded-lg border bg-card text-muted-foreground transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-            >
-              <span className="material-symbols-outlined">arrow_back</span>
-            </Link>
+            <BackButton to="/tasks" label="Quay lại danh sách nhiệm vụ" />
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Chi tiết nhiệm vụ

@@ -27,7 +27,7 @@ export function TooltipButton({
       <TooltipTrigger asChild>
         <Button
           aria-label={label}
-          className={cn('h-8 w-8 transition-transform active:scale-95', className)}
+          className={cn('h-8 w-8 transition-all duration-200 hover:scale-110 active:scale-90 shadow-sm hover:shadow-md', className)}
           {...props}
         >
           {children}

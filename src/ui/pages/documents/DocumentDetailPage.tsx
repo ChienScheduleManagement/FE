@@ -20,6 +20,8 @@ import {
 } from '@/components/ui/table'
 import type { DocumentDetailVm } from '@/types/api'
 
+import { BackButton } from '@/components/BackButton'
+
 function InfoItem({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
@@ -46,12 +48,7 @@ export function DocumentDetailPage() {
       </Helmet>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-3">
-          <Link
-            to="/documents"
-            className="inline-flex size-9 items-center justify-center rounded-lg border bg-card text-muted-foreground transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </Link>
+          <BackButton to="/documents" label="Quay lại danh sách văn bản" />
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Chi tiết văn bản
