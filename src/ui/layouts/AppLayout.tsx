@@ -17,15 +17,15 @@ interface NavItem {
 
 const NAV_PROGRESS: NavItem[] = [
   { label: 'Tổng quan', to: '/dashboard', icon: 'dashboard' },
-  { label: 'Văn bản', to: '/documents', icon: 'description', activePrefixes: ['/documents'] },
   { label: 'Nhiệm vụ', to: '/tasks', icon: 'task_alt', activePrefixes: ['/tasks'] },
+  { label: 'Văn bản', to: '/documents', icon: 'description', activePrefixes: ['/documents'] },
   { label: 'Nguồn văn bản', to: '/admin/doc-sources', icon: 'import_contacts' },
   { label: 'Danh mục', to: '/admin/categories', icon: 'category' },
 ]
 
 const NAV_HR: NavItem[] = [
-  { label: 'Danh sách nhân viên', to: '/admin/employees', icon: 'badge' },
   { label: 'Chấm công', to: '/attendance', icon: 'event_available' },
+  { label: 'Danh sách nhân viên', to: '/admin/employees', icon: 'badge' },
   { label: 'Tính lương', to: '/salary', icon: 'payments' },
   { label: 'Báo cáo', to: '/reports', icon: 'bar_chart' },
   { label: 'Phòng ban', to: '/admin/departments', icon: 'account_balance' },
