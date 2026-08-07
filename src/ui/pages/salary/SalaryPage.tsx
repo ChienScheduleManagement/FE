@@ -182,8 +182,8 @@ export function SalaryPage() {
               ) : (
                 salaryData.items.map((item, idx) => {
                   const baseSalaryAmount = salaryData.baseSalaryAmount ?? 2340000
-                  const isCoef = item.baseSalary <= 10 && item.baseSalary > 0
-                  const coefDisplay = isCoef ? item.baseSalary : '—'
+                  const isCoef = item.baseSalary > 0 && item.baseSalary < 50
+                  const coefDisplay = isCoef ? item.baseSalary.toLocaleString('vi-VN') : '—'
                   const monthlyBaseAmount = isCoef ? Math.round(item.baseSalary * baseSalaryAmount) : item.baseSalary
 
                   return (
