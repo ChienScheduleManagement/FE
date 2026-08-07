@@ -164,8 +164,7 @@ export function AttendancePage() {
     setYear(newYear)
     setMonth(newMonth)
     // Nếu chuyển sang tháng khác tháng hiện tại, mở full toàn bộ các ngày trong tháng đó ra luôn
-    const isTargetCurrentMonth = newYear === now.getFullYear() && newMonth === now.getMonth() + 1
-    setShowFullMonth(!isTargetCurrentMonth)
+    setShowFullMonth(true)
     setShowThisWeek(false)
   }
 
@@ -347,7 +346,14 @@ export function AttendancePage() {
                 </Button>
               </div>
 
-              <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
+              <Select
+                value={String(month)}
+                onValueChange={(v) => {
+                  setMonth(Number(v))
+                  setShowFullMonth(true)
+                  setShowThisWeek(false)
+                }}
+              >
                 <SelectTrigger className="w-[110px]">
                   <SelectValue placeholder="Tháng" />
                 </SelectTrigger>
@@ -360,7 +366,14 @@ export function AttendancePage() {
                 </SelectContent>
               </Select>
 
-              <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+              <Select
+                value={String(year)}
+                onValueChange={(v) => {
+                  setYear(Number(v))
+                  setShowFullMonth(true)
+                  setShowThisWeek(false)
+                }}
+              >
                 <SelectTrigger className="w-[100px]">
                   <SelectValue placeholder="Năm" />
                 </SelectTrigger>
@@ -791,6 +804,14 @@ export function AttendancePage() {
         <div className="px-2 py-1 text-[10px] text-muted-foreground border-b font-mono">
             Đã chọn {selectedCells.length} ô
           </div>
+           <button
+             type="button"
+             className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center gap-2 truncate text-sm font-semibold border-b pb-2 mb-1"
+             onClick={() => handleBulkSetReason(null)}
+           >
+             <span className="material-symbols-outlined text-base text-slate-500">restart_alt</span>
+             <span>Hoàn lại mặc định (Xóa trạng thái)</span>
+           </button>
            <button
              type="button"
              className="w-full text-left px-3 py-2 rounded-lg hover:bg-emerald-50 text-emerald-700 dark:hover:bg-emerald-950 flex items-center gap-2 truncate text-sm font-semibold"
