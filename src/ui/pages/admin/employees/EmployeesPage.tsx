@@ -115,7 +115,7 @@ export function EmployeesPage() {
     },
     {
       accessorKey: 'baseSalary',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Lương cơ bản" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Hệ số lương" />,
       cell: ({ row }) => (
         <span className="text-sm font-mono text-right">
           {row.original.baseSalary.toLocaleString('vi-VN')}
@@ -415,13 +415,13 @@ export function EmployeesPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="emp-base">Lương cơ bản <span className="text-red-500">*</span></Label>
+              <Label htmlFor="emp-base">Hệ số lương <span className="text-red-500">*</span></Label>
               <Input
                 id="emp-base"
                 type="number"
                 min={0}
-                step={100000}
-                placeholder="8000000"
+                step={0.01}
+                placeholder="VD: 3.99"
                 value={form.baseSalary}
                 onChange={(e) => setField('baseSalary', e.target.value)}
               />
