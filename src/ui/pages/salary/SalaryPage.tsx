@@ -121,7 +121,13 @@ export function SalaryPage() {
         />
 
         {/* Stats Card */}
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-4">
+          <div className="rounded-2xl border bg-card p-4 shadow-sm">
+            <div className="text-xs font-semibold text-muted-foreground">Lương cơ sở áp dụng</div>
+            <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1 font-mono">
+              {(salaryData?.baseSalaryAmount ?? 2340000).toLocaleString('vi-VN')} đ
+            </div>
+          </div>
           <div className="rounded-2xl border bg-card p-4 shadow-sm">
             <div className="text-xs font-semibold text-muted-foreground">Tổng số cán bộ</div>
             <div className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1">
@@ -154,7 +160,8 @@ export function SalaryPage() {
                 <th className="p-3">Đơn vị</th>
                 <th className="p-3 text-center w-24">Công QĐ</th>
                 <th className="p-3 text-center w-24">Nghỉ</th>
-                <th className="p-3 text-right">Lương cơ bản</th>
+                <th className="p-3 text-right">Hệ số lương</th>
+                <th className="p-3 text-right">Lương ngạch bậc</th>
                 <th className="p-3 text-right">Phụ cấp</th>
                 <th className="p-3 text-right pr-6">Thực lĩnh</th>
               </tr>
@@ -162,44 +169,54 @@ export function SalaryPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={11} className="p-8 text-center text-muted-foreground">
                     Đang tính lương...
                   </td>
                 </tr>
               ) : !salaryData?.items.length ? (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={11} className="p-8 text-center text-muted-foreground">
                     Không có dữ liệu.
                   </td>
                 </tr>
               ) : (
-                salaryData.items.map((item, idx) => (
-                  <tr
-                    key={item.employeeId}
-                    className="border-b transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800"
-                  >
-                    <td className="p-3 text-center font-semibold text-slate-500">{idx + 1}</td>
-                    <td className="p-3 font-mono font-bold text-primary">{item.employeeCode}</td>
-                    <td className="p-3 font-bold text-slate-900 dark:text-slate-100">{item.fullName}</td>
-                    <td className="p-3 text-muted-foreground">{item.position ?? '—'}</td>
-                    <td className="p-3 text-muted-foreground">{item.departmentName ?? '—'}</td>
-                    <td className="p-3 text-center font-bold text-emerald-600 dark:text-emerald-400">
-                      {item.workDays}
-                    </td>
-                    <td className="p-3 text-center font-bold text-amber-600 dark:text-amber-400">
-                      {item.leaveDays}
-                    </td>
-                    <td className="p-3 text-right font-mono">
-                      {item.baseSalary.toLocaleString('vi-VN')}
-                    </td>
-                    <td className="p-3 text-right font-mono">
-                      {item.allowance.toLocaleString('vi-VN')}
-                    </td>
-                    <td className="p-3 text-right font-mono font-black text-emerald-600 dark:text-emerald-400 pr-6">
-                      {item.netSalary.toLocaleString('vi-VN')}
-                    </td>
-                  </tr>
-                ))
+                salaryData.items.map((item, idx) => {
+                  const baseSalaryAmount = salaryData.baseSalaryAmount ?? 2340000
+                  const isCoef = item.baseSalary <= 10 && item.baseSalary > 0
+                  const coefDisplay = isCoef ? item.baseSalary : '—'
+                  const monthlyBaseAmount = isCoef ? Math.round(item.baseSalary * baseSalaryAmount) : item.baseSalary
+
+                  return (
+                    <tr
+                      key={item.employeeId}
+                      className="border-b transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    >
+                      <td className="p-3 text-center font-semibold text-slate-500">{idx + 1}</td>
+                      <td className="p-3 font-mono font-bold text-primary">{item.employeeCode}</td>
+                      <td className="p-3 font-bold text-slate-900 dark:text-slate-100">{item.fullName}</td>
+                      <td className="p-3 text-muted-foreground">{item.position ?? '—'}</td>
+                      <td className="p-3 text-muted-foreground">{item.departmentName ?? '—'}</td>
+                      <td className="p-3 text-center font-bold text-emerald-600 dark:text-emerald-400">
+                        {item.workDays}
+                      </td>
+                      <td className="p-3 text-center font-bold text-amber-600 dark:text-amber-400">
+                        {item.leaveDays}
+                      </td>
+                      <td className="p-3 text-right font-mono font-semibold text-indigo-600 dark:text-indigo-400">
+                        {coefDisplay}
+                      </td>
+                      <td className="p-3 text-right font-mono">
+                        {monthlyBaseAmount.toLocaleString('vi-VN')} đ
+                      </td>
+                      <td className="p-3 text-right font-mono">
+                        {item.allowance.toLocaleString('vi-VN')} đ
+                      </td>
+                      <td className="p-3 text-right font-mono font-black text-emerald-600 dark:text-emerald-400 pr-6">
+                        {item.netSalary.toLocaleString('vi-VN')} đ
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>

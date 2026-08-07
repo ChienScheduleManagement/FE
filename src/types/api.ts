@@ -240,6 +240,7 @@ export interface SalaryVm {
   month: number
   daysInMonth: number
   standardDays: number
+  baseSalaryAmount: number
   items: SalaryItemVm[]
 }
 
