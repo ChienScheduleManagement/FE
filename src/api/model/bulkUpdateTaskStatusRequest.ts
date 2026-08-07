@@ -5,9 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface CreateCategoryRequest {
-  type?: number;
-  code?: string;
-  name?: string;
-  displayOrder?: number;
+export interface BulkUpdateTaskStatusRequest {
+  ids: string[];
+  status: number;
 }

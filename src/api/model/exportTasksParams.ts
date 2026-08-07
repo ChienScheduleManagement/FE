@@ -7,6 +7,6 @@
 
 export type ExportTasksParams = {
 DepartmentId?: number;
-Tab?: string;
+Tab?: number;
 Keyword?: string;
 };

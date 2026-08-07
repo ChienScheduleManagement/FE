@@ -11,6 +11,6 @@ export interface UpdateDocSourceRequest {
   /** @nullable */
   name?: string | null;
   /** @nullable */
-  level?: string | null;
+  level?: number | null;
   displayOrder?: number;
 }

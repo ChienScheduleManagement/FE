@@ -21,7 +21,7 @@ import { SkeletonRows } from '@/components/SkeletonRows'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { CompleteTaskDialog } from './components/CompleteTaskDialog'
-import { getTaskStatusMeta } from '@/constants/task'
+import { TASK_STATUS, getTaskStatusMeta } from '@/constants/task'
 import type { TaskLogVm, TaskItemVm } from '@/types/api'
 import { BackButton } from '@/components/BackButton'
 
@@ -146,7 +146,7 @@ export function TaskDetailPage() {
 
           {task ? (
             <div className="flex items-center gap-2">
-              {task.status !== 'COMPLETED' ? (
+              {task.status !== TASK_STATUS.COMPLETED ? (
                 <Button
                   className="bg-emerald-600 hover:bg-emerald-700"
                   onClick={() => setCompleting(task)}
@@ -209,7 +209,7 @@ export function TaskDetailPage() {
                 ) : null}
               </div>
 
-              {task.status !== 'COMPLETED' ? (
+              {task.status !== TASK_STATUS.COMPLETED ? (
                 <div className="rounded-2xl border bg-card p-5 shadow-sm">
                   <h2 className="font-bold text-slate-900 dark:text-slate-100">Cập nhật tiến độ</h2>
                   <p className="mt-0.5 text-sm text-muted-foreground">

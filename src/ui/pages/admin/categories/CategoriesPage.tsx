@@ -6,7 +6,7 @@ import { bulkDeleteCategorys, createCategory, deleteCategory, updateCategory, us
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
-import { CATEGORY_TYPES } from '@/constants/task'
+import { CATEGORY_TYPE, CATEGORY_TYPES, type CategoryType } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
@@ -27,17 +27,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { CategoryVm } from '@/types/api'
 
 interface FormValues {
-  type: string
+  type: CategoryType
   code: string
   name: string
   displayOrder: string
 }
 
-const EMPTY_FORM: FormValues = { type: 'DOC_TYPE', code: '', name: '', displayOrder: '0' }
+const EMPTY_FORM: FormValues = { type: CATEGORY_TYPE.DOC_TYPE, code: '', name: '', displayOrder: '0' }
 
 export function CategoriesPage() {
   const queryClient = useQueryClient()
-  const [type, setType] = useState('DOC_TYPE')
+  const [type, setType] = useState<CategoryType>(CATEGORY_TYPE.DOC_TYPE)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<CategoryVm | null>(null)
   const [deleting, setDeleting] = useState<CategoryVm | null>(null)
@@ -122,7 +122,7 @@ export function CategoriesPage() {
   const openEdit = (cat: CategoryVm) => {
     setEditing(cat)
     setForm({
-      type: cat.type,
+      type: cat.type as CategoryType,
       code: cat.code,
       name: cat.name,
       displayOrder: String(cat.displayOrder),
@@ -132,7 +132,10 @@ export function CategoriesPage() {
   }
 
   const setField = (key: keyof FormValues, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }))
+    setForm((prev) => {
+      if (key === 'type') return { ...prev, type: Number(value) as CategoryType }
+      return { ...prev, [key]: value }
+    })
     setErrors((prev) => ({ ...prev, [key]: undefined }))
   }
 
@@ -283,7 +286,7 @@ export function CategoriesPage() {
             <div className="space-y-1.5">
               <Label>Loại danh mục</Label>
               <Select
-                value={form.type}
+                value={String(form.type)}
                 onValueChange={(v) => setField('type', v)}
               >
                 <SelectTrigger>
@@ -291,7 +294,7 @@ export function CategoriesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {CATEGORY_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
+                    <SelectItem key={t.value} value={String(t.value)}>
                       {t.label}
                     </SelectItem>
                   ))}

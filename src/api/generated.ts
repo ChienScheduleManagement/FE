@@ -25,6 +25,7 @@ import type {
 
 import type {
   BulkSetAttendanceRequest,
+  BulkUpdateTaskStatusRequest,
   ChangePasswordRequest,
   CompleteTaskRequest,
   CreateCategoryRequest,
@@ -5026,7 +5027,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type BulkDeleteTasksMutationBody = string[]
     export type BulkDeleteTasksMutationError = unknown
 
-    export const useBulkDeleteTasks = <TError = unknown,
+export const useBulkDeleteTasks = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkDeleteTasks>>, TError,{data: string[]}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof bulkDeleteTasks>>,
@@ -5035,6 +5036,65 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getBulkDeleteTasksMutationOptions(options), queryClient);
+    }
+    
+export const bulkUpdateTaskStatus = (
+    bulkUpdateTaskStatusRequest: BulkUpdateTaskStatusRequest,
+     options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/tasks/bulk-status`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkUpdateTaskStatusRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getBulkUpdateTaskStatusMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkUpdateTaskStatus>>, TError,{data: BulkUpdateTaskStatusRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+    ): UseMutationOptions<Awaited<ReturnType<typeof bulkUpdateTaskStatus>>, TError,{data: BulkUpdateTaskStatusRequest}, TContext> => {
+
+const mutationKey = ['bulkUpdateTaskStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkUpdateTaskStatus>>, {data: BulkUpdateTaskStatusRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkUpdateTaskStatus(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkUpdateTaskStatusMutationResult = NonNullable<Awaited<ReturnType<typeof bulkUpdateTaskStatus>>>
+    export type BulkUpdateTaskStatusMutationBody = BulkUpdateTaskStatusRequest
+    export type BulkUpdateTaskStatusMutationError = unknown
+
+    export const useBulkUpdateTaskStatus = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkUpdateTaskStatus>>, TError,{data: BulkUpdateTaskStatusRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+     , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof bulkUpdateTaskStatus>>,
+        TError,
+        {data: BulkUpdateTaskStatusRequest},
+        TContext
+      > => {
+      return useMutation(getBulkUpdateTaskStatusMutationOptions(options), queryClient);
     }
     
 export const exportTasks = (

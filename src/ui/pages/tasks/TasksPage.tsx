@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useRouter, useSearch } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef, PaginationState, RowSelectionState } from '@tanstack/react-table'
+import type { ColumnDef, PaginationState } from '@tanstack/react-table'
 import {
   bulkDeleteTasks,
+  bulkUpdateTaskStatus,
   completeTaskById,
   createTask,
   deleteTask,
@@ -17,12 +18,11 @@ import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, showSuccess, toastSmartPromise } from '@/api/utils'
 import { formatDateTime, toUtcIso } from '@/lib/format'
 import { APP_NAME } from '@/constants/ui'
-import { DEFAULT_PAGE_SIZE, TASK_TABS } from '@/constants/task'
+import { DEFAULT_PAGE_SIZE, TASK_STATUS, TASK_STATUSES, TASK_TAB, TASK_TABS, getDeadlineStatusMeta, getTaskStatusMeta } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { StatusBadge, DeadlineBadge } from '@/components/StatusBadge'
-import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
-import { selectColumn } from '@/components/DataTable/selectColumn'
+import { DataTable, DataTableColumnHeader } from '@/components/DataTable'
 import { TooltipButton } from '@/components/TooltipButton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,6 +30,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TaskFormDialog, type TaskFormValues } from './components/TaskFormDialog'
 import { CompleteTaskDialog } from './components/CompleteTaskDialog'
 import type { PagedResponse, TaskItemVm } from '@/types/api'
+
+const STATUS_LOOKUP: Record<string, number> = {
+  'mới nhận': TASK_STATUS.PENDING,
+  pending: TASK_STATUS.PENDING,
+  'đang thực hiện': TASK_STATUS.IN_PROGRESS,
+  'in_progress': TASK_STATUS.IN_PROGRESS,
+  'in progress': TASK_STATUS.IN_PROGRESS,
+  'đã hoàn thành': TASK_STATUS.COMPLETED,
+  completed: TASK_STATUS.COMPLETED,
+  'đã hủy': TASK_STATUS.CANCELLED,
+  cancelled: TASK_STATUS.CANCELLED,
+}
 
 export function TasksPage() {
   const queryClient = useQueryClient()
@@ -52,13 +64,15 @@ export function TasksPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const [selectedCells, setSelectedCells] = useState<ReadonlySet<string>>(new Set())
+  const [cellMenu, setCellMenu] = useState<{ x: number; y: number } | null>(null)
+  const [statusUpdating, setStatusUpdating] = useState(false)
   const [completing, setCompleting] = useState<TaskItemVm | null>(null)
   const [exporting, setExporting] = useState(false)
 
   const params = useMemo(
     () => ({
-      Tab: tab === 'all' ? undefined : tab,
+      Tab: TASK_TAB[tab],
       Page: pagination.pageIndex + 1,
       PageSize: pagination.pageSize,
       Keyword: searchText || undefined,
@@ -93,6 +107,31 @@ export function TasksPage() {
 
   const invalidate = async () => {
     await queryClient.invalidateQueries({ queryKey: ['/api/tasks'] })
+  }
+
+  const selectedTaskIds = useMemo(() => {
+    const ids = new Set<string>()
+    for (const key of selectedCells) {
+      const [rowId] = key.split('::')
+      if (rowId) ids.add(rowId)
+    }
+    return ids
+  }, [selectedCells])
+
+  const clearCellSelection = () => {
+    setSelectedCells(new Set())
+    setCellMenu(null)
+  }
+
+  const handlePageChange: typeof setPagination = (updater) => {
+    setPagination(updater)
+    clearCellSelection()
+  }
+
+  const handleTabChange = (value: string) => {
+    setTab(value)
+    setPagination((p) => ({ ...p, pageIndex: 0 }))
+    clearCellSelection()
   }
 
   const handleSave = async (values: TaskFormValues) => {
@@ -152,23 +191,87 @@ export function TasksPage() {
   }
 
   const handleBulkDelete = async () => {
-    const ids = Object.keys(rowSelection)
-    if (!ids.length) return
+    if (!selectedTaskIds.size) return
     setBulkDeleting(true)
     try {
       await toastSmartPromise(
-        bulkDeleteTasks(ids).then(unwrapApiResponse),
+        bulkDeleteTasks([...selectedTaskIds]).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều nhiệm vụ...', success: 'Đã xóa các nhiệm vụ đã chọn!' },
       )
       await invalidate()
       setBulkDeleteOpen(false)
-      setRowSelection({})
-      if (ids.length >= (tasks?.items.length ?? 0) && pagination.pageIndex > 0) {
+      const removed = selectedTaskIds.size
+      clearCellSelection()
+      if (removed >= (tasks?.items.length ?? 0) && pagination.pageIndex > 0) {
         setPagination((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
       }
     } finally {
       setBulkDeleting(false)
     }
+  }
+
+  const handleBulkStatusChange = async (status: number) => {
+    if (!selectedTaskIds.size) return
+    setStatusUpdating(true)
+    try {
+      await toastSmartPromise(
+        bulkUpdateTaskStatus({ ids: [...selectedTaskIds], status }).then(unwrapApiResponse),
+        { loading: 'Đang cập nhật trạng thái...', success: `Đã cập nhật trạng thái cho ${selectedTaskIds.size} ô!` },
+      )
+      await invalidate()
+      clearCellSelection()
+    } finally {
+      setStatusUpdating(false)
+    }
+    setCellMenu(null)
+  }
+
+  const handlePaste = async (text: string) => {
+    const statusKeys = [...selectedCells].filter((k) => k.endsWith('::status'))
+    if (!statusKeys.length) {
+      showError('Hãy chọn ít nhất một ô ở cột Trạng thái để dán.')
+      return
+    }
+
+    const values = text
+      .split(/\r?\n/)
+      .map((line) => line.split('\t')[0]?.trim() ?? '')
+      .filter((v) => v.length)
+
+    const orderIndex = new Map((tasks?.items ?? []).map((t, i) => [String(t.id), i]))
+    statusKeys.sort((a, b) => {
+      const [ar] = a.split('::')
+      const [br] = b.split('::')
+      return (orderIndex.get(ar) ?? 0) - (orderIndex.get(br) ?? 0)
+    })
+
+    const invalid: string[] = []
+    const grouped = new Map<number, string[]>()
+    statusKeys.forEach((key, i) => {
+      const [rowId] = key.split('::')
+      const value = values[Math.min(i, values.length - 1)] ?? ''
+      const status = STATUS_LOOKUP[value.toLowerCase()]
+      if (!status) {
+        invalid.push(value)
+        return
+      }
+      if (!grouped.has(status)) grouped.set(status, [])
+      grouped.get(status)!.push(rowId)
+    })
+
+    if (invalid.length) {
+      showError(`Không nhận dạng được trạng thái: ${[...new Set(invalid)].join(', ')}`)
+      return
+    }
+
+    for (const [status, ids] of grouped) {
+      await toastSmartPromise(
+        bulkUpdateTaskStatus({ ids, status }).then(unwrapApiResponse),
+        { loading: 'Đang cập nhật trạng thái...', success: `Đã cập nhật trạng thái cho ${ids.length} ô!` },
+      )
+    }
+    await invalidate()
+    clearCellSelection()
   }
 
   const handleComplete = async (latestResult: string) => {
@@ -188,7 +291,7 @@ export function TasksPage() {
     try {
       const blob = await exportTasks(
         {
-          Tab: tab === 'all' ? undefined : tab,
+          Tab: TASK_TAB[tab],
           DepartmentId: departmentId ? Number(departmentId) : undefined,
           Keyword: searchText || undefined,
         },
@@ -206,10 +309,31 @@ export function TasksPage() {
   const applySearch = () => {
     setPagination((p) => ({ ...p, pageIndex: 0 }))
     setSearchText(keyword.trim())
+    clearCellSelection()
+  }
+
+  const getCellText = (row: TaskItemVm, columnId: string): string => {
+    switch (columnId) {
+      case 'status':
+        return getTaskStatusMeta(row.status).label
+      case 'deadlineStatus':
+        return getDeadlineStatusMeta(row.deadlineStatus).label
+      case 'dueDate':
+        return row.dueDate ? formatDateTime(row.dueDate) : ''
+      case 'docNumber':
+        return row.docNumber ?? ''
+      case 'taskContent':
+        return row.taskContent ?? ''
+      case 'mainDepartmentName':
+        return row.mainDepartmentName ?? ''
+      case 'assigneeName':
+        return row.assigneeName ?? ''
+      default:
+        return ''
+    }
   }
 
   const columns: ColumnDef<TaskItemVm>[] = [
-    selectColumn<TaskItemVm>(),
     {
       accessorKey: 'docNumber',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Số VB" />,
@@ -288,7 +412,7 @@ export function TasksPage() {
       header: () => <span className="text-right">Thao tác</span>,
       cell: ({ row }) => (
         <div className="flex justify-end gap-1">
-          {row.original.status !== 'COMPLETED' ? (
+          {row.original.status !== TASK_STATUS.COMPLETED ? (
             <TooltipButton
               variant="ghost"
               size="icon"
@@ -324,6 +448,8 @@ export function TasksPage() {
       size: 130,
     },
   ]
+
+  const menuWidth = 240
 
   return (
     <>
@@ -361,10 +487,7 @@ export function TasksPage() {
             <button
               key={t.value}
               type="button"
-              onClick={() => {
-                setTab(t.value)
-                setPagination((p) => ({ ...p, pageIndex: 0 }))
-              }}
+              onClick={() => handleTabChange(t.value)}
               className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
                 tab === t.value
                   ? 'bg-primary text-primary-foreground shadow'
@@ -396,6 +519,7 @@ export function TasksPage() {
               onValueChange={(v) => {
                 setDepartmentId(v === 'all' ? '' : v)
                 setPagination((p) => ({ ...p, pageIndex: 0 }))
+                clearCellSelection()
               }}
             >
               <SelectTrigger>
@@ -417,19 +541,6 @@ export function TasksPage() {
         </div>
 
         <div className="rounded-2xl border bg-card shadow-sm p-4">
-          <BulkActionBar
-            selectedCount={Object.keys(rowSelection).length}
-            actions={[
-              {
-                label: 'Xóa nhiều',
-                icon: 'delete_sweep',
-                onClick: () => setBulkDeleteOpen(true),
-                colorClass:
-                  'text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:border-red-900 dark:hover:bg-red-950/40',
-              },
-            ]}
-            onClearSelection={() => setRowSelection({})}
-          />
           <DataTable
             columns={columns}
             data={tasks?.items ?? []}
@@ -437,15 +548,87 @@ export function TasksPage() {
             hideToolbar
             pageCount={tasks?.totalPages ?? 0}
             pagination={pagination}
-            onPaginationChange={setPagination}
+            onPaginationChange={handlePageChange}
             totalItems={tasks?.totalItems ?? 0}
             getRowId={(row) => row.id}
-            enableRowSelection
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
+            enableCellSelection
+            selectedCells={selectedCells}
+            onSelectedCellsChange={setSelectedCells}
+            onCellContextMenu={(_row, _columnId, event) => {
+              setCellMenu({ x: event.clientX, y: event.clientY })
+            }}
+            getCellText={getCellText}
+            onPaste={(text) => void handlePaste(text)}
           />
+          <p className="mt-3 text-xs text-muted-foreground">
+            Mẹo: Ctrl + click để chọn nhiều ô · Shift + click để chọn liên tiếp theo hàng hoặc cột · Click
+            chuột phải để đổi trạng thái hàng loạt · Ctrl + C / Ctrl + V để sao chép - dán trạng thái.
+          </p>
         </div>
       </div>
+
+      {cellMenu && (
+        <>
+          <div
+            aria-hidden="true"
+            className="fixed inset-0 z-40"
+            onClick={() => setCellMenu(null)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') setCellMenu(null)
+            }}
+            onContextMenu={(e) => {
+              e.preventDefault()
+              setCellMenu(null)
+            }}
+          />
+          <div
+            className="fixed z-50 w-60 rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl shadow-slate-900/10 dark:border-slate-700 dark:bg-slate-800"
+            style={{
+              left: Math.min(cellMenu.x, window.innerWidth - menuWidth - 8),
+              top: Math.min(cellMenu.y, window.innerHeight - 260),
+            }}
+          >
+            <div className="px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+              Đổi trạng thái ({selectedTaskIds.size} ô)
+            </div>
+            {TASK_STATUSES.map((status) => {
+              const meta = getTaskStatusMeta(status)
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  disabled={statusUpdating}
+                  onClick={() => void handleBulkStatusChange(status)}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  <span className={`size-2 rounded-full ${meta.dot}`} />
+                  {meta.label}
+                </button>
+              )
+            })}
+            <div className="my-1 h-px bg-slate-200 dark:bg-slate-700" />
+            <button
+              type="button"
+              onClick={() => {
+                setBulkDeleteOpen(true)
+                setCellMenu(null)
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+            >
+              <span className="material-symbols-outlined text-base">delete_sweep</span>
+              Xóa {selectedTaskIds.size} nhiệm vụ đã chọn
+            </button>
+            <button
+              type="button"
+              onClick={clearCellSelection}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+            >
+              <span className="material-symbols-outlined text-base">close</span>
+              Bỏ chọn
+            </button>
+          </div>
+        </>
+      )}
 
       <TaskFormDialog
         open={dialogOpen}
@@ -475,7 +658,7 @@ export function TasksPage() {
         open={bulkDeleteOpen}
         onOpenChange={setBulkDeleteOpen}
         title="Xóa nhiều nhiệm vụ"
-        description={`Bạn có chắc chắn muốn xóa ${Object.keys(rowSelection).length} nhiệm vụ đã chọn? Hành động này không thể hoàn tác.`}
+        description={`Bạn có chắc chắn muốn xóa ${selectedTaskIds.size} nhiệm vụ đã chọn? Hành động này không thể hoàn tác.`}
         loading={bulkDeleting}
         onConfirm={handleBulkDelete}
       />

@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { SearchableSelect } from '@/components/ui/searchable-select'
 import type { DocumentVm } from '@/types/api'
+import { CATEGORY_TYPE } from '@/constants/task'
 
 export interface DocumentFormValues {
   docNumber: string
@@ -75,7 +76,7 @@ export function DocumentFormDialog({
   }, [open, editing, reset])
 
   const { data: sourceRaw } = useGetDocSources()
-  const { data: typeRaw } = useGetCategories({ type: 'DOC_TYPE' })
+  const { data: typeRaw } = useGetCategories({ type: CATEGORY_TYPE.DOC_TYPE })
 
   const sources = useMemo(
     () =>

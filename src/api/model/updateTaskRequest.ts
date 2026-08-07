@@ -16,7 +16,7 @@ export interface UpdateTaskRequest {
   /** @nullable */
   dueDate?: string | null;
   /** @nullable */
-  status?: string | null;
+  status?: number | null;
   /** @nullable */
   completedDate?: string | null;
   /** @nullable */

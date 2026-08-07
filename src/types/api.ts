@@ -6,7 +6,7 @@ export interface LoginResponse {
   token: string
   refreshToken: string
   fullName: string
-  role: string
+  role: number
   refreshTokenExpiresAt: string
 }
 
@@ -42,11 +42,11 @@ export interface TaskItemVm {
   coDepartmentNames: string[]
   assigneeName?: string | null
   dueDate?: string | null
-  status: string
+  status: number
   completedDate?: string | null
   latestResult?: string | null
   createdAt: string
-  deadlineStatus: string
+  deadlineStatus: number
   daysRemaining?: number | null
 }
 
@@ -75,7 +75,7 @@ export interface TaskLogVm {
   taskId: string
   logDate: string
   progressNote: string
-  statusAtLog?: string | null
+  statusAtLog?: number | null
   updatedBy?: string | null
 }
 
@@ -99,7 +99,7 @@ export interface DepartmentTaskStat {
 
 export interface CategoryVm {
   id: number
-  type: string
+  type: number
   code: string
   name: string
   displayOrder: number
@@ -120,7 +120,7 @@ export interface DocSourceVm {
   id: number
   code: string
   name: string
-  level: string
+  level: number
   displayOrder: number
 }
 

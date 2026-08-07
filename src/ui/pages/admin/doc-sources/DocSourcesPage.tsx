@@ -6,7 +6,7 @@ import { bulkDeleteDocSources, createDocSource, deleteDocSource, updateDocSource
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
-import { DOC_SOURCE_LEVELS } from '@/constants/task'
+import { DOC_SOURCE_LEVEL, DOC_SOURCE_LEVELS, type DocSourceLevel } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
@@ -29,11 +29,11 @@ import type { DocSourceVm } from '@/types/api'
 interface FormValues {
   code: string
   name: string
-  level: string
+  level: DocSourceLevel
   displayOrder: string
 }
 
-const EMPTY_FORM: FormValues = { code: '', name: '', level: 'COMMUNE', displayOrder: '0' }
+const EMPTY_FORM: FormValues = { code: '', name: '', level: DOC_SOURCE_LEVEL.COMMUNE, displayOrder: '0' }
 
 export function DocSourcesPage() {
   const queryClient = useQueryClient()
@@ -133,7 +133,7 @@ export function DocSourcesPage() {
     setForm({
       code: source.code,
       name: source.name,
-      level: source.level,
+      level: source.level as DocSourceLevel,
       displayOrder: String(source.displayOrder),
     })
     setErrors({})
@@ -141,7 +141,10 @@ export function DocSourcesPage() {
   }
 
   const setField = (key: keyof FormValues, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }))
+    setForm((prev) => {
+      if (key === 'level') return { ...prev, level: Number(value) as DocSourceLevel }
+      return { ...prev, [key]: value }
+    })
     setErrors((prev) => ({ ...prev, [key]: undefined }))
   }
 
@@ -217,8 +220,8 @@ export function DocSourcesPage() {
     }
   }
 
-  const levelLabel = (level: string) =>
-    DOC_SOURCE_LEVELS.find((l) => l.value === level)?.label ?? level
+  const levelLabel = (level: number) =>
+    DOC_SOURCE_LEVELS.find((l) => l.value === level)?.label ?? 'Không xác định'
 
   return (
     <>
@@ -291,13 +294,13 @@ export function DocSourcesPage() {
             </div>
             <div className="space-y-1.5">
               <Label>Cấp ban hành</Label>
-              <Select value={form.level} onValueChange={(v) => setField('level', v)}>
+              <Select value={String(form.level)} onValueChange={(v) => setField('level', v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {DOC_SOURCE_LEVELS.map((l) => (
-                    <SelectItem key={l.value} value={l.value}>
+                    <SelectItem key={l.value} value={String(l.value)}>
                       {l.label}
                     </SelectItem>
                   ))}

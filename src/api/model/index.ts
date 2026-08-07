@@ -6,6 +6,7 @@
  */
 
 export * from './bulkSetAttendanceRequest';
+export * from './bulkUpdateTaskStatusRequest';
 export * from './changePasswordRequest';
 export * from './completeTaskRequest';
 export * from './createCategoryRequest';

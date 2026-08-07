@@ -7,6 +7,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { useDataWarming } from '@/hooks/useDataWarming'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { APP_NAME } from '@/constants/ui'
+import { USER_ROLE } from '@/constants/task'
 
 interface NavItem {
   label: string
@@ -271,7 +272,7 @@ export function AppLayout() {
                   {user?.fullName ?? 'Người dùng'}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {user?.role === 'Admin' ? 'Quản trị viên' : 'Cán bộ'}
+                  {user?.role === USER_ROLE.ADMIN ? 'Quản trị viên' : 'Cán bộ'}
                 </p>
               </div>
             </div>

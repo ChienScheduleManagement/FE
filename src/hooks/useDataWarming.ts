@@ -12,7 +12,7 @@ import {
   getGetDocumentsQueryOptions,
   getGetTasksQueryOptions,
 } from '@/api/generated'
-import { DEFAULT_PAGE_SIZE } from '@/constants/task'
+import { DEFAULT_PAGE_SIZE, CATEGORY_TYPE } from '@/constants/task'
 import { useAuthStore } from '@/store/auth.store'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -70,7 +70,7 @@ export function useDataWarming() {
 
         // 4. Danh mục dùng chung cho dropdown
         await staggeredPrefetch(getGetDocSourcesQueryOptions())
-        await staggeredPrefetch(getGetCategoriesQueryOptions({ type: 'DOC_TYPE' }))
+        await staggeredPrefetch(getGetCategoriesQueryOptions({ type: CATEGORY_TYPE.DOC_TYPE }))
         await staggeredPrefetch(getGetDepartmentsQueryOptions({ activeOnly: true }))
 
         console.log('[DataWarming] Cache warming completed successfully.')

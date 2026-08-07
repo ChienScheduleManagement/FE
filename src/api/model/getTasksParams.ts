@@ -8,8 +8,8 @@
 export type GetTasksParams = {
 Keyword?: string;
 DepartmentId?: number;
-Status?: string;
-Tab?: string;
+Status?: number;
+Tab?: number;
 Page?: number;
 PageSize?: number;
 SortBy?: string;

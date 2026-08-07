@@ -8,6 +8,6 @@
 export interface CreateDocSourceRequest {
   code?: string;
   name?: string;
-  level?: string;
+  level?: number;
   displayOrder?: number;
 }

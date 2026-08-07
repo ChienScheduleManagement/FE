@@ -7,7 +7,7 @@
 
 export interface UpdateCategoryRequest {
   /** @nullable */
-  type?: string | null;
+  type?: number | null;
   /** @nullable */
   code?: string | null;
   /** @nullable */

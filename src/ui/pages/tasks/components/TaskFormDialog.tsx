@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useGetDepartments, useGetDocuments } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
-import { TASK_STATUSES } from '@/constants/task'
+import { TASK_STATUS, TASK_STATUSES } from '@/constants/task'
 import {
   Dialog,
   DialogContent,
@@ -29,7 +29,7 @@ export interface TaskFormValues {
   coDepartmentIds: string[]
   assigneeName?: string
   dueDate?: string
-  status?: string
+  status?: number
   initialNote?: string
   latestResult?: string
 }
@@ -66,7 +66,7 @@ export function TaskFormDialog({
       coDepartmentIds: [],
       assigneeName: '',
       dueDate: '',
-      status: 'IN_PROGRESS',
+      status: TASK_STATUS.IN_PROGRESS,
       initialNote: '',
       latestResult: '',
     },
@@ -87,7 +87,7 @@ export function TaskFormDialog({
         : [],
       assigneeName: editing?.assigneeName ?? '',
       dueDate: editing?.dueDate ? toInputValue(editing.dueDate) : '',
-      status: editing?.status ?? 'IN_PROGRESS',
+      status: editing?.status ?? TASK_STATUS.IN_PROGRESS,
       initialNote: '',
       latestResult: editing?.latestResult ?? '',
     })
@@ -140,7 +140,7 @@ export function TaskFormDialog({
         coDepartmentIds: [],
         assigneeName: '',
         dueDate: '',
-        status: 'IN_PROGRESS',
+        status: TASK_STATUS.IN_PROGRESS,
         initialNote: '',
         latestResult: '',
       })
@@ -251,20 +251,20 @@ export function TaskFormDialog({
               <div className="space-y-1.5">
                 <Label>Trạng thái</Label>
                 <Select
-                  value={watch('status') || ''}
-                  onValueChange={(v) => setValue('status', v, { shouldDirty: true })}
+                  value={watch('status') != null ? String(watch('status')) : ''}
+                  onValueChange={(v) => setValue('status', Number(v), { shouldDirty: true })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {TASK_STATUSES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s === 'PENDING'
+                      <SelectItem key={s} value={String(s)}>
+                        {s === TASK_STATUS.PENDING
                           ? 'Mới nhận'
-                          : s === 'IN_PROGRESS'
+                          : s === TASK_STATUS.IN_PROGRESS
                             ? 'Đang thực hiện'
-                            : s === 'COMPLETED'
+                            : s === TASK_STATUS.COMPLETED
                               ? 'Đã hoàn thành'
                               : 'Đã hủy'}
                       </SelectItem>

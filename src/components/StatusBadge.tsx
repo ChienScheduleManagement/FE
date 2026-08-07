@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 import { getDeadlineStatusMeta, getTaskStatusMeta } from '@/constants/task'
 
-export function StatusBadge({ status, className }: { status?: string | null; className?: string }) {
+export function StatusBadge({ status, className }: { status?: number | null; className?: string }) {
   const meta = getTaskStatusMeta(status)
   return (
     <span
@@ -22,7 +22,7 @@ export function DeadlineBadge({
   status,
   className,
 }: {
-  status?: string | null
+  status?: number | null
   className?: string
 }) {
   const meta = getDeadlineStatusMeta(status)
