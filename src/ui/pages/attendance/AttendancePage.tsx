@@ -470,11 +470,11 @@ export function AttendancePage() {
         {/* Main Grid + Right Panel */}
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Data Grid */}
-          <div className={cn('rounded-2xl border bg-card shadow-sm overflow-hidden transition-all', selectedEmp ? 'lg:col-span-8 xl:col-span-9' : 'lg:col-span-12')}>
+          <div className={cn('rounded-2xl border bg-card shadow-sm overflow-hidden transition-all flex flex-col', selectedEmp ? 'lg:col-span-8 xl:col-span-9' : 'lg:col-span-12')}>
             <div
               key={`${year}-${month}-${showTodayOnly ? 'today' : 'full'}`}
                className={cn(
-                 'animate-in duration-300',
+                 'animate-in duration-300 overflow-x-auto scrollbar-thin',
                  navDir.current === 1 ? 'slide-in-from-right-8 fade-in' : 'slide-in-from-left-8 fade-in',
                )}
             >
