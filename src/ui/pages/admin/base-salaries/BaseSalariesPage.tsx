@@ -167,9 +167,9 @@ export function BaseSalariesPage() {
     const yr = Number(form.effectiveFromYear)
     const mo = Number(form.effectiveFromMonth)
 
-    if (!form.amount || isNaN(amt) || amt <= 0) nextErrors.amount = 'Nhập mức lương hợp lệ.'
-    if (!form.effectiveFromYear || isNaN(yr) || yr < 2000) nextErrors.effectiveFromYear = 'Năm không hợp lệ.'
-    if (!form.effectiveFromMonth || isNaN(mo) || mo < 1 || mo > 12) nextErrors.effectiveFromMonth = 'Tháng từ 1 đến 12.'
+    if (!form.amount || Number.isNaN(amt) || amt <= 0) nextErrors.amount = 'Nhập mức lương hợp lệ.'
+    if (!form.effectiveFromYear || Number.isNaN(yr) || yr < 2000) nextErrors.effectiveFromYear = 'Năm không hợp lệ.'
+    if (!form.effectiveFromMonth || Number.isNaN(mo) || mo < 1 || mo > 12) nextErrors.effectiveFromMonth = 'Tháng từ 1 đến 12.'
 
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)

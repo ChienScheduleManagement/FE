@@ -219,7 +219,7 @@ export function LeaveReasonsPage() {
     if (!form.name.trim()) nextErrors.name = 'Tên lý do không được để trống.'
     if (!form.symbol.trim()) nextErrors.symbol = 'Ký hiệu không được để trống.'
     const ratio = Number(form.salaryRatio)
-    if (isNaN(ratio) || ratio < 0 || ratio > 1) nextErrors.salaryRatio = 'Tỷ lệ hưởng lương phải từ 0 đến 1.'
+    if (Number.isNaN(ratio) || ratio < 0 || ratio > 1) nextErrors.salaryRatio = 'Tỷ lệ hưởng lương phải từ 0 đến 1.'
     if (Number(form.displayOrder) < 0) nextErrors.displayOrder = 'Độ ưu tiên không được âm.'
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors)

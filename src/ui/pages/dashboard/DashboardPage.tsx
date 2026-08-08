@@ -151,7 +151,7 @@ export function DashboardPage() {
                   return (
                     <div key={dept.departmentId} className="flex items-center gap-4 p-4 sm:px-5">
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-101">
+                        <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
                           {dept.departmentName}
                         </p>
                         <div className="mt-2 flex h-2 w-full max-w-md overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">

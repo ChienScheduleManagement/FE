@@ -195,9 +195,9 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
           <div className="flex-1 overflow-y-auto pr-1">
             <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
               {isLoading ? (
-                Array.from({ length: 3 }).map((_, i) => (
+                Array.from({ length: 3 }, () => (
                   <div
-                    key={`placeholder-${i}`}
+                    key="employment-placeholder-row"
                     className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mb-3"
                   >
                     <div className="space-y-1.5 flex-1">
