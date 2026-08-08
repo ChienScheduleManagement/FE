@@ -1,4 +1,4 @@
-import { TooltipButton } from '@/components/TooltipButton'
+import { Button } from '@/components/ui/button'
 
 interface RefreshButtonProps {
   onClick: () => void
@@ -8,16 +8,16 @@ interface RefreshButtonProps {
 
 export function RefreshButton({ onClick, loading, label = 'Làm mới' }: RefreshButtonProps) {
   return (
-    <TooltipButton
+    <Button
       variant="outline"
-      size="icon"
-      label={label}
       onClick={onClick}
       disabled={loading}
+      className="gap-1.5"
     >
-      <span className={`material-symbols-outlined text-lg ${loading ? 'animate-spin' : ''}`}>
+      <span className={`material-symbols-outlined text-base ${loading ? 'animate-spin' : ''}`}>
         refresh
       </span>
-    </TooltipButton>
+      {loading ? 'Đang làm mới...' : label}
+    </Button>
   )
 }

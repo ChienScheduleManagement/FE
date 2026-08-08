@@ -48,7 +48,8 @@ export function AttendancePage() {
   // Multi-cell selection
   const [selectedCells, setSelectedCells] = useState<SelectedCell[]>([])
   const [isMouseDown, setIsMouseDown] = useState(false)
-  const mouseDownPos = useRef<{ x: number; y: number } | null>(null)
+  const anchorCell = useRef<SelectedCell | null>(null)
+  const lastClickCell = useRef<SelectedCell | null>(null)
 
   // Context menu position
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
@@ -172,31 +173,82 @@ export function AttendancePage() {
 
 
 
+  // Tính toán các ô trong hình chữ nhật giữa 2 điểm
+  const computeRectangle = (cell1: SelectedCell, cell2: SelectedCell): SelectedCell[] => {
+    const employees = gridData?.employees ?? []
+    const dates = visibleDays.map((d) => `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`)
+
+    const r1 = employees.findIndex((e) => e.employeeId === cell1.employeeId)
+    const r2 = employees.findIndex((e) => e.employeeId === cell2.employeeId)
+    const c1 = dates.indexOf(cell1.date)
+    const c2 = dates.indexOf(cell2.date)
+
+    if (r1 < 0 || r2 < 0 || c1 < 0 || c2 < 0) return []
+
+    const [rMin, rMax] = [Math.min(r1, r2), Math.max(r1, r2)]
+    const [cMin, cMax] = [Math.min(c1, c2), Math.max(c1, c2)]
+
+    const result: SelectedCell[] = []
+    for (let r = rMin; r <= rMax; r++) {
+      for (let c = cMin; c <= cMax; c++) {
+        const dateStr = dates[c]
+        if (dateStr <= todayStr) {
+          result.push({ employeeId: employees[r].employeeId, date: dateStr })
+        }
+      }
+    }
+    return result
+  }
+
   // Handle cell mouse down (Left click to select)
   const handleCellMouseDown = (employeeId: string, date: string, e: React.MouseEvent) => {
     if (e.button !== 0) return // Left click only
     if (date > todayStr) return // Chặn ngày tương lai
-    mouseDownPos.current = { x: e.clientX, y: e.clientY }
-    setIsMouseDown(true)
+
+    const cell: SelectedCell = { employeeId, date }
+
+    if (e.shiftKey && lastClickCell.current) {
+      // Shift + click: chọn hình chữ nhật từ anchor đến ô này
+      const rect = computeRectangle(lastClickCell.current, cell)
+      if (e.ctrlKey || e.metaKey) {
+        // Shift + Ctrl: thêm vào selection hiện tại
+        setSelectedCells((prev) => {
+          const keys = new Set(prev.map((c) => `${c.employeeId}::${c.date}`))
+          const merged = [...prev]
+          for (const c of rect) {
+            if (!keys.has(`${c.employeeId}::${c.date}`)) merged.push(c)
+          }
+          return merged
+        })
+      } else {
+        setSelectedCells(rect)
+      }
+      return
+    }
+
     if (e.ctrlKey || e.metaKey) {
+      // Ctrl + click: toggle ô
       setSelectedCells((prev) => {
         const exists = prev.some((c) => c.employeeId === employeeId && c.date === date)
         if (exists) return prev.filter((c) => !(c.employeeId === employeeId && c.date === date))
-        return [...prev, { employeeId, date }]
+        return [...prev, cell]
       })
     } else {
-      setSelectedCells([{ employeeId, date }])
+      setSelectedCells([cell])
     }
+
+    anchorCell.current = cell
+    lastClickCell.current = cell
+    setIsMouseDown(true)
   }
 
   const handleCellMouseEnter = (employeeId: string, date: string) => {
-    if (!isMouseDown) return
+    if (!isMouseDown || !anchorCell.current) return
     if (date > todayStr) return // Chặn ngày tương lai
-    setSelectedCells((prev) => {
-      const exists = prev.some((c) => c.employeeId === employeeId && c.date === date)
-      if (exists) return prev
-      return [...prev, { employeeId, date }]
-    })
+
+    const cell: SelectedCell = { employeeId, date }
+    const rect = computeRectangle(anchorCell.current, cell)
+    setSelectedCells(rect)
   }
 
   useEffect(() => {
@@ -219,6 +271,8 @@ export function AttendancePage() {
       if (e.key !== 'Escape') return
       setSelectedCells([])
       setContextMenu(null)
+      anchorCell.current = null
+      lastClickCell.current = null
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
@@ -229,10 +283,12 @@ export function AttendancePage() {
     e.preventDefault()
     e.stopPropagation()
     if (date > todayStr) return // Chặn ngày tương lai
+    const cell: SelectedCell = { employeeId, date }
+    lastClickCell.current = cell
     // Nếu ô vừa chuột phải chưa nằm trong danh sách đã chọn, chọn nó làm ô duy nhất
     const exists = selectedCells.some((c) => c.employeeId === employeeId && c.date === date)
     if (!exists) {
-      setSelectedCells([{ employeeId, date }])
+      setSelectedCells([cell])
     }
     setContextMenu({ x: e.clientX, y: e.clientY })
   }
@@ -671,7 +727,7 @@ export function AttendancePage() {
               </div>
             ))}
             <div className="ml-auto text-muted-foreground italic text-[11px]">
-              Kéo chuột chọn nhiều ô • Chuột phải menu nhanh • Phím ESC bỏ chọn
+              Kéo chuột chọn hình chữ nhật • Shift+click chọn vùng • Ctrl+click chọn thêm • Chuột phải menu nhanh • ESC bỏ chọn
             </div>
           </div>
 
