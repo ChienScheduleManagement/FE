@@ -1,30 +1,29 @@
-import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { useParams, useRouter } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
+import {useEffect, useState} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {useParams, useRouter} from '@tanstack/react-router'
+import {useQueryClient} from '@tanstack/react-query'
 import {
-  usePatchTasksByIdComplete,
-  usePostTasksByTaskidLogs,
   useDeleteTasksById,
   useGetTasksById,
   useGetTasksByTaskidLogs,
+  usePatchTasksByIdComplete,
+  usePostTasksByTaskidLogs,
 } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, toastSmartPromise } from '@/api/utils'
-import { formatDate, formatDateTime } from '@/lib/format'
-import { APP_NAME } from '@/constants/ui'
-import { StatusBadge, DeadlineBadge } from '@/components/StatusBadge'
-import { EmptyState } from '@/components/EmptyState'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { SkeletonRows } from '@/components/SkeletonRows'
-import { Skeleton } from '@/components/ui/skeleton'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { RefreshButton } from '@/components/RefreshButton'
-import { CompleteTaskDialog } from './components/CompleteTaskDialog'
-import { TASK_STATUS, getTaskStatusMeta } from '@/constants/task'
-import type { TaskLogVm, TaskItemVm } from '@/types/api'
-import { BackButton } from '@/components/BackButton'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError, toastSmartPromise} from '@/api/utils'
+import {formatDate, formatDateTime} from '@/lib/format'
+import {APP_NAME} from '@/constants/ui'
+import {DeadlineBadge, StatusBadge} from '@/components/StatusBadge'
+import {EmptyState} from '@/components/EmptyState'
+import {Button} from '@/components/ui/button'
+import {Textarea} from '@/components/ui/textarea'
+
+import {ConfirmDialog} from '@/components/ConfirmDialog'
+import {RefreshButton} from '@/components/RefreshButton'
+import {CompleteTaskDialog} from './components/CompleteTaskDialog'
+import {getTaskStatusMeta, TASK_STATUS} from '@/constants/task'
+import type {TaskItemVm, TaskLogVm} from '@/types/api'
+import {BackButton} from '@/components/BackButton'
 
 export function toLocalDateString(date: Date): string {
   const y = date.getFullYear()
@@ -161,41 +160,36 @@ export function TaskDetailPage() {
           ) : null}
         </div>
 
-        {isLoading ? (
-          <div className="grid gap-5 lg:grid-cols-2">
-            <Skeleton className="h-80 w-full" />
-            <Skeleton className="h-80 w-full" />
-          </div>
-        ) : task ? (
+        <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
           <div className="grid gap-5 lg:grid-cols-2">
             <div className="flex flex-col gap-5">
               <div className="rounded-2xl border bg-card p-5 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="font-bold text-slate-900 dark:text-slate-100">Thông tin nhiệm vụ</h2>
-                  <DeadlineBadge status={task.deadlineStatus} />
+                  {task ? <DeadlineBadge status={task.deadlineStatus} /> : null}
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                  {task.taskContent}
+                  {task?.taskContent ?? '—'}
                 </p>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <DetailItem label="Số văn bản" value={task.docNumber} />
-                  <DetailItem label="Trích yếu văn bản" value={task.docTitle} />
-                  <DetailItem label="Đơn vị chủ trì" value={task.mainDepartmentName} />
+                  <DetailItem label="Số văn bản" value={task?.docNumber} />
+                  <DetailItem label="Trích yếu văn bản" value={task?.docTitle} />
+                  <DetailItem label="Đơn vị chủ trì" value={task?.mainDepartmentName} />
                   <DetailItem
                     label="Đơn vị phối hợp"
-                    value={task.coDepartmentNames.length ? task.coDepartmentNames.join(', ') : null}
+                    value={task?.coDepartmentNames && task.coDepartmentNames.length ? task.coDepartmentNames.join(', ') : null}
                   />
-                  <DetailItem label="CB phụ trách" value={task.assigneeName} />
-                  <DetailItem label="Hạn xử lý" value={formatDateTime(task.dueDate)} />
+                  <DetailItem label="CB phụ trách" value={task?.assigneeName} />
+                  <DetailItem label="Hạn xử lý" value={task?.dueDate ? formatDateTime(task.dueDate) : null} />
                   <DetailItem
                     label="Ngày hoàn thành"
-                    value={task.completedDate ? formatDate(task.completedDate) : null}
+                    value={task?.completedDate ? formatDate(task.completedDate) : null}
                   />
-                  <DetailItem label="Ngày giao" value={formatDateTime(task.createdAt)} />
+                  <DetailItem label="Ngày giao" value={task?.createdAt ? formatDateTime(task.createdAt) : null} />
                 </div>
 
-                {task.latestResult ? (
+                {task?.latestResult ? (
                   <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/40">
                     <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
                       Kết quả mới nhất
@@ -207,7 +201,7 @@ export function TaskDetailPage() {
                 ) : null}
               </div>
 
-              {task.status !== TASK_STATUS.COMPLETED ? (
+              {task && task.status !== TASK_STATUS.COMPLETED ? (
                 <div className="rounded-2xl border bg-card p-5 shadow-sm">
                   <h2 className="font-bold text-slate-900 dark:text-slate-100">Cập nhật tiến độ</h2>
                   <p className="mt-0.5 text-sm text-muted-foreground">
@@ -245,41 +239,39 @@ export function TaskDetailPage() {
                 </p>
               </div>
 
-              {logsLoading ? (
-                <div className="space-y-3 p-5">
-                  <SkeletonRows rows={3} className="h-20 w-full" />
-                </div>
-              ) : !logs?.length ? (
-                <EmptyState icon="history" title="Chưa có nhật ký" description="Chưa có cập nhật tiến độ nào cho nhiệm vụ này." />
-              ) : (
-                <div className="max-h-[520px] overflow-y-auto p-5">
-                  <ol className="relative ml-3 space-y-6 border-l border-slate-200 dark:border-slate-800">
-                    {[...logs].reverse().map((log) => (
-                      <li key={log.id} className="relative pl-6">
-                        <span
-                          className={`absolute -left-[7px] top-1.5 size-3.5 rounded-full border-2 border-card ${statusMeta.dot}`}
-                        />
-                        <div className="rounded-xl border bg-slate-50 p-3.5 dark:bg-slate-900">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="text-xs font-semibold text-muted-foreground">
-                              {log.updatedBy ?? 'Hệ thống'}
+              <phantom-ui loading={logsLoading} animation="shimmer" reveal={0.1} class="block">
+                {!logs?.length ? (
+                  <EmptyState icon="history" title="Chưa có nhật ký" description="Chưa có cập nhật tiến độ nào cho nhiệm vụ này." />
+                ) : (
+                  <div className="max-h-[520px] overflow-y-auto p-5">
+                    <ol className="relative ml-3 space-y-6 border-l border-slate-200 dark:border-slate-800">
+                      {[...logs].reverse().map((log) => (
+                        <li key={log.id} className="relative pl-6">
+                          <span
+                            className={`absolute -left-[7px] top-1.5 size-3.5 rounded-full border-2 border-card ${statusMeta.dot}`}
+                          />
+                          <div className="rounded-xl border bg-slate-50 p-3.5 dark:bg-slate-900">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="text-xs font-semibold text-muted-foreground">
+                                {log.updatedBy ?? 'Hệ thống'}
+                              </p>
+                              <time className="text-xs text-muted-foreground">
+                                {formatDateTime(log.logDate)}
+                              </time>
+                            </div>
+                            <p className="mt-1.5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                              {log.progressNote}
                             </p>
-                            <time className="text-xs text-muted-foreground">
-                              {formatDateTime(log.logDate)}
-                            </time>
                           </div>
-                          <p className="mt-1.5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                            {log.progressNote}
-                          </p>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </phantom-ui>
             </div>
           </div>
-        ) : null}
+        </phantom-ui>
       </div>
 
       <CompleteTaskDialog

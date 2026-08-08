@@ -1,21 +1,27 @@
-import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { useBulkDocSources, useCreateDocSources, useDeleteDocSourcesById, useGetDocSources, useUpdateDocSourcesById } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, toastSmartPromise } from '@/api/utils'
-import { APP_NAME } from '@/constants/ui'
-import { DOC_SOURCE_LEVEL, DOC_SOURCE_LEVELS, type DocSourceLevel } from '@/constants/task'
-import { PageHeader } from '@/components/PageHeader'
-import { RefreshButton } from '@/components/RefreshButton'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
-import { selectColumn } from '@/components/DataTable/selectColumn'
-import { TooltipButton } from '@/components/TooltipButton'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import {useEffect, useState} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {useQueryClient} from '@tanstack/react-query'
+import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
+import {
+  useBulkDocSources,
+  useCreateDocSources,
+  useDeleteDocSourcesById,
+  useGetDocSources,
+  useUpdateDocSourcesById
+} from '@/api/generated'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError, toastSmartPromise} from '@/api/utils'
+import {APP_NAME} from '@/constants/ui'
+import {DOC_SOURCE_LEVEL, DOC_SOURCE_LEVELS, type DocSourceLevel} from '@/constants/task'
+import {PageHeader} from '@/components/PageHeader'
+import {RefreshButton} from '@/components/RefreshButton'
+import {ConfirmDialog} from '@/components/ConfirmDialog'
+import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
+import {selectColumn} from '@/components/DataTable/selectColumn'
+import {TooltipButton} from '@/components/TooltipButton'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {Label} from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -24,8 +30,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import type { DocSourceVm } from '@/types/api'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import type {DocSourceVm} from '@/types/api'
 
 interface FormValues {
   code: string
@@ -247,16 +253,17 @@ export function DocSourcesPage() {
             ]}
             onClearSelection={() => setRowSelection({})}
           />
-          <DataTable
-            columns={columns}
-            data={sources ?? []}
-            searchKey="tên nguồn"
-            loading={isLoading}
-            getRowId={(row) => row.id}
-            enableRowSelection
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
-          />
+          <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+            <DataTable
+              columns={columns}
+              data={sources ?? []}
+              searchKey="tên nguồn"
+              getRowId={(row) => row.id}
+              enableRowSelection
+              rowSelection={rowSelection}
+              onRowSelectionChange={setRowSelection}
+            />
+          </phantom-ui>
         </div>
       </div>
 

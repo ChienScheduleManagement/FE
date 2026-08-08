@@ -248,16 +248,17 @@ export function PositionsPage() {
             ]}
             onClearSelection={() => setRowSelection({})}
           />
-          <DataTable
-            columns={columns}
-            data={positions ?? []}
-            searchKey="tên, mã"
-            loading={isLoading}
-            getRowId={(row) => row.id}
-            enableRowSelection
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
-          />
+          <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+            <DataTable
+              columns={columns}
+              data={positions ?? []}
+              searchKey="tên, mã"
+              getRowId={(row) => row.id}
+              enableRowSelection
+              rowSelection={rowSelection}
+              onRowSelectionChange={setRowSelection}
+            />
+          </phantom-ui>
         </div>
       </div>
 

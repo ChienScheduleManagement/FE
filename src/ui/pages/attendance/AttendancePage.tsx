@@ -1,29 +1,29 @@
-import { useEffect, useRef, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { useQueryClient } from '@tanstack/react-query'
+import {useEffect, useRef, useState} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {useQueryClient} from '@tanstack/react-query'
 import {
-  useGetAttendance,
-  useGetLeaveReasons,
+  getExportAttendance,
   useBulkAttendance,
+  useGetAttendance,
   useGetAttendanceByEmployeeidHistory,
   useGetDepartments,
-  getExportAttendance,
+  useGetLeaveReasons,
 } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, showSuccess, toastSmartPromise } from '@/api/utils'
-import { APP_NAME } from '@/constants/ui'
-import { PageHeader } from '@/components/PageHeader'
-import { RefreshButton } from '@/components/RefreshButton'
-import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError, showSuccess, toastSmartPromise} from '@/api/utils'
+import {APP_NAME} from '@/constants/ui'
+import {PageHeader} from '@/components/PageHeader'
+import {RefreshButton} from '@/components/RefreshButton'
+import {Button} from '@/components/ui/button'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
+import {cn} from '@/lib/utils'
 import type {
-  AttendanceGridVm,
-  AttendanceEmployeeVm,
-  LeaveReasonVm,
   AttendanceChangeVm,
+  AttendanceEmployeeVm,
+  AttendanceGridVm,
   DepartmentVm,
+  LeaveReasonVm,
 } from '@/types/api'
 
 interface SelectedCell {
@@ -329,6 +329,42 @@ export function AttendancePage() {
     return { day: dayNum, present, leave }
   })
 
+  // Placeholder row for phantom-ui skeleton loading
+  const renderPlaceholderRow = (rowIndex: number) => (
+    <tr
+      key={`placeholder-${rowIndex}`}
+      className='border-b transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
+    >
+      <td className="p-2.5 border-r text-center sticky left-0 z-20 bg-card font-semibold text-slate-500 text-sm">
+        {rowIndex + 1}
+      </td>
+      <td className="p-2.5 border-r sticky left-[44px] z-20 bg-card">
+        <div className="w-full text-left">
+          <div className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[160px] text-sm">
+            Placeholder Name
+          </div>
+          <div className="text-xs text-muted-foreground font-mono">EMP000</div>
+        </div>
+      </td>
+      <td className="p-2.5 border-r text-left sticky left-[214px] z-20 bg-card text-slate-600 dark:text-slate-400 truncate max-w-[130px] text-xs font-medium">
+        Placeholder Position
+      </td>
+      {visibleDays.map((d) => (
+        <td key={d} className="p-1 border-r text-center select-none transition-all relative">
+          <div className="w-full h-8 flex items-center justify-center rounded font-bold">
+            <span className="text-xs font-bold text-slate-300 dark:text-slate-600">—</span>
+          </div>
+        </td>
+      ))}
+      <td className="p-2.5 border-r text-center min-w-[70px] bg-card">
+        <span className="font-bold text-slate-500">8</span>
+      </td>
+      <td className="p-2.5 text-center min-w-[70px] bg-card">
+        <span className="font-bold text-slate-500">0</span>
+      </td>
+    </tr>
+  )
+
   return (
     <>
       <Helmet>
@@ -494,212 +530,211 @@ export function AttendancePage() {
                  navDir.current === 1 ? 'slide-in-from-right-8 fade-in' : 'slide-in-from-left-8 fade-in',
                )}
             >
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="bg-slate-100 dark:bg-slate-800 border-b text-slate-800 dark:text-slate-200 font-bold sticky top-0 z-30">
-                    <th className="p-2.5 border-r text-center sticky left-0 top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[44px]">
-                      STT
-                    </th>
-                    <th className="p-2.5 border-r text-left sticky left-[44px] top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[170px]">
-                      Họ tên
-                    </th>
-                    <th className="p-2.5 border-r text-left sticky left-[214px] top-0 z-30 bg-slate-100 dark:bg-slate-800 min-w-[130px]">
-                      Chức vụ
-                    </th>
-                    {visibleDays.map((d) => {
-                      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-                      const off = dayOffInfo(dateStr)
-                      const isToday = dateStr === todayStr
-                      return (
-                        <th
-                          key={d}
-                          className={cn(
-                            'p-1.5 border-r text-center min-w-[42px] sticky top-0 z-20 transition-colors',
-                            isToday
-                              ? 'bg-blue-600 text-white dark:bg-blue-600 shadow-sm font-black'
-                              : off
-                                ? (off.color === '#94a3b8' || off.color === '#cbd5e1'
-                                    ? 'bg-slate-300/80 dark:bg-slate-700/70 text-slate-600 dark:text-slate-400'
-                                    : 'bg-red-200/80 text-red-700 dark:bg-red-950/80 dark:text-red-300')
-                                : undefined,
-                          )}
-                          title={off ? `Ngày nghỉ: ${off.name ?? ''}` : isToday ? 'Hôm nay' : undefined}
-                        >
-                          <div className={cn('text-xs leading-tight font-extrabold', isToday && 'scale-110 font-black')}>{String(d).padStart(2, '0')}</div>
-                          <div className={cn('text-[10px] font-bold leading-tight mt-0.5', isToday ? 'text-blue-100' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
-                            {off?.symbol ?? weekdayLabel(d)}
-                          </div>
-                        </th>
-                      )
-                    })}
-                    <th className="p-2.5 border-r text-center min-w-[70px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-[70px] z-30 text-sm">
-                      Công
-                    </th>
-                    <th className="p-2.5 text-center min-w-[70px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-0 z-30 text-sm">
-                      Nghỉ
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {gridLoading ? (
-                    <tr>
-                      <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground text-sm">
-                        Đang tải dữ liệu chấm công...
-                      </td>
+<phantom-ui loading={gridLoading} animation="shimmer" reveal={0.1} class="block">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100 dark:bg-slate-800 border-b text-slate-800 dark:text-slate-200 font-bold sticky top-0 z-30">
+                      <th className="p-2.5 border-r text-center sticky left-0 top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[44px]">
+                        STT
+                      </th>
+                      <th className="p-2.5 border-r text-left sticky left-[44px] top-0 z-40 bg-slate-100 dark:bg-slate-800 min-w-[170px]">
+                        Họ tên
+                      </th>
+                      <th className="p-2.5 border-r text-left sticky left-[214px] top-0 z-30 bg-slate-100 dark:bg-slate-800 min-w-[130px]">
+                        Chức vụ
+                      </th>
+                      {visibleDays.map((d) => {
+                        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+                        const off = dayOffInfo(dateStr)
+                        const isToday = dateStr === todayStr
+                        return (
+                          <th
+                            key={d}
+                            className={cn(
+                              'p-1.5 border-r text-center min-w-[42px] sticky top-0 z-20 transition-colors',
+                              isToday
+                                ? 'bg-blue-600 text-white dark:bg-blue-600 shadow-sm font-black'
+                                : off
+                                  ? (off.color === '#94a3b8' || off.color === '#cbd5e1'
+                                      ? 'bg-slate-300/80 dark:bg-slate-700/70 text-slate-600 dark:text-slate-400'
+                                      : 'bg-red-200/80 text-red-700 dark:bg-red-950/80 dark:text-red-300')
+                                  : undefined,
+                            )}
+                            title={off ? `Ngày nghỉ: ${off.name ?? ''}` : isToday ? 'Hôm nay' : undefined}
+                          >
+                            <div className={cn('text-xs leading-tight font-extrabold', isToday && 'scale-110 font-black')}>{String(d).padStart(2, '0')}</div>
+                            <div className={cn('text-[10px] font-bold leading-tight mt-0.5', isToday ? 'text-blue-100' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
+                              {off?.symbol ?? weekdayLabel(d)}
+                            </div>
+                          </th>
+                        )
+                      })}
+                      <th className="p-2.5 border-r text-center min-w-[70px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-[70px] z-30 text-sm">
+                        Công
+                      </th>
+                      <th className="p-2.5 text-center min-w-[70px] bg-slate-100 dark:bg-slate-800 sticky top-0 right-0 z-30 text-sm">
+                        Nghỉ
+                      </th>
                     </tr>
-                  ) : !gridData?.employees.length ? (
-                    <tr>
-                      <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground text-sm">
-                        Chưa có dữ liệu cán bộ.
-                      </td>
-                    </tr>
-                  ) : (
-                    gridData.employees.map((emp, index) => {
-                      const isEmpSelected = selectedEmp?.employeeId === emp.employeeId
-                      return (
-                        <tr
-                          key={emp.employeeId}
-                          className={cn(
-                            'border-b transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40',
-                            isEmpSelected && 'bg-primary/5 dark:bg-primary/10'
-                          )}
-                        >
-                          <td className="p-2.5 border-r text-center sticky left-0 z-20 bg-card font-semibold text-slate-500 text-sm">
-                            {index + 1}
-                          </td>
-                          <td className="p-2.5 border-r sticky left-[44px] z-20 bg-card">
-                            <button
-                              type="button"
-                              className="w-full text-left cursor-pointer hover:text-primary transition-colors"
-                              onClick={() => setSelectedEmp(emp)}
-                            >
-                              <div className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[160px] text-sm">
-                                {emp.fullName}
-                              </div>
-                              <div className="text-xs text-muted-foreground font-mono">{emp.employeeCode}</div>
-                            </button>
-                          </td>
-                          <td className="p-2.5 border-r text-left sticky left-[214px] z-20 bg-card text-slate-600 dark:text-slate-400 truncate max-w-[130px] text-xs font-medium">
-                            {emp.position ?? '—'}
-                          </td>
-
-                          {/* Days Cells */}
-                          {visibleDays.map((d) => {
-                            const day = emp.days.find((x) => Number(x.date.split('-')[2]) === d)
-                            if (!day) return null
-                            const dateStr = day.date
-                            const isToday = dateStr === todayStr
-                            const isFuture = dateStr > todayStr
-                            const isSelected = selectedCells.some(
-                              (c) => c.employeeId === emp.employeeId && c.date === dateStr
-                            )
-                            const reason = day.leaveReasonId ? reasonMap.get(day.leaveReasonId) : null
-                            const isTruc = day.isDayOff && day.hasRecord && !reason
-                            const cellTitle = isFuture
-                              ? 'Chưa đến ngày (Không thể chấm công)'
-                              : reason
-                                ? `${reason.name}${day.note ? ` — ${day.note}` : ''}`
-                                : isTruc
-                                  ? `Đi trực ngày nghỉ${day.note ? ` — ${day.note}` : ''}`
-                                  : day.isDayOff
-                                    ? `Ngày nghỉ (${day.dayOffName ?? ''})`
-                                    : 'Có mặt'
-
-                            return (
-                              <td
-                                key={dateStr}
-                                className={cn(
-                                  'p-1 border-r text-center select-none transition-all relative',
-                                  isFuture
-                                    ? 'bg-slate-100/50 dark:bg-slate-900/40 cursor-not-allowed opacity-60'
-                                    : 'cursor-pointer',
-                                  reason
-                                    ? undefined
-                                    : isToday
-                                      ? 'bg-blue-50/90 dark:bg-blue-950/40 ring-1 ring-blue-400/50 ring-inset'
-                                      : day.isDayOff && 'bg-slate-200/60 dark:bg-slate-700/40',
-                                  isSelected && 'ring-2 ring-primary ring-inset bg-primary/20 z-10'
-                                )}
-                                style={{
-                                  backgroundColor: !isFuture && reason ? `${reason.color}45` : undefined,
-                                }}
-                                onMouseDown={(e) => handleCellMouseDown(emp.employeeId, dateStr, e)}
-                                onMouseEnter={() => handleCellMouseEnter(emp.employeeId, dateStr)}
-                                onContextMenu={(e) => handleCellContextMenu(emp.employeeId, dateStr, e)}
-                              >
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="w-full h-8 flex items-center justify-center rounded font-bold">
-                                      {isFuture ? (
-                                        <span className="text-xs font-bold text-slate-300 dark:text-slate-600">—</span>
-                                      ) : reason ? (
-                                       <span
-                                         className="font-black text-base"
-                                         style={{ color: reason.color || undefined }}
-                                       >
-                                         {reason.symbol}
-                                       </span>
-                                      ) : isTruc ? (
-                                       <span
-                                         className="material-symbols-outlined text-amber-500 font-bold"
-                                         style={{ fontSize: 20 }}
-                                       >
-                                         star
-                                       </span>
-                                      ) : day.isDayOff ? (
-                                       <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-700/50 rounded px-1">
-                                         —
-                                       </span>
-                                      ) : (
-                                        <span className={cn('font-bold text-base', isToday ? 'text-blue-700 dark:text-blue-300' : 'text-emerald-600 dark:text-emerald-400')}>✓</span>
-                                      )}
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="font-semibold max-w-[220px]">
-                                    {cellTitle}
-                                  </TooltipContent>
-                                </Tooltip>
-                              </td>
-                            )
-                          })}
-
-                          <td className="p-2.5 border-r text-center font-extrabold text-emerald-600 dark:text-emerald-400 bg-white dark:bg-slate-900 sticky right-[70px] z-20 text-sm">
-                            {emp.workDays}
-                          </td>
-                          <td className="p-2.5 text-center font-extrabold text-amber-600 dark:text-amber-400 bg-white dark:bg-slate-900 sticky right-0 z-20 text-sm">
-                            {emp.leaveDays}
-                          </td>
-                        </tr>
-                      )
-                    })
-                  )}
-                </tbody>
-                {gridData?.employees.length ? (
-                  <tfoot>
-                    <tr className="sticky bottom-0 z-10 bg-slate-50 dark:bg-slate-800 font-bold text-xs border-t">
-                      <td colSpan={3} className="p-2 border-r text-right text-muted-foreground sticky left-0 z-20 bg-slate-50 dark:bg-slate-800">
-                        Có mặt / Nghỉ
-                      </td>
-                      {dayTotals.map((t) => (
-                        <td
-                          key={t.day}
-                          className={cn(
-                            'p-1 text-center border-r whitespace-nowrap',
-                           dayOffInfo(`${year}-${String(month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}`) &&
-                               'bg-slate-200/60 dark:bg-slate-700/50'
-                          )}
-                        >
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t.present}</span>
-                          <span className="text-slate-300 dark:text-slate-600 mx-0.5">/</span>
-                          <span className="text-amber-600 dark:text-amber-400 font-bold">{t.leave}</span>
+                  </thead>
+                  <tbody>
+                    {gridLoading ? (
+                      Array.from({ length: 5 }, (_, i) => renderPlaceholderRow(i))
+                    ) : !gridData?.employees.length ? (
+                      <tr>
+                        <td colSpan={visibleDays.length + 5} className="p-8 text-center text-muted-foreground text-sm">
+                          Chưa có dữ liệu cán bộ.
                         </td>
-                      ))}
-                      <td className="p-2 border-r sticky right-[70px] bg-slate-50 dark:bg-slate-800" />
-                      <td className="p-2 sticky right-0 bg-slate-50 dark:bg-slate-800" />
-                    </tr>
-                  </tfoot>
-                ) : null}
-              </table>
+                      </tr>
+                    ) : (
+                      gridData.employees.map((emp, index) => {
+                        const isEmpSelected = selectedEmp?.employeeId === emp.employeeId
+                        return (
+                          <tr
+                            key={emp.employeeId}
+                            className={cn(
+                              'border-b transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40',
+                              isEmpSelected && 'bg-primary/5 dark:bg-primary/10'
+                            )}
+                          >
+                            <td className="p-2.5 border-r text-center sticky left-0 z-20 bg-card font-semibold text-slate-500 text-sm">
+                              {index + 1}
+                            </td>
+                            <td className="p-2.5 border-r sticky left-[44px] z-20 bg-card">
+                              <button
+                                type="button"
+                                className="w-full text-left cursor-pointer hover:text-primary transition-colors"
+                                onClick={() => setSelectedEmp(emp)}
+                              >
+                                <div className="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[160px] text-sm">
+                                  {emp.fullName}
+                                </div>
+                                <div className="text-xs text-muted-foreground font-mono">{emp.employeeCode}</div>
+                              </button>
+                            </td>
+                            <td className="p-2.5 border-r text-left sticky left-[214px] z-20 bg-card text-slate-600 dark:text-slate-400 truncate max-w-[130px] text-xs font-medium">
+                              {emp.position ?? '—'}
+                            </td>
+
+                            {/* Days Cells */}
+                            {visibleDays.map((d) => {
+                              const day = emp.days.find((x) => Number(x.date.split('-')[2]) === d)
+                              if (!day) return null
+                              const dateStr = day.date
+                              const isToday = dateStr === todayStr
+                              const isFuture = dateStr > todayStr
+                              const isSelected = selectedCells.some(
+                                (c) => c.employeeId === emp.employeeId && c.date === dateStr
+                              )
+                              const reason = day.leaveReasonId ? reasonMap.get(day.leaveReasonId) : null
+                              const isTruc = day.isDayOff && day.hasRecord && !reason
+                              const cellTitle = isFuture
+                                ? 'Chưa đến ngày (Không thể chấm công)'
+                                : reason
+                                  ? `${reason.name}${day.note ? ` — ${day.note}` : ''}`
+                                  : isTruc
+                                    ? `Đi trực ngày nghỉ${day.note ? ` — ${day.note}` : ''}`
+                                    : day.isDayOff
+                                      ? `Ngày nghỉ (${day.dayOffName ?? ''})`
+                                      : 'Có mặt'
+
+                              return (
+                                <td
+                                  key={dateStr}
+                                  className={cn(
+                                    'p-1 border-r text-center select-none transition-all relative',
+                                    isFuture
+                                      ? 'bg-slate-100/50 dark:bg-slate-900/40 cursor-not-allowed opacity-60'
+                                      : 'cursor-pointer',
+                                    reason
+                                      ? undefined
+                                      : isToday
+                                        ? 'bg-blue-50/90 dark:bg-blue-950/40 ring-1 ring-blue-400/50 ring-inset'
+                                        : day.isDayOff && 'bg-slate-200/60 dark:bg-slate-700/40',
+                                    isSelected && 'ring-2 ring-primary ring-inset bg-primary/20 z-10'
+                                  )}
+                                  style={{
+                                    backgroundColor: !isFuture && reason ? `${reason.color}45` : undefined,
+                                  }}
+                                  onMouseDown={(e) => handleCellMouseDown(emp.employeeId, dateStr, e)}
+                                  onMouseEnter={() => handleCellMouseEnter(emp.employeeId, dateStr)}
+                                  onContextMenu={(e) => handleCellContextMenu(emp.employeeId, dateStr, e)}
+                                >
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="w-full h-8 flex items-center justify-center rounded font-bold">
+                                        {isFuture ? (
+                                          <span className="text-xs font-bold text-slate-300 dark:text-slate-600">—</span>
+                                        ) : reason ? (
+                                         <span
+                                           className="font-black text-base"
+                                           style={{ color: reason.color || undefined }}
+                                         >
+                                           {reason.symbol}
+                                         </span>
+                                       ) : isTruc ? (
+                                        <span
+                                          className="material-symbols-outlined text-amber-500 font-bold"
+                                          style={{ fontSize: 20 }}
+                                        >
+                                          star
+                                        </span>
+                                       ) : day.isDayOff ? (
+                                        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-200/60 dark:bg-slate-700/50 rounded px-1">
+                                          —
+                                        </span>
+                                       ) : (
+                                          <span className={cn('font-bold text-base', isToday ? 'text-blue-700 dark:text-blue-300' : 'text-emerald-600 dark:text-emerald-400')}>✓</span>
+                                        )}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="font-semibold max-w-[220px]">
+                                      {cellTitle}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </td>
+                              )
+                            })}
+
+                            <td className="p-2.5 border-r text-center sticky right-[70px] z-20 bg-card font-bold text-emerald-600 dark:text-emerald-400">
+                              {emp.workDays}
+                            </td>
+                            <td className="p-2.5 text-center sticky right-0 z-20 bg-card font-bold text-amber-600 dark:text-amber-400">
+                              {emp.leaveDays}
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                  {gridData?.employees.length ? (
+                    <tfoot>
+                      <tr className="sticky bottom-0 z-10 bg-slate-50 dark:bg-slate-800 font-bold text-xs border-t">
+                        <td colSpan={3} className="p-2 border-r text-right text-muted-foreground sticky left-0 z-20 bg-slate-50 dark:bg-slate-800">
+                          Có mặt / Nghỉ
+                        </td>
+                        {dayTotals.map((t) => (
+                          <td
+                            key={t.day}
+                            className={cn(
+                              'p-1 text-center border-r whitespace-nowrap',
+                             dayOffInfo(`${year}-${String(month).padStart(2, '0')}-${String(t.day).padStart(2, '0')}`) &&
+                                 'bg-slate-200/60 dark:bg-slate-700/50'
+                            )}
+                          >
+                            <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t.present}</span>
+                            <span className="text-slate-300 dark:text-slate-600 mx-0.5">/</span>
+                            <span className="text-amber-600 dark:text-amber-400 font-bold">{t.leave}</span>
+                          </td>
+                        ))}
+                        <td className="p-2 border-r sticky right-[70px] bg-slate-50 dark:bg-slate-800" />
+                        <td className="p-2 sticky right-0 bg-slate-50 dark:bg-slate-800" />
+                      </tr>
+                    </tfoot>
+                  ) : null}
+                </table>
+              </phantom-ui>
+
             </div>
           </div>
 

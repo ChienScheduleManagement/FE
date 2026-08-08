@@ -1,27 +1,18 @@
-import { useEffect } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { Link, useParams } from '@tanstack/react-router'
-import { useGetDocumentsById } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError } from '@/api/utils'
-import { formatDate, formatDateTime } from '@/lib/format'
-import { APP_NAME } from '@/constants/ui'
-import { StatusBadge, DeadlineBadge } from '@/components/StatusBadge'
-import { EmptyState } from '@/components/EmptyState'
-import { SkeletonRows } from '@/components/SkeletonRows'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import type { DocumentDetailVm } from '@/types/api'
+import {useEffect} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {Link, useParams} from '@tanstack/react-router'
+import {useGetDocumentsById} from '@/api/generated'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError} from '@/api/utils'
+import {formatDate, formatDateTime} from '@/lib/format'
+import {APP_NAME} from '@/constants/ui'
+import {DeadlineBadge, StatusBadge} from '@/components/StatusBadge'
+import {EmptyState} from '@/components/EmptyState'
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table'
+import type {DocumentDetailVm} from '@/types/api'
 
-import { BackButton } from '@/components/BackButton'
-import { RefreshButton } from '@/components/RefreshButton'
+import {BackButton} from '@/components/BackButton'
+import {RefreshButton} from '@/components/RefreshButton'
 
 function InfoItem({ label, value }: { label: string; value?: string | null }) {
   return (
@@ -63,50 +54,43 @@ export function DocumentDetailPage() {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="space-y-4 rounded-2xl border bg-card p-6 shadow-sm">
-            <Skeleton className="h-6 w-2/3" />
-            <div className="grid gap-4 sm:grid-cols-3">
-              <SkeletonRows rows={6} className="h-14 w-full" />
+        <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+          <div className="rounded-2xl border bg-card p-6 shadow-sm">
+            <h2 className="text-lg font-bold leading-snug text-slate-900 dark:text-slate-100">
+              {doc?.title ?? '—'}
+            </h2>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <InfoItem label="Nguồn ban hành" value={doc?.sourceName} />
+              <InfoItem label="Loại văn bản" value={doc?.docTypeName} />
+              <InfoItem label="Ngày ban hành" value={doc?.issueDate ? formatDate(doc.issueDate) : '—'} />
+              <InfoItem label="Người ký" value={doc?.signer} />
+              <InfoItem label="Người nhập" value={doc?.createdBy} />
+              <InfoItem label="Ngày nhập" value={doc?.createdAt ? formatDateTime(doc.createdAt) : '—'} />
             </div>
+            {doc?.filePath ? (
+              <a
+                href={doc.filePath}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15"
+              >
+                <span className="material-symbols-outlined text-lg">download</span>
+                Tải tệp văn bản
+              </a>
+            ) : null}
           </div>
-        ) : doc ? (
-          <>
-            <div className="rounded-2xl border bg-card p-6 shadow-sm">
-              <h2 className="text-lg font-bold leading-snug text-slate-900 dark:text-slate-100">
-                {doc.title}
-              </h2>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <InfoItem label="Nguồn ban hành" value={doc.sourceName} />
-                <InfoItem label="Loại văn bản" value={doc.docTypeName} />
-                <InfoItem label="Ngày ban hành" value={formatDate(doc.issueDate)} />
-                <InfoItem label="Người ký" value={doc.signer} />
-                <InfoItem label="Người nhập" value={doc.createdBy} />
-                <InfoItem label="Ngày nhập" value={formatDateTime(doc.createdAt)} />
-              </div>
-              {doc.filePath ? (
-                <a
-                  href={doc.filePath}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15"
-                >
-                  <span className="material-symbols-outlined text-lg">download</span>
-                  Tải tệp văn bản
-                </a>
-              ) : null}
-            </div>
 
-            <div className="rounded-2xl border bg-card shadow-sm">
-              <div className="flex items-center justify-between border-b p-5">
-                <div>
-                  <h2 className="font-bold text-slate-900 dark:text-slate-100">
-                    Nhiệm vụ phát sinh ({doc.tasks.length})
-                  </h2>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    Các nhiệm vụ cần theo dõi từ văn bản này
-                  </p>
-                </div>
+          <div className="rounded-2xl border bg-card shadow-sm">
+            <div className="flex items-center justify-between border-b p-5">
+              <div>
+                <h2 className="font-bold text-slate-900 dark:text-slate-100">
+                  Nhiệm vụ phát sinh ({doc?.tasks?.length ?? 0})
+                </h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  Các nhiệm vụ cần theo dõi từ văn bản này
+                </p>
+              </div>
+              {doc ? (
                 <Link
                   to="/tasks"
                   search={{ create: true, documentId: doc.id, docNumber: doc.docNumber }}
@@ -115,63 +99,63 @@ export function DocumentDetailPage() {
                   <span className="material-symbols-outlined text-base">add</span>
                   Thêm nhiệm vụ
                 </Link>
-              </div>
-
-              {!doc.tasks.length ? (
-                <EmptyState
-                  icon="task_alt"
-                  title="Chưa có nhiệm vụ nào"
-                  description="Thêm nhiệm vụ phát sinh từ văn bản này để bắt đầu theo dõi tiến độ."
-                />
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nội dung nhiệm vụ</TableHead>
-                        <TableHead className="w-44">Đơn vị chủ trì</TableHead>
-                        <TableHead className="w-36">CB phụ trách</TableHead>
-                        <TableHead className="w-32">Hạn xử lý</TableHead>
-                        <TableHead className="w-28">Hạn còn lại</TableHead>
-                        <TableHead className="w-28">Trạng thái</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {doc.tasks.map((task) => (
-                        <TableRow key={task.id}>
-                          <TableCell>
-                            <Link
-                              to="/tasks/$id"
-                              params={{ id: task.id }}
-                              className="line-clamp-2 font-medium text-slate-900 hover:underline dark:text-slate-100"
-                            >
-                              {task.taskContent}
-                            </Link>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {task.mainDepartmentName ?? '—'}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {task.assigneeName ?? '—'}
-                          </TableCell>
-                          <TableCell className="text-sm font-medium">
-                            {formatDateTime(task.dueDate)}
-                          </TableCell>
-                          <TableCell>
-                            <DeadlineBadge status={task.deadlineStatus} />
-                          </TableCell>
-                          <TableCell>
-                            <StatusBadge status={task.status} />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
+              ) : null}
             </div>
-          </>
-        ) : null}
+
+            {!doc?.tasks?.length ? (
+              <EmptyState
+                icon="task_alt"
+                title="Chưa có nhiệm vụ nào"
+                description="Thêm nhiệm vụ phát sinh từ văn bản này để bắt đầu theo dõi tiến độ."
+              />
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nội dung nhiệm vụ</TableHead>
+                      <TableHead className="w-44">Đơn vị chủ trì</TableHead>
+                      <TableHead className="w-36">CB phụ trách</TableHead>
+                      <TableHead className="w-32">Hạn xử lý</TableHead>
+                      <TableHead className="w-28">Hạn còn lại</TableHead>
+                      <TableHead className="w-28">Trạng thái</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {doc.tasks.map((task) => (
+                      <TableRow key={task.id}>
+                        <TableCell>
+                          <Link
+                            to="/tasks/$id"
+                            params={{ id: task.id }}
+                            className="line-clamp-2 font-medium text-slate-900 hover:underline dark:text-slate-100"
+                          >
+                            {task.taskContent}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {task.mainDepartmentName ?? '—'}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {task.assigneeName ?? '—'}
+                        </TableCell>
+                        <TableCell className="text-sm font-medium">
+                          {formatDateTime(task.dueDate)}
+                        </TableCell>
+                        <TableCell>
+                          <DeadlineBadge status={task.deadlineStatus} />
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge status={task.status} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </phantom-ui>
       </div>
     </>
   )

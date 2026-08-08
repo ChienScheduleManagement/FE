@@ -1,15 +1,13 @@
-import { useEffect } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { Link } from '@tanstack/react-router'
-import { useGetDashboard } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError } from '@/api/utils'
-import { formatPercent } from '@/lib/format'
-import { APP_NAME } from '@/constants/ui'
-import { PageHeader } from '@/components/PageHeader'
-import { RefreshButton } from '@/components/RefreshButton'
-import { SkeletonRows } from '@/components/SkeletonRows'
-import { Skeleton } from '@/components/ui/skeleton'
+import {useEffect} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {Link} from '@tanstack/react-router'
+import {useGetDashboard} from '@/api/generated'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError} from '@/api/utils'
+import {formatPercent} from '@/lib/format'
+import {APP_NAME} from '@/constants/ui'
+import {PageHeader} from '@/components/PageHeader'
+import {RefreshButton} from '@/components/RefreshButton'
 
 const STAT_CARDS = [
   {
@@ -92,104 +90,100 @@ export function DashboardPage() {
           actions={<RefreshButton onClick={() => refetch()} loading={isRefetching} />}
         />
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-          {STAT_CARDS.map((card) => (
-            <Link
-              key={card.key}
-              to="/tasks"
-              search={{ tab: card.tab }}
-              className="group rounded-2xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <div className="flex items-center justify-between">
-                <span className={`flex size-10 items-center justify-center rounded-xl ${card.color}`}>
-                  <span className="material-symbols-outlined text-xl">{card.icon}</span>
-                </span>
-                <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-                  Xem
-                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </span>
-                {card.key === 'completed' && dashboard?.totalTasks ? (
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    {formatPercent(dashboard.completedTasks, dashboard.totalTasks)}%
+        <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+            {STAT_CARDS.map((card) => (
+              <Link
+                key={card.key}
+                to="/tasks"
+                search={{ tab: card.tab }}
+                className="group rounded-2xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <div className="flex items-center justify-between">
+                  <span className={`flex size-10 items-center justify-center rounded-xl ${card.color}`}>
+                    <span className="material-symbols-outlined text-xl">{card.icon}</span>
                   </span>
-                ) : null}
-              </div>
-              <div className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
-                {isLoading ? (
-                  <Skeleton className="h-8 w-12" />
-                ) : (
-                  (dashboard?.[card.field] ?? 0).toLocaleString('vi-VN')
-                )}
-              </div>
-              <p className="mt-1 text-sm font-medium text-muted-foreground">{card.label}</p>
-            </Link>
-          ))}
-        </div>
-
-        <div className="rounded-2xl border bg-card shadow-sm">
-          <div className="flex items-center justify-between border-b p-5">
-            <div>
-              <h2 className="font-bold text-slate-900 dark:text-slate-100">Nhiệm vụ theo đơn vị</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                Tiến độ thực hiện của từng phòng ban
-              </p>
-            </div>
-            <Link
-              to="/tasks"
-              className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
-            >
-              Xem tất cả
-              <span className="material-symbols-outlined text-base">arrow_forward</span>
-            </Link>
+                  <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                    Xem
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </span>
+                  {card.key === 'completed' && dashboard?.totalTasks ? (
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      {formatPercent(dashboard.completedTasks, dashboard.totalTasks)}%
+                    </span>
+                  ) : null}
+                </div>
+                <div className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+                  {(dashboard?.[card.field] ?? 0).toLocaleString('vi-VN')}
+                </div>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">{card.label}</p>
+              </Link>
+            ))}
           </div>
+        </phantom-ui>
 
-          {isLoading ? (
-            <div className="space-y-4 p-5">
-              <SkeletonRows rows={4} className="h-12 w-full" />
+        <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+          <div className="rounded-2xl border bg-card shadow-sm">
+            <div className="flex items-center justify-between border-b p-5">
+              <div>
+                <h2 className="font-bold text-slate-900 dark:text-slate-100">Nhiệm vụ theo đơn vị</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  Tiến độ thực hiện của từng phòng ban
+                </p>
+              </div>
+              <Link
+                to="/tasks"
+                className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+              >
+                Xem tất cả
+                <span className="material-symbols-outlined text-base">arrow_forward</span>
+              </Link>
             </div>
-          ) : !dashboard?.departmentStats.length ? (
-            <div className="p-10 text-center text-sm text-muted-foreground">
-              Chưa có dữ liệu nhiệm vụ
-            </div>
-          ) : (
-            <div className="divide-y">
-              {dashboard.departmentStats.map((dept) => {
-                const completedPct = formatPercent(dept.completed, dept.total)
-                return (
-                  <div key={dept.departmentId} className="flex items-center gap-4 p-4 sm:px-5">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
-                        {dept.departmentName}
-                      </p>
-                      <div className="mt-2 flex h-2 w-full max-w-md overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                        <div
-                          className="h-full rounded-full bg-emerald-500 transition-all duration-700"
-                          style={{ width: `${completedPct}%` }}
-                        />
-                        <div
-                          className="h-full bg-amber-400 transition-all duration-700"
-                          style={{ width: `${formatPercent(dept.inProgress, dept.total)}%` }}
-                        />
-                        <div
-                          className="h-full bg-red-500 transition-all duration-700"
-                          style={{ width: `${formatPercent(dept.overdue, dept.total)}%` }}
-                        />
+
+            {!dashboard?.departmentStats.length ? (
+              <div className="p-10 text-center text-sm text-muted-foreground">
+                Chưa có dữ liệu nhiệm vụ
+              </div>
+            ) : (
+              <div className="divide-y">
+                {dashboard.departmentStats.map((dept) => {
+                  const completedPct = formatPercent(dept.completed, dept.total)
+                  return (
+                    <div key={dept.departmentId} className="flex items-center gap-4 p-4 sm:px-5">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-101">
+                          {dept.departmentName}
+                        </p>
+                        <div className="mt-2 flex h-2 w-full max-w-md overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                          <div
+                            className="h-full rounded-full bg-emerald-500 transition-all duration-700"
+                            style={{ width: `${completedPct}%` }}
+                          />
+                          <div
+                            className="h-full bg-amber-400 transition-all duration-700"
+                            style={{ width: `${formatPercent(dept.inProgress, dept.total)}%` }}
+                          />
+                          <div
+                            className="h-full bg-red-500 transition-all duration-700"
+                            style={{ width: `${formatPercent(dept.overdue, dept.total)}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3 text-xs font-medium">
+                        <span className="text-emerald-600 dark:text-emerald-400">{dept.completed} xong</span>
+                        <span className="text-amber-600 dark:text-amber-400">{dept.inProgress} đang làm</span>
+                        <span className="text-red-600 dark:text-red-400">{dept.overdue} quá hạn</span>
+                        <span className="rounded-lg bg-slate-100 px-2.5 py-1 font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                          {dept.total}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-3 text-xs font-medium">
-                      <span className="text-emerald-600 dark:text-emerald-400">{dept.completed} xong</span>
-                      <span className="text-amber-600 dark:text-amber-400">{dept.inProgress} đang làm</span>
-                      <span className="text-red-600 dark:text-red-400">{dept.overdue} quá hạn</span>
-                      <span className="rounded-lg bg-slate-100 px-2.5 py-1 font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                        {dept.total}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </phantom-ui>
       </div>
     </>
   )

@@ -1,20 +1,27 @@
-import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { useBulkEmployees, useCreateEmployees, useDeleteEmployeesById, useGetEmployees, useUpdateEmployeesById } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, toastSmartPromise } from '@/api/utils'
-import { APP_NAME } from '@/constants/ui'
-import { PageHeader } from '@/components/PageHeader'
-import { RefreshButton } from '@/components/RefreshButton'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
-import { selectColumn } from '@/components/DataTable/selectColumn'
-import { TooltipButton } from '@/components/TooltipButton'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import {useEffect, useState} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {useQueryClient} from '@tanstack/react-query'
+import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
+import {
+  useBulkEmployees,
+  useCreateEmployees,
+  useDeleteEmployeesById,
+  useGetDepartments,
+  useGetEmployees,
+  useUpdateEmployeesById
+} from '@/api/generated'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError, toastSmartPromise} from '@/api/utils'
+import {APP_NAME} from '@/constants/ui'
+import {PageHeader} from '@/components/PageHeader'
+import {RefreshButton} from '@/components/RefreshButton'
+import {ConfirmDialog} from '@/components/ConfirmDialog'
+import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
+import {selectColumn} from '@/components/DataTable/selectColumn'
+import {TooltipButton} from '@/components/TooltipButton'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {Label} from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -23,10 +30,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
-import type { DepartmentVm, EmployeeVm } from '@/types/api'
-import { useGetDepartments } from '@/api/generated'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {cn} from '@/lib/utils'
+import type {DepartmentVm, EmployeeVm} from '@/types/api'
+import {EmploymentHistoryDialog} from './EmploymentHistoryDialog'
+import {SalaryHistoryDialog} from './SalaryHistoryDialog'
 
 interface FormValues {
   employeeCode: string
@@ -51,9 +59,6 @@ const EMPTY_FORM: FormValues = {
   joinDate: '',
   isActive: true,
 }
-
-import { EmploymentHistoryDialog } from './EmploymentHistoryDialog'
-import { SalaryHistoryDialog } from './SalaryHistoryDialog'
 
 export function EmployeesPage() {
   const queryClient = useQueryClient()
@@ -309,16 +314,17 @@ export function EmployeesPage() {
             ]}
             onClearSelection={() => setRowSelection({})}
           />
-          <DataTable
-            columns={columns}
-            data={employees ?? []}
-            searchKey="tên, mã cán bộ"
-            loading={isLoading}
-            getRowId={(row) => row.id}
-            enableRowSelection
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
-          />
+          <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+            <DataTable
+              columns={columns}
+              data={employees ?? []}
+              searchKey="tên, mã cán bộ"
+              getRowId={(row) => row.id}
+              enableRowSelection
+              rowSelection={rowSelection}
+              onRowSelectionChange={setRowSelection}
+            />
+          </phantom-ui>
         </div>
       </div>
 

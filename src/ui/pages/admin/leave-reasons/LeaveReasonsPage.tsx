@@ -1,20 +1,26 @@
-import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { useBulkLeaveReasons, useCreateLeaveReasons, useDeleteLeaveReasonsById, useGetLeaveReasons, useUpdateLeaveReasonsById } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, toastSmartPromise } from '@/api/utils'
-import { APP_NAME } from '@/constants/ui'
-import { PageHeader } from '@/components/PageHeader'
-import { RefreshButton } from '@/components/RefreshButton'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
-import { selectColumn } from '@/components/DataTable/selectColumn'
-import { TooltipButton } from '@/components/TooltipButton'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import {useEffect, useState} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {useQueryClient} from '@tanstack/react-query'
+import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
+import {
+  useBulkLeaveReasons,
+  useCreateLeaveReasons,
+  useDeleteLeaveReasonsById,
+  useGetLeaveReasons,
+  useUpdateLeaveReasonsById
+} from '@/api/generated'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError, toastSmartPromise} from '@/api/utils'
+import {APP_NAME} from '@/constants/ui'
+import {PageHeader} from '@/components/PageHeader'
+import {RefreshButton} from '@/components/RefreshButton'
+import {ConfirmDialog} from '@/components/ConfirmDialog'
+import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
+import {selectColumn} from '@/components/DataTable/selectColumn'
+import {TooltipButton} from '@/components/TooltipButton'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {Label} from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -23,8 +29,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { cn } from '@/lib/utils'
-import type { LeaveReasonVm } from '@/types/api'
+import {cn} from '@/lib/utils'
+import type {LeaveReasonVm} from '@/types/api'
 
 interface FormValues {
   code: string
@@ -301,16 +307,17 @@ export function LeaveReasonsPage() {
             ]}
             onClearSelection={() => setRowSelection({})}
           />
-          <DataTable
-            columns={columns}
-            data={leaveReasons ?? []}
-            searchKey="tên, mã, ký hiệu"
-            loading={isLoading}
-            getRowId={(row) => row.id}
-            enableRowSelection
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
-          />
+          <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+            <DataTable
+              columns={columns}
+              data={leaveReasons ?? []}
+              searchKey="tên, mã, ký hiệu"
+              getRowId={(row) => row.id}
+              enableRowSelection
+              rowSelection={rowSelection}
+              onRowSelectionChange={setRowSelection}
+            />
+          </phantom-ui>
         </div>
       </div>
 

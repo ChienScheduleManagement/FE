@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { Link } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef, PaginationState, RowSelectionState } from '@tanstack/react-table'
+import {useEffect, useMemo, useState} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {Link} from '@tanstack/react-router'
+import {useQueryClient} from '@tanstack/react-query'
+import type {ColumnDef, PaginationState, RowSelectionState} from '@tanstack/react-table'
 import {
   useBulkDocuments,
   useCreateDocuments,
@@ -11,22 +11,22 @@ import {
   useGetDocuments,
   useUpdateDocumentsById,
 } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, toastSmartPromise } from '@/api/utils'
-import { formatDate } from '@/lib/format'
-import { APP_NAME } from '@/constants/ui'
-import { DEFAULT_PAGE_SIZE } from '@/constants/task'
-import { PageHeader } from '@/components/PageHeader'
-import { RefreshButton } from '@/components/RefreshButton'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
-import { selectColumn } from '@/components/DataTable/selectColumn'
-import { TooltipButton } from '@/components/TooltipButton'
-import { Button } from '@/components/ui/button'
-import { SearchInput } from '@/components/ui/search-input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DocumentFormDialog, type DocumentFormValues } from './components/DocumentFormDialog'
-import type { DocumentVm, PagedResponse } from '@/types/api'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError, toastSmartPromise} from '@/api/utils'
+import {formatDate} from '@/lib/format'
+import {APP_NAME} from '@/constants/ui'
+import {DEFAULT_PAGE_SIZE} from '@/constants/task'
+import {PageHeader} from '@/components/PageHeader'
+import {RefreshButton} from '@/components/RefreshButton'
+import {ConfirmDialog} from '@/components/ConfirmDialog'
+import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
+import {selectColumn} from '@/components/DataTable/selectColumn'
+import {TooltipButton} from '@/components/TooltipButton'
+import {Button} from '@/components/ui/button'
+import {SearchInput} from '@/components/ui/search-input'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {DocumentFormDialog, type DocumentFormValues} from './components/DocumentFormDialog'
+import type {DocumentVm, PagedResponse} from '@/types/api'
 
 export function DocumentsPage() {
   const queryClient = useQueryClient()
@@ -299,20 +299,21 @@ export function DocumentsPage() {
             ]}
             onClearSelection={() => setRowSelection({})}
           />
-          <DataTable
-            columns={columns}
-            data={documents?.items ?? []}
-            loading={isLoading}
-            hideToolbar
-            pageCount={documents?.totalPages ?? 0}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            totalItems={documents?.totalItems ?? 0}
-            getRowId={(row) => row.id}
-            enableRowSelection
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
-          />
+          <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+            <DataTable
+              columns={columns}
+              data={documents?.items ?? []}
+              hideToolbar
+              pageCount={documents?.totalPages ?? 0}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              totalItems={documents?.totalItems ?? 0}
+              getRowId={(row) => row.id}
+              enableRowSelection
+              rowSelection={rowSelection}
+              onRowSelectionChange={setRowSelection}
+            />
+          </phantom-ui>
         </div>
       </div>
 

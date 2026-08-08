@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { Link, useRouter, useSearch } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
-import type { ColumnDef, PaginationState } from '@tanstack/react-table'
+import {useEffect, useMemo, useState} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {Link, useRouter, useSearch} from '@tanstack/react-router'
+import {useQueryClient} from '@tanstack/react-query'
+import type {ColumnDef, PaginationState} from '@tanstack/react-table'
 import {
   getExportTasks,
   useBulkStatusTasks,
@@ -14,23 +14,31 @@ import {
   usePatchTasksByIdComplete,
   useUpdateTasksById,
 } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, showSuccess, toastSmartPromise } from '@/api/utils'
-import { formatDateTime, toUtcIso } from '@/lib/format'
-import { APP_NAME } from '@/constants/ui'
-import { DEFAULT_PAGE_SIZE, TASK_STATUS, TASK_STATUSES, TASK_TAB, TASK_TABS, getDeadlineStatusMeta, getTaskStatusMeta } from '@/constants/task'
-import { PageHeader } from '@/components/PageHeader'
-import { RefreshButton } from '@/components/RefreshButton'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { StatusBadge, DeadlineBadge } from '@/components/StatusBadge'
-import { DataTable, DataTableColumnHeader } from '@/components/DataTable'
-import { TooltipButton } from '@/components/TooltipButton'
-import { Button } from '@/components/ui/button'
-import { SearchInput } from '@/components/ui/search-input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { TaskFormDialog, type TaskFormValues } from './components/TaskFormDialog'
-import { CompleteTaskDialog } from './components/CompleteTaskDialog'
-import type { PagedResponse, TaskItemVm } from '@/types/api'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError, showSuccess, toastSmartPromise} from '@/api/utils'
+import {formatDateTime, toUtcIso} from '@/lib/format'
+import {APP_NAME} from '@/constants/ui'
+import {
+  DEFAULT_PAGE_SIZE,
+  getDeadlineStatusMeta,
+  getTaskStatusMeta,
+  TASK_STATUS,
+  TASK_STATUSES,
+  TASK_TAB,
+  TASK_TABS
+} from '@/constants/task'
+import {PageHeader} from '@/components/PageHeader'
+import {RefreshButton} from '@/components/RefreshButton'
+import {ConfirmDialog} from '@/components/ConfirmDialog'
+import {DeadlineBadge, StatusBadge} from '@/components/StatusBadge'
+import {DataTable, DataTableColumnHeader} from '@/components/DataTable'
+import {TooltipButton} from '@/components/TooltipButton'
+import {Button} from '@/components/ui/button'
+import {SearchInput} from '@/components/ui/search-input'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+import {TaskFormDialog, type TaskFormValues} from './components/TaskFormDialog'
+import {CompleteTaskDialog} from './components/CompleteTaskDialog'
+import type {PagedResponse, TaskItemVm} from '@/types/api'
 
 const STATUS_LOOKUP: Record<string, number> = {
   'mới nhận': TASK_STATUS.PENDING,
@@ -532,25 +540,26 @@ export function TasksPage() {
         </div>
 
         <div className="rounded-2xl border bg-card shadow-sm p-4">
-          <DataTable
-            columns={columns}
-            data={tasks?.items ?? []}
-            loading={isLoading}
-            hideToolbar
-            pageCount={tasks?.totalPages ?? 0}
-            pagination={pagination}
-            onPaginationChange={handlePageChange}
-            totalItems={tasks?.totalItems ?? 0}
-            getRowId={(row) => row.id}
-            enableCellSelection
-            selectedCells={selectedCells}
-            onSelectedCellsChange={setSelectedCells}
-            onCellContextMenu={(_row, _columnId, event) => {
-              setCellMenu({ x: event.clientX, y: event.clientY })
-            }}
-            getCellText={getCellText}
-            onPaste={(text) => void handlePaste(text)}
-          />
+          <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+            <DataTable
+              columns={columns}
+              data={tasks?.items ?? []}
+              hideToolbar
+              pageCount={tasks?.totalPages ?? 0}
+              pagination={pagination}
+              onPaginationChange={handlePageChange}
+              totalItems={tasks?.totalItems ?? 0}
+              getRowId={(row) => row.id}
+              enableCellSelection
+              selectedCells={selectedCells}
+              onSelectedCellsChange={setSelectedCells}
+              onCellContextMenu={(_row, _columnId, event) => {
+                setCellMenu({ x: event.clientX, y: event.clientY })
+              }}
+              getCellText={getCellText}
+              onPaste={(text) => void handlePaste(text)}
+            />
+          </phantom-ui>
           <p className="mt-3 text-xs text-muted-foreground">
             Mẹo: Ctrl + click để chọn nhiều ô · Shift + click để chọn liên tiếp theo hàng hoặc cột · Click
             chuột phải để đổi trạng thái hàng loạt · Ctrl + C / Ctrl + V để sao chép - dán trạng thái.

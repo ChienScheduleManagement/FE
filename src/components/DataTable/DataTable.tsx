@@ -1,39 +1,30 @@
-import { useEffect, useRef, useState } from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  type SortingState,
-  type VisibilityState,
-  type PaginationState,
-  type Row,
-  type RowSelectionState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type PaginationState,
+  type Row,
+  type RowSelectionState,
+  type SortingState,
   useReactTable,
+  type VisibilityState,
 } from '@tanstack/react-table'
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Skeleton } from '@/components/ui/skeleton'
-import { EmptyState } from '@/components/EmptyState'
-import { DataTablePagination } from './DataTablePagination'
-import { DataTableToolbar } from './DataTableToolbar'
-import { cn } from '@/lib/utils'
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table'
+import {EmptyState} from '@/components/EmptyState'
+import {DataTablePagination} from './DataTablePagination'
+import {DataTableToolbar} from './DataTableToolbar'
+import {cn} from '@/lib/utils'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   searchKey?: string
-  loading?: boolean
   hideToolbar?: boolean
   // Optional Server-side Props
   pageCount?: number
@@ -65,7 +56,6 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
-  loading = false,
   hideToolbar = false,
   pageCount,
   totalItems,
@@ -432,23 +422,7 @@ export function DataTable<TData, TValue>({
               ))}
             </TableHeader>
             <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-64">
-                    <div className="space-y-4 p-4">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-40 rounded-full" />
-                        <Skeleton className="h-3 w-72 max-w-full rounded-full" />
-                      </div>
-                      <div className="grid gap-3">
-                        <Skeleton className="h-10 w-full rounded-xl" />
-                        <Skeleton className="h-10 w-full rounded-xl" />
-                        <Skeleton className="h-10 w-5/6 rounded-xl" />
-                      </div>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : table.getRowModel().rows?.length ? (
+              {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}

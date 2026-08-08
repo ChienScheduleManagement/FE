@@ -1,20 +1,20 @@
-import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { useQueryClient, useQuery } from '@tanstack/react-query'
-import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { unwrapApiResponse } from '@/lib/apiHandler'
-import { showError, toastSmartPromise } from '@/api/utils'
+import {useEffect, useState} from 'react'
+import {Helmet} from 'react-helmet-async'
+import {useQuery, useQueryClient} from '@tanstack/react-query'
+import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
+import {unwrapApiResponse} from '@/lib/apiHandler'
+import {showError, toastSmartPromise} from '@/api/utils'
 import apiClient from '@/api/client'
-import { APP_NAME } from '@/constants/ui'
-import { PageHeader } from '@/components/PageHeader'
-import { RefreshButton } from '@/components/RefreshButton'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
-import { selectColumn } from '@/components/DataTable/selectColumn'
-import { TooltipButton } from '@/components/TooltipButton'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import {APP_NAME} from '@/constants/ui'
+import {PageHeader} from '@/components/PageHeader'
+import {RefreshButton} from '@/components/RefreshButton'
+import {ConfirmDialog} from '@/components/ConfirmDialog'
+import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
+import {selectColumn} from '@/components/DataTable/selectColumn'
+import {TooltipButton} from '@/components/TooltipButton'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {Label} from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -268,14 +268,15 @@ export function BaseSalariesPage() {
         />
 
         <div className="rounded-2xl border bg-card p-4 shadow-sm">
-          <DataTable
-            columns={columns}
-            data={baseSalaries}
-            loading={isLoading}
-            enableRowSelection
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
-          />
+          <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
+            <DataTable
+              columns={columns}
+              data={baseSalaries}
+              enableRowSelection
+              rowSelection={rowSelection}
+              onRowSelectionChange={setRowSelection}
+            />
+          </phantom-ui>
         </div>
 
         <BulkActionBar
