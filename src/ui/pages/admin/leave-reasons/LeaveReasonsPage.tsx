@@ -7,6 +7,7 @@ import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
@@ -59,7 +60,7 @@ export function LeaveReasonsPage() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error } = useGetLeaveReasons()
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetLeaveReasons()
   const { mutateAsync: createLeaveReason, isPending: creating } = useCreateLeaveReasons()
   const { mutateAsync: updateLeaveReason, isPending: updating } = useUpdateLeaveReasonsById()
   const { mutateAsync: deleteLeaveReason, isPending: deletingPosition } = useDeleteLeaveReasonsById()
@@ -276,10 +277,13 @@ export function LeaveReasonsPage() {
           title="Danh mục lý do nghỉ"
           description="Quản lý các loại nghỉ phép, ốm, thai sản, công tác..."
           actions={
-            <Button onClick={openCreate}>
-              <span className="material-symbols-outlined text-base mr-1">add</span>
-              Thêm lý do
-            </Button>
+            <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
+              <Button onClick={openCreate}>
+                <span className="material-symbols-outlined text-base mr-1">add</span>
+                Thêm lý do
+              </Button>
+            </>
           }
         />
 

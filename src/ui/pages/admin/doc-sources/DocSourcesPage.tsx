@@ -8,6 +8,7 @@ import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { DOC_SOURCE_LEVEL, DOC_SOURCE_LEVELS, type DocSourceLevel } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
@@ -45,7 +46,7 @@ export function DocSourcesPage() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error } = useGetDocSources()
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetDocSources()
   const { mutateAsync: createDocSource, isPending: creating } = useCreateDocSources()
   const { mutateAsync: updateDocSource, isPending: updating } = useUpdateDocSourcesById()
   const { mutateAsync: deleteDocSource, isPending: deletingPosition } = useDeleteDocSourcesById()
@@ -222,10 +223,13 @@ export function DocSourcesPage() {
           title="Quản lý nguồn văn bản"
           description="Các cơ quan ban hành văn bản (tỉnh, huyện, xã...)"
           actions={
-            <Button onClick={openCreate}>
-              <span className="material-symbols-outlined text-base mr-1">add</span>
-              Thêm nguồn
-            </Button>
+            <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
+              <Button onClick={openCreate}>
+                <span className="material-symbols-outlined text-base mr-1">add</span>
+                Thêm nguồn
+              </Button>
+            </>
           }
         />
 

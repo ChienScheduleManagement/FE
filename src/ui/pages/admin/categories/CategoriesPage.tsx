@@ -8,6 +8,7 @@ import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { CATEGORY_TYPE, CATEGORY_TYPES, type CategoryType } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
@@ -46,7 +47,7 @@ export function CategoriesPage() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error } = useGetCategories({ type })
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetCategories({ type })
   const { mutateAsync: createCategory, isPending: creating } = useCreateCategories()
   const { mutateAsync: updateCategory, isPending: updating } = useUpdateCategoriesById()
   const { mutateAsync: deleteCategory, isPending: deletingPosition } = useDeleteCategoriesById()
@@ -210,10 +211,13 @@ export function CategoriesPage() {
           title="Quản lý danh mục"
           description="Loại văn bản, lĩnh vực công tác dùng chung cho hệ thống"
           actions={
-            <Button onClick={openCreate}>
-              <span className="material-symbols-outlined text-base mr-1">add</span>
-              Thêm danh mục
-            </Button>
+            <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
+              <Button onClick={openCreate}>
+                <span className="material-symbols-outlined text-base mr-1">add</span>
+                Thêm danh mục
+              </Button>
+            </>
           }
         />
 

@@ -7,6 +7,7 @@ import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
@@ -67,14 +68,15 @@ export function EmployeesPage() {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
-  const { data: raw, isLoading, isError, error } = useGetEmployees()
-  const { data: deptRaw } = useGetDepartments()
+  const { data: raw, isLoading, isError, error, refetch: refetchEmployees, isRefetching: refreshingEmployees } = useGetEmployees()
+  const { data: deptRaw, refetch: refetchDepartments, isRefetching: refreshingDepartments } = useGetDepartments()
   const { mutateAsync: createEmployee, isPending: creating } = useCreateEmployees()
   const { mutateAsync: updateEmployee, isPending: updating } = useUpdateEmployeesById()
   const { mutateAsync: deleteEmployee, isPending: deletingPosition } = useDeleteEmployeesById()
   const { mutateAsync: bulkDeleteEmployees, isPending: bulkDeleting } = useBulkEmployees()
 
   const saving = creating || updating
+  const refreshing = refreshingEmployees || refreshingDepartments
 
   useEffect(() => {
     if (isError) showError(error)
@@ -193,6 +195,10 @@ export function EmployeesPage() {
     await queryClient.invalidateQueries({ queryKey: ['/api/employees'] })
   }
 
+  const handleRefresh = async () => {
+    await Promise.all([refetchEmployees(), refetchDepartments()])
+  }
+
   const openCreate = () => {
     setEditing(null)
     setForm(EMPTY_FORM)
@@ -301,10 +307,13 @@ export function EmployeesPage() {
           title="Quản lý cán bộ"
           description="Danh sách cán bộ, viên chức UBND xã"
           actions={
-            <Button onClick={openCreate}>
-              <span className="material-symbols-outlined text-base mr-1">add</span>
-              Thêm cán bộ
-            </Button>
+            <>
+              <RefreshButton onClick={handleRefresh} loading={refreshing} />
+              <Button onClick={openCreate}>
+                <span className="material-symbols-outlined text-base mr-1">add</span>
+                Thêm cán bộ
+              </Button>
+            </>
           }
         />
 

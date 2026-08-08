@@ -8,6 +8,7 @@ import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
@@ -77,7 +78,7 @@ export function DayOffsPage() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error } = useGetDayOffs()
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetDayOffs()
   const { mutateAsync: createDayOff, isPending: creating } = useCreateDayOffs()
   const { mutateAsync: updateDayOff, isPending: updating } = useUpdateDayOffsById()
   const { mutateAsync: deleteDayOff, isPending: deletingPosition } = useDeleteDayOffsById()
@@ -274,10 +275,13 @@ export function DayOffsPage() {
           title="Quản lý lịch nghỉ"
           description="Định nghĩa các ngày nghỉ của đơn vị: ngày lễ, cuối tuần... Admin có thể sửa/xóa thoải mái"
           actions={
-            <Button onClick={openCreate}>
-              <span className="material-symbols-outlined text-base mr-1">add</span>
-              Thêm ngày nghỉ
-            </Button>
+            <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
+              <Button onClick={openCreate}>
+                <span className="material-symbols-outlined text-base mr-1">add</span>
+                Thêm ngày nghỉ
+              </Button>
+            </>
           }
         />
 

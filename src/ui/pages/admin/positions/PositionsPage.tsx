@@ -7,6 +7,7 @@ import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
@@ -49,7 +50,7 @@ export function PositionsPage() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error } = useGetPositions()
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetPositions()
   const { mutateAsync: createPosition, isPending: creating } = useCreatePositions()
   const { mutateAsync: updatePosition, isPending: updating } = useUpdatePositionsById()
   const { mutateAsync: deletePosition, isPending: deletingPosition } = useDeletePositionsById()
@@ -223,10 +224,13 @@ export function PositionsPage() {
           title="Quản lý chức vụ"
           description="Quản lý danh mục chức vụ của cán bộ, công chức trong xã"
           actions={
-            <Button onClick={openCreate}>
-              <span className="material-symbols-outlined text-base mr-1">add</span>
-              Thêm chức vụ
-            </Button>
+            <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
+              <Button onClick={openCreate}>
+                <span className="material-symbols-outlined text-base mr-1">add</span>
+                Thêm chức vụ
+              </Button>
+            </>
           }
         />
 

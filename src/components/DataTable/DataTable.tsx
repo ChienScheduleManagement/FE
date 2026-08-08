@@ -207,6 +207,8 @@ export function DataTable<TData, TValue>({
 
   const handleCellMouseDown = (e: React.MouseEvent, row: Row<TData>, colId: string) => {
     if (!enableCellSelection || e.button !== 0) return
+    const target = e.target as HTMLElement
+    if (target.closest('button, a, input, select, textarea')) return
     e.preventDefault()
     scrollXRef.current?.focus()
     const rowId = getRowKey(row)
