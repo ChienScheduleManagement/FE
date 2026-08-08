@@ -21,7 +21,7 @@ export function PageHeader({ title, description, icon, actions, className }: Pag
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">{title}</h1>
           {description ? (
-            <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
           ) : null}
         </div>
       </div>
