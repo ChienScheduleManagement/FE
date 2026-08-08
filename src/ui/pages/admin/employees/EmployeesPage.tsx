@@ -33,8 +33,6 @@ interface FormValues {
   fullName: string
   departmentId: string
   position: string
-  baseSalary: string
-  allowance: string
   phoneNumber: string
   avatarUrl: string
   displayOrder: string
@@ -47,8 +45,6 @@ const EMPTY_FORM: FormValues = {
   fullName: '',
   departmentId: '',
   position: '',
-  baseSalary: '',
-  allowance: '',
   phoneNumber: '',
   avatarUrl: '',
   displayOrder: '0',
@@ -57,6 +53,7 @@ const EMPTY_FORM: FormValues = {
 }
 
 import { EmploymentHistoryDialog } from './EmploymentHistoryDialog'
+import { SalaryHistoryDialog } from './SalaryHistoryDialog'
 
 export function EmployeesPage() {
   const queryClient = useQueryClient()
@@ -64,6 +61,7 @@ export function EmployeesPage() {
   const [editing, setEditing] = useState<EmployeeVm | null>(null)
   const [deleting, setDeleting] = useState<EmployeeVm | null>(null)
   const [historyEmp, setHistoryEmp] = useState<EmployeeVm | null>(null)
+  const [salaryEmp, setSalaryEmp] = useState<EmployeeVm | null>(null)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
@@ -119,26 +117,6 @@ export function EmployeesPage() {
       size: 140,
     },
     {
-      accessorKey: 'baseSalary',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Hệ số lương" />,
-      cell: ({ row }) => (
-        <span className="text-sm font-mono text-right">
-          {row.original.baseSalary.toLocaleString('vi-VN')}
-        </span>
-      ),
-      size: 130,
-    },
-    {
-      accessorKey: 'allowance',
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Phụ cấp" />,
-      cell: ({ row }) => (
-        <span className="text-sm font-mono text-right">
-          {row.original.allowance.toLocaleString('vi-VN')}
-        </span>
-      ),
-      size: 120,
-    },
-    {
       accessorKey: 'isActive',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Trạng thái" />,
       cell: ({ row }) => (
@@ -160,6 +138,14 @@ export function EmployeesPage() {
       header: () => <span className="text-right">Thao tác</span>,
       cell: ({ row }) => (
         <div className="flex justify-end gap-1">
+          <TooltipButton
+            variant="ghost"
+            size="icon"
+            label="Hệ số lương"
+            onClick={() => setSalaryEmp(row.original)}
+          >
+            <span className="material-symbols-outlined text-lg text-emerald-600 dark:text-emerald-400">payments</span>
+          </TooltipButton>
           <TooltipButton
             variant="ghost"
             size="icon"
@@ -213,8 +199,6 @@ export function EmployeesPage() {
       fullName: emp.fullName,
       departmentId: String(emp.departmentId),
       position: emp.position ?? '',
-      baseSalary: String(emp.baseSalary),
-      allowance: String(emp.allowance),
       phoneNumber: emp.phoneNumber ?? '',
       avatarUrl: emp.avatarUrl ?? '',
       displayOrder: String(emp.displayOrder ?? 0),
@@ -235,10 +219,6 @@ export function EmployeesPage() {
     if (!form.employeeCode.trim()) nextErrors.employeeCode = 'Mã cán bộ không được để trống.'
     if (!form.fullName.trim()) nextErrors.fullName = 'Họ tên không được để trống.'
     if (!form.departmentId) nextErrors.departmentId = 'Đơn vị công tác không được để trống.'
-    const baseSalary = Number(form.baseSalary)
-    if (Number.isNaN(baseSalary) || baseSalary < 0) nextErrors.baseSalary = 'Lương cơ bản không được âm.'
-    const allowance = Number(form.allowance)
-    if (Number.isNaN(allowance) || allowance < 0) nextErrors.allowance = 'Phụ cấp không được âm.'
     const displayOrder = Number(form.displayOrder)
     if (Number.isNaN(displayOrder) || displayOrder < 0) nextErrors.displayOrder = 'Thứ tự hiển thị không được âm.'
     if (Object.keys(nextErrors).length) {
@@ -251,8 +231,6 @@ export function EmployeesPage() {
         fullName: form.fullName,
         departmentId: Number(form.departmentId),
         position: form.position || null,
-        baseSalary,
-        allowance,
         phoneNumber: form.phoneNumber || null,
         avatarUrl: form.avatarUrl || null,
         displayOrder,
@@ -412,36 +390,6 @@ export function EmployeesPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="emp-base">Hệ số lương <span className="text-red-500">*</span></Label>
-              <Input
-                id="emp-base"
-                type="number"
-                min={0}
-                step={0.01}
-                placeholder="VD: 3.99"
-                value={form.baseSalary}
-                onChange={(e) => setField('baseSalary', e.target.value)}
-              />
-              {errors.baseSalary ? (
-                <p className="text-xs font-medium text-red-500">{errors.baseSalary}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="emp-allow">Phụ cấp <span className="text-red-500">*</span></Label>
-              <Input
-                id="emp-allow"
-                type="number"
-                min={0}
-                step={100000}
-                placeholder="1500000"
-                value={form.allowance}
-                onChange={(e) => setField('allowance', e.target.value)}
-              />
-              {errors.allowance ? (
-                <p className="text-xs font-medium text-red-500">{errors.allowance}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
               <Label htmlFor="emp-phone">Số điện thoại</Label>
               <Input
                 id="emp-phone"
@@ -543,6 +491,12 @@ export function EmployeesPage() {
         employee={historyEmp}
         open={!!historyEmp}
         onOpenChange={(o) => { if (!o) setHistoryEmp(null) }}
+      />
+
+      <SalaryHistoryDialog
+        employee={salaryEmp}
+        open={!!salaryEmp}
+        onOpenChange={(o) => { if (!o) setSalaryEmp(null) }}
       />
     </>
   )

@@ -133,8 +133,6 @@ export interface EmployeeVm {
   departmentId: number
   departmentName?: string | null
   position?: string | null
-  baseSalary: number
-  allowance: number
   phoneNumber?: string | null
   avatarUrl?: string | null
   isActive: boolean
@@ -243,6 +241,36 @@ export interface SalaryVm {
   standardDays: number
   baseSalaryAmount: number
   items: SalaryItemVm[]
+}
+
+export interface SalaryHistoryVm {
+  id: string
+  employeeId: string
+  employeeCode: string
+  fullName: string
+  salaryCoefficient: number
+  allowance: number
+  effectiveFrom: string
+  effectiveTo?: string | null
+  reason?: string | null
+  createdAt: string
+}
+
+export interface CreateSalaryHistoryRequest {
+  employeeId: string
+  salaryCoefficient: number | string
+  allowance: number | string
+  effectiveFrom: string
+  effectiveTo?: string | null
+  reason?: string | null
+}
+
+export interface UpdateSalaryHistoryRequest {
+  salaryCoefficient?: number | string | null
+  allowance?: number | string | null
+  effectiveFrom?: string | null
+  effectiveTo?: string | null
+  reason?: string | null
 }
 
 export interface EmploymentHistoryVm {
