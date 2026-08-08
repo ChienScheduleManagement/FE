@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
+import { debug } from '@/lib/debug'
 
 import { extractAccessToken } from '@/auth/token'
 import { clearAuth, getAccessToken, updateAuthToken } from '@/store/auth.store'
@@ -50,13 +51,13 @@ function isValidTokenFormat(token: string): boolean {
 
 export async function refreshAccessTokenFromCookie() {
   if (refreshPromise) {
-    console.log('[API Client] Joining existing refresh promise...')
+    debug.log('Joining existing refresh promise...')
     return refreshPromise
   }
 
   refreshPromise = (async () => {
     try {
-      console.log('[API Client] Refreshing token via public client...')
+      debug.log('Refreshing token via public client...')
       const response = await publicClient.post(
         '/api/auth/refresh-token',
         undefined,
@@ -67,7 +68,7 @@ export async function refreshAccessTokenFromCookie() {
 
       const data = response.data as { isError?: boolean; data?: unknown }
       if (data?.isError === true) {
-        console.warn('[API Client] Refresh failed from server:', data)
+        debug.warn('Refresh failed from server:', data)
         clearAuth()
         return null
       }
@@ -80,19 +81,19 @@ export async function refreshAccessTokenFromCookie() {
           : undefined
 
       if (!nextToken) {
-        console.warn('[API Client] Refresh failed: No token in response')
+        debug.warn('Refresh failed: No token in response')
         clearAuth()
         return null
       }
 
-      console.log('[API Client] Token refresh success. Updating store...')
+      debug.log('Token refresh success. Updating store...')
       updateAuthToken(
         nextToken,
         expiresAt || new Date(Date.now() + 3600 * 1000).toISOString(),
       )
       return nextToken
     } catch (err) {
-      console.error('[API Client] Token refresh error:', err)
+      debug.error('Token refresh error:', err)
       clearAuth()
       return null
     } finally {
@@ -116,7 +117,7 @@ apiClient.interceptors.request.use((config) => {
   if (accessToken && isValidTokenFormat(accessToken)) {
     config.headers.Authorization = `Bearer ${accessToken}`
   } else if (accessToken) {
-    console.error('[API Client] Invalid token format detected:', accessToken)
+    debug.error('Invalid token format detected:', accessToken)
     clearAuth()
   }
 

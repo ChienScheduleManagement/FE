@@ -4,6 +4,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { debug } from '@/lib/debug'
 import {
   getGetCategoriesQueryOptions,
   getGetDashboardQueryOptions,
@@ -26,7 +27,7 @@ export function useDataWarming() {
 
     const warming = async () => {
       try {
-        console.log('[DataWarming] Starting staggered cache warming...')
+        debug.log('Starting staggered cache warming...')
 
         // Helper để prefetch rồi nghỉ một lát, tránh dồn dập request lên server
         const staggeredPrefetch = async <
@@ -73,10 +74,10 @@ export function useDataWarming() {
         await staggeredPrefetch(getGetCategoriesQueryOptions({ type: CATEGORY_TYPE.DOC_TYPE }))
         await staggeredPrefetch(getGetDepartmentsQueryOptions({ activeOnly: true }))
 
-        console.log('[DataWarming] Cache warming completed successfully.')
+        debug.log('Cache warming completed successfully.')
       } catch (error) {
         // Prefetch fail không nên làm crash ứng dụng
-        console.warn('[DataWarming] Prefetching encountered an issue:', error)
+        debug.warn('Prefetching encountered an issue:', error)
       }
     }
 

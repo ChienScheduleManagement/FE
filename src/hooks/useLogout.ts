@@ -10,9 +10,10 @@ export function useLogout() {
     try {
       await logout()
     } catch {
+      // logout API failed, but we still clear local auth state
+    } finally {
       clearAuth()
     }
-    clearAuth()
     navigate({ to: '/login' })
   }, [navigate])
 }

@@ -83,8 +83,9 @@ export function TaskDetailPage() {
         { loading: 'Đang lưu nhật ký...', success: 'Đã cập nhật tiến độ!' },
       )
       setLogNote('')
-      await invalidate()
-    } catch {
+       await invalidate()
+    } catch (err) {
+      showError(err)
     }
   }
 
@@ -112,7 +113,8 @@ export function TaskDetailPage() {
       await invalidate()
       await router.navigate({ to: '/tasks', replace: true })
       setDeleteOpen(false)
-    } catch {
+    } catch (err) {
+      showError(err)
     }
   }
 

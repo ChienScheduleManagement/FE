@@ -1,5 +1,6 @@
 import type { LoginResponse } from '@/types/api'
 import { create } from 'zustand'
+import { debug } from '@/lib/debug'
 
 type AuthState = {
   user: LoginResponse | null
@@ -45,15 +46,15 @@ export function setUser(user: LoginResponse) {
 }
 
 export const updateAuthToken = (token: string, refreshTokenExpiresAt: string) => {
-  console.log('[Auth Store] Updating token in store...')
+  debug.log('Updating token in store...')
   useAuthStore.setState((state) => {
     if (!state.user) {
-      console.warn('[Auth Store] Cannot update token: No user in state')
+      debug.warn('Cannot update token: No user in state')
       return state
     }
     const newUser = { ...state.user, token, refreshTokenExpiresAt }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser))
-    console.log('[Auth Store] Token updated successfully.')
+    debug.log('Token updated successfully.')
     return { user: newUser }
   })
 }
