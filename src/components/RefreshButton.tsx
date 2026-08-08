@@ -14,10 +14,12 @@ export function RefreshButton({ onClick, loading, label = 'Làm mới' }: Refres
       disabled={loading}
       className="gap-1.5"
     >
-      <span className={`material-symbols-outlined text-base ${loading ? 'animate-spin' : ''}`}>
-        refresh
+      <span
+        className={`material-symbols-outlined text-base ${loading ? 'animate-spin' : ''}`}
+      >
+        {loading ? 'progress_activity' : 'refresh'}
       </span>
-      {loading ? 'Đang làm mới...' : label}
+      {label}
     </Button>
   )
 }

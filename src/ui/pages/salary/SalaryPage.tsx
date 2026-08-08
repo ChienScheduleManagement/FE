@@ -155,29 +155,29 @@ export function SalaryPage() {
           <table className="w-full text-sm text-left border-collapse">
             <thead>
               <tr className="border-b bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
-                <th className="p-3 text-center w-12">STT</th>
-                <th className="p-3 w-24">Mã CB</th>
-                <th className="p-3">Họ tên</th>
-                <th className="p-3">Chức vụ</th>
-                <th className="p-3">Đơn vị</th>
-                <th className="p-3 text-center w-24">Công QĐ</th>
-                <th className="p-3 text-center w-24">Nghỉ</th>
-                <th className="p-3 text-right">Hệ số lương</th>
-                <th className="p-3 text-right">Lương ngạch bậc</th>
-                <th className="p-3 text-right">Phụ cấp</th>
-                <th className="p-3 text-right pr-6">Thực lĩnh</th>
+                <th className="px-3 py-2.5 text-center w-10">STT</th>
+                <th className="px-3 py-2.5 w-20">Mã CB</th>
+                <th className="px-3 py-2.5">Họ tên</th>
+                <th className="px-3 py-2.5">Chức vụ</th>
+                <th className="px-3 py-2.5">Đơn vị</th>
+                <th className="px-3 py-2.5 text-center w-16">Công</th>
+                <th className="px-3 py-2.5 text-center w-14">Nghỉ</th>
+                <th className="px-3 py-2.5 text-right w-20">Hệ số</th>
+                <th className="px-3 py-2.5 text-right w-28">Lương CB</th>
+                <th className="px-3 py-2.5 text-right w-24">Phụ cấp</th>
+                <th className="px-3 py-2.5 text-right pr-5 w-28">Thực lĩnh</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={11} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={11} className="px-3 py-8 text-center text-muted-foreground">
                     Đang tính lương...
                   </td>
                 </tr>
               ) : !salaryData?.items.length ? (
                 <tr>
-                  <td colSpan={11} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={11} className="px-3 py-8 text-center text-muted-foreground">
                     Không có dữ liệu.
                   </td>
                 </tr>
@@ -193,28 +193,28 @@ export function SalaryPage() {
                       key={item.employeeId}
                       className="border-b transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800"
                     >
-                      <td className="p-3 text-center font-semibold text-slate-500">{idx + 1}</td>
-                      <td className="p-3 font-mono font-bold text-primary">{item.employeeCode}</td>
-                      <td className="p-3 font-bold text-slate-900 dark:text-slate-100">{item.fullName}</td>
-                      <td className="p-3 text-muted-foreground">{item.position ?? '—'}</td>
-                      <td className="p-3 text-muted-foreground">{item.departmentName ?? '—'}</td>
-                      <td className="p-3 text-center font-bold text-emerald-600 dark:text-emerald-400">
+                      <td className="px-3 py-2.5 text-center font-semibold text-slate-500">{idx + 1}</td>
+                      <td className="px-3 py-2.5 font-mono font-bold text-primary">{item.employeeCode}</td>
+                      <td className="px-3 py-2.5 font-bold text-slate-900 dark:text-slate-100">{item.fullName}</td>
+                      <td className="px-3 py-2.5 text-muted-foreground">{item.position ?? '—'}</td>
+                      <td className="px-3 py-2.5 text-muted-foreground">{item.departmentName ?? '—'}</td>
+                      <td className="px-3 py-2.5 text-center font-bold text-emerald-600 dark:text-emerald-400">
                         {item.workDays}
                       </td>
-                      <td className="p-3 text-center font-bold text-amber-600 dark:text-amber-400">
+                      <td className="px-3 py-2.5 text-center font-bold text-amber-600 dark:text-amber-400">
                         {item.leaveDays}
                       </td>
-                      <td className="p-3 text-right font-mono font-semibold text-indigo-600 dark:text-indigo-400">
+                      <td className="px-3 py-2.5 text-right font-mono font-semibold text-indigo-600 dark:text-indigo-400">
                         {coefDisplay}
                       </td>
-                      <td className="p-3 text-right font-mono">
-                        {monthlyBaseAmount.toLocaleString('vi-VN')} đ
+                      <td className="px-3 py-2.5 text-right font-mono">
+                        {monthlyBaseAmount.toLocaleString('vi-VN')}
                       </td>
-                      <td className="p-3 text-right font-mono">
-                        {item.allowance.toLocaleString('vi-VN')} đ
+                      <td className="px-3 py-2.5 text-right font-mono">
+                        {item.allowance.toLocaleString('vi-VN')}
                       </td>
-                      <td className="p-3 text-right font-mono font-black text-emerald-600 dark:text-emerald-400 pr-6">
-                        {item.netSalary.toLocaleString('vi-VN')} đ
+                      <td className="px-3 py-2.5 text-right font-mono font-black text-emerald-600 dark:text-emerald-400 pr-5">
+                        {item.netSalary.toLocaleString('vi-VN')} ₫
                       </td>
                     </tr>
                   )
