@@ -157,13 +157,13 @@ export function SalaryPage() {
               <tr className="border-b bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
                 <th className="px-3 py-2.5 text-center w-10">STT</th>
                 <th className="px-3 py-2.5 w-20">Mã CB</th>
-                <th className="px-3 py-2.5">Họ tên</th>
-                <th className="px-3 py-2.5">Chức vụ</th>
-                <th className="px-3 py-2.5">Đơn vị</th>
-                <th className="px-3 py-2.5 text-center w-16">Công</th>
-                <th className="px-3 py-2.5 text-center w-14">Nghỉ</th>
-                <th className="px-3 py-2.5 text-right w-20">Hệ số</th>
-                <th className="px-3 py-2.5 text-right w-28">Lương CB</th>
+                <th className="px-3 py-2.5 w-40">Họ tên</th>
+                <th className="px-3 py-2.5 w-32">Chức vụ</th>
+                <th className="px-3 py-2.5 w-36">Đơn vị</th>
+                <th className="px-3 py-2.5 text-center w-14">Công</th>
+                <th className="px-3 py-2.5 text-center w-12">Nghỉ</th>
+                <th className="px-3 py-2.5 text-right w-16">Hệ số</th>
+                <th className="px-3 py-2.5 text-right w-24">Lương CB</th>
                 <th className="px-3 py-2.5 text-right w-24">Phụ cấp</th>
                 <th className="px-3 py-2.5 text-right pr-5 w-28">Thực lĩnh</th>
               </tr>
@@ -184,9 +184,12 @@ export function SalaryPage() {
               ) : (
                 salaryData.items.map((item, idx) => {
                   const baseSalaryAmount = salaryData.baseSalaryAmount ?? 2340000
-                  const isCoef = item.baseSalary > 0 && item.baseSalary < 50
-                  const coefDisplay = isCoef ? item.baseSalary.toLocaleString('vi-VN') : '—'
-                  const monthlyBaseAmount = isCoef ? Math.round(item.baseSalary * baseSalaryAmount) : item.baseSalary
+                  const coefDisplay = item.salaryCoefficient > 0
+                    ? item.salaryCoefficient.toLocaleString('vi-VN')
+                    : '—'
+                  const monthlyBaseAmount = item.salaryCoefficient > 0
+                    ? Math.round(item.salaryCoefficient * baseSalaryAmount)
+                    : item.baseSalary
 
                   return (
                     <tr

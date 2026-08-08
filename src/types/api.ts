@@ -228,6 +228,7 @@ export interface SalaryItemVm {
   departmentName?: string | null
   workDays: number
   leaveDays: number
+  salaryCoefficient: number
   baseSalary: number
   allowance: number
   salaryRatio: number
