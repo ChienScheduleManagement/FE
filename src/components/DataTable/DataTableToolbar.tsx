@@ -1,6 +1,6 @@
 import type {Table} from '@tanstack/react-table'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { SearchInput } from '@/components/ui/search-input'
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -16,17 +16,14 @@ export function DataTableToolbar<TData>({
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex flex-1 items-center space-x-2">
-        <div className="relative w-full max-w-sm">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
-            search
-          </span>
-          <Input
+        <div className="w-full max-w-sm">
+          <SearchInput
             placeholder={searchKey ? `Tìm kiếm qua ${searchKey}...` : "Tìm kiếm nhanh..."}
             value={table.getState().globalFilter ?? ''}
             onChange={(event) =>
               table.setGlobalFilter(event.target.value)
             }
-            className="pl-10 h-10 w-full"
+            onClear={() => table.setGlobalFilter('')}
           />
         </div>
 

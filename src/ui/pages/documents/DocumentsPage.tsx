@@ -4,12 +4,12 @@ import { Link } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, PaginationState, RowSelectionState } from '@tanstack/react-table'
 import {
-  bulkDeleteDocuments,
-  createDocument,
-  deleteDocument,
-  updateDocument,
+  useBulkDocuments,
+  useCreateDocuments,
+  useDeleteDocumentsById,
   useGetDocSources,
   useGetDocuments,
+  useUpdateDocumentsById,
 } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
@@ -22,7 +22,7 @@ import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/Da
 import { selectColumn } from '@/components/DataTable/selectColumn'
 import { TooltipButton } from '@/components/TooltipButton'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { SearchInput } from '@/components/ui/search-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DocumentFormDialog, type DocumentFormValues } from './components/DocumentFormDialog'
 import type { DocumentVm, PagedResponse } from '@/types/api'
@@ -39,10 +39,13 @@ export function DocumentsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<DocumentVm | null>(null)
   const [deleting, setDeleting] = useState<DocumentVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+
+  const { mutateAsync: updateDocument } = useUpdateDocumentsById()
+  const { mutateAsync: createDocument } = useCreateDocuments()
+  const { mutateAsync: deleteDocument, isPending: deletingPosition } = useDeleteDocumentsById()
+  const { mutateAsync: bulkDeleteDocuments, isPending: bulkDeleting } = useBulkDocuments()
 
   const params = useMemo(
     () => ({
@@ -69,28 +72,33 @@ export function DocumentsPage() {
   const handleSave = async (values: DocumentFormValues) => {
     if (editing) {
       await toastSmartPromise(
-        updateDocument(editing.id, {
-          docNumber: values.docNumber,
-          title: values.title,
-          sourceId: values.sourceId ? Number(values.sourceId) : undefined,
-          docTypeId: values.docTypeId ? Number(values.docTypeId) : undefined,
-          issueDate: values.issueDate || null,
-          signer: values.signer || null,
-          filePath: values.filePath || null,
+        updateDocument({
+          id: editing.id,
+          data: {
+            docNumber: values.docNumber,
+            title: values.title,
+            sourceId: values.sourceId ? Number(values.sourceId) : undefined,
+            docTypeId: values.docTypeId ? Number(values.docTypeId) : undefined,
+            issueDate: values.issueDate || null,
+            signer: values.signer || null,
+            filePath: values.filePath || null,
+          },
         }).then(unwrapApiResponse),
         { loading: 'Đang cập nhật văn bản...', success: 'Cập nhật văn bản thành công!' },
       )
     } else {
       await toastSmartPromise(
         createDocument({
-          docNumber: values.docNumber,
-          title: values.title,
-          sourceId: values.sourceId ? Number(values.sourceId) : undefined,
-          docTypeId: values.docTypeId ? Number(values.docTypeId) : undefined,
-          issueDate: values.issueDate || null,
-          signer: values.signer || null,
-          filePath: values.filePath || null,
-          createdBy: undefined,
+          data: {
+            docNumber: values.docNumber,
+            title: values.title,
+            sourceId: values.sourceId ? Number(values.sourceId) : undefined,
+            docTypeId: values.docTypeId ? Number(values.docTypeId) : undefined,
+            issueDate: values.issueDate || null,
+            signer: values.signer || null,
+            filePath: values.filePath || null,
+            createdBy: undefined,
+          },
         }).then(unwrapApiResponse),
         { loading: 'Đang thêm văn bản...', success: 'Thêm văn bản thành công!' },
       )
@@ -100,10 +108,8 @@ export function DocumentsPage() {
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
       await toastSmartPromise(
-        deleteDocument(deleting.id).then(unwrapApiResponse),
+        deleteDocument({ id: deleting.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa văn bản...', success: 'Xóa văn bản thành công!' },
       )
       await invalidate()
@@ -111,18 +117,13 @@ export function DocumentsPage() {
       if (documents?.items.length === 1 && pagination.pageIndex > 0) {
         setPagination((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
       }
-    } finally {
-      setDeleteLoading(false)
-    }
   }
 
   const handleBulkDelete = async () => {
     const ids = Object.keys(rowSelection)
     if (!ids.length) return
-    setBulkDeleting(true)
-    try {
       await toastSmartPromise(
-        bulkDeleteDocuments(ids).then(unwrapApiResponse),
+        bulkDeleteDocuments({ data: ids }).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều văn bản...', success: 'Đã xóa các văn bản đã chọn!' },
       )
       await invalidate()
@@ -131,9 +132,6 @@ export function DocumentsPage() {
       if (ids.length >= (documents?.items.length ?? 0) && pagination.pageIndex > 0) {
         setPagination((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
       }
-    } finally {
-      setBulkDeleting(false)
-    }
   }
 
   const applySearch = () => {
@@ -261,16 +259,13 @@ export function DocumentsPage() {
         />
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-muted-foreground">
-              search
-            </span>
-            <Input
-              className="pl-10"
+          <div className="flex-1">
+            <SearchInput
               placeholder="Tìm theo số văn bản hoặc trích yếu..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && applySearch()}
+              onSearch={applySearch}
+              onClear={() => { setKeyword(''); setSearchText('') }}
             />
           </div>
           <div className="sm:w-56">
@@ -284,9 +279,6 @@ export function DocumentsPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button variant="secondary" onClick={applySearch}>
-            Tìm kiếm
-          </Button>
         </div>
 
         <div className="rounded-2xl border bg-card shadow-sm p-4">
@@ -339,7 +331,7 @@ export function DocumentsPage() {
             Các nhiệm vụ phát sinh từ văn bản này cũng sẽ bị xóa.
           </>
         }
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

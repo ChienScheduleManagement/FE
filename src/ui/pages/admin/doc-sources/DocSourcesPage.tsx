@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { bulkDeleteDocSources, createDocSource, deleteDocSource, updateDocSource, useGetDocSources } from '@/api/generated'
+import { useBulkDocSources, useCreateDocSources, useDeleteDocSourcesById, useGetDocSources, useUpdateDocSourcesById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -40,15 +40,18 @@ export function DocSourcesPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<DocSourceVm | null>(null)
   const [deleting, setDeleting] = useState<DocSourceVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
   const { data: raw, isLoading, isError, error } = useGetDocSources()
+  const { mutateAsync: createDocSource, isPending: creating } = useCreateDocSources()
+  const { mutateAsync: updateDocSource, isPending: updating } = useUpdateDocSourcesById()
+  const { mutateAsync: deleteDocSource, isPending: deletingPosition } = useDeleteDocSourcesById()
+  const { mutateAsync: bulkDeleteDocSources, isPending: bulkDeleting } = useBulkDocSources()
+
+  const saving = creating || updating
 
   useEffect(() => {
     if (isError) showError(error)
@@ -158,66 +161,51 @@ export function DocSourcesPage() {
       return
     }
 
-    setSaving(true)
-    try {
       if (editing) {
         await toastSmartPromise(
-          updateDocSource(editing.id, {
+          updateDocSource({ id: editing.id, data: {
             code: form.code,
             name: form.name,
             level: form.level,
             displayOrder: Number(form.displayOrder) || 0,
-          }).then(unwrapApiResponse),
+          } }).then(unwrapApiResponse),
           { loading: 'Đang cập nhật...', success: 'Cập nhật nguồn văn bản thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createDocSource({
+          createDocSource({ data: {
             code: form.code,
             name: form.name,
             level: form.level,
             displayOrder: Number(form.displayOrder) || 0,
-          }).then(unwrapApiResponse),
+          } }).then(unwrapApiResponse),
           { loading: 'Đang thêm...', success: 'Thêm nguồn văn bản thành công!' },
         )
       }
       await invalidate()
       setDialogOpen(false)
-    } finally {
-      setSaving(false)
-    }
   }
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
       await toastSmartPromise(
-        deleteDocSource(deleting.id).then(unwrapApiResponse),
+        deleteDocSource({ id: deleting.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa...', success: 'Xóa nguồn văn bản thành công!' },
       )
       await invalidate()
       setDeleting(null)
-    } finally {
-      setDeleteLoading(false)
-    }
   }
 
   const handleBulkDelete = async () => {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
-    setBulkDeleting(true)
-    try {
       await toastSmartPromise(
-        bulkDeleteDocSources(ids).then(unwrapApiResponse),
+        bulkDeleteDocSources({ data: ids }).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều nguồn...', success: 'Đã xóa các nguồn văn bản đã chọn!' },
       )
       await invalidate()
       setBulkDeleteOpen(false)
       setRowSelection({})
-    } finally {
-      setBulkDeleting(false)
-    }
   }
 
   const levelLabel = (level: number) =>
@@ -362,7 +350,7 @@ export function DocSourcesPage() {
             <span className="font-semibold text-foreground">{deleting?.name}</span>?
           </>
         }
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

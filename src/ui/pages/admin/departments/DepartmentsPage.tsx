@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { bulkDeleteDepartments, createDepartment, deleteDepartment, updateDepartment, useGetDepartments } from '@/api/generated'
+import { useBulkDepartments, useCreateDepartments, useDeleteDepartmentsById, useGetDepartments, useUpdateDepartmentsById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -48,15 +48,18 @@ export function DepartmentsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<DepartmentVm | null>(null)
   const [deleting, setDeleting] = useState<DepartmentVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error } = useGetDepartments()
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetDepartments()
+  const { mutateAsync: createDepartment, isPending: creating } = useCreateDepartments()
+  const { mutateAsync: updateDepartment, isPending: updating } = useUpdateDepartmentsById()
+  const { mutateAsync: deleteDepartment, isPending: deletingPosition } = useDeleteDepartmentsById()
+  const { mutateAsync: bulkDeleteDepartments, isPending: bulkDeleting } = useBulkDepartments()
+
+  const saving = creating || updating
 
   useEffect(() => {
     if (isError) showError(error)
@@ -196,70 +199,55 @@ export function DepartmentsPage() {
       return
     }
 
-    setSaving(true)
-    try {
-      if (editing) {
-        await toastSmartPromise(
-          updateDepartment(editing.id, {
-            code: form.code,
-            name: form.name,
-            shortName: form.shortName || null,
-            leaderName: form.leaderName || null,
-            phoneNumber: form.phoneNumber || null,
-            displayOrder: Number(form.displayOrder) || 0,
-          }).then(unwrapApiResponse),
-          { loading: 'Đang cập nhật...', success: 'Cập nhật phòng ban thành công!' },
-        )
-      } else {
-        await toastSmartPromise(
-          createDepartment({
-            code: form.code,
-            name: form.name,
-            shortName: form.shortName || null,
-            leaderName: form.leaderName || null,
-            phoneNumber: form.phoneNumber || null,
-            displayOrder: Number(form.displayOrder) || 0,
-          }).then(unwrapApiResponse),
-          { loading: 'Đang thêm...', success: 'Thêm phòng ban thành công!' },
-        )
-      }
-      await invalidate()
-      setDialogOpen(false)
-    } finally {
-      setSaving(false)
+    if (editing) {
+      await toastSmartPromise(
+        updateDepartment({ id: editing.id, data: {
+          code: form.code,
+          name: form.name,
+          shortName: form.shortName || null,
+          leaderName: form.leaderName || null,
+          phoneNumber: form.phoneNumber || null,
+          displayOrder: Number(form.displayOrder) || 0,
+        } }).then(unwrapApiResponse),
+        { loading: 'Đang cập nhật...', success: 'Cập nhật phòng ban thành công!' },
+      )
+    } else {
+      await toastSmartPromise(
+        createDepartment({ data: {
+          code: form.code,
+          name: form.name,
+          shortName: form.shortName || null,
+          leaderName: form.leaderName || null,
+          phoneNumber: form.phoneNumber || null,
+          displayOrder: Number(form.displayOrder) || 0,
+        } }).then(unwrapApiResponse),
+        { loading: 'Đang thêm...', success: 'Thêm phòng ban thành công!' },
+      )
     }
+    await invalidate()
+    setDialogOpen(false)
   }
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
-      await toastSmartPromise(
-        deleteDepartment(deleting.id).then(unwrapApiResponse),
-        { loading: 'Đang xóa...', success: 'Xóa phòng ban thành công!' },
-      )
-      await invalidate()
-      setDeleting(null)
-    } finally {
-      setDeleteLoading(false)
-    }
+    await toastSmartPromise(
+      deleteDepartment({ id: deleting.id }).then(unwrapApiResponse),
+      { loading: 'Đang xóa...', success: 'Xóa phòng ban thành công!' },
+    )
+    await invalidate()
+    setDeleting(null)
   }
 
   const handleBulkDelete = async () => {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
-    setBulkDeleting(true)
-    try {
-      await toastSmartPromise(
-        bulkDeleteDepartments(ids).then(unwrapApiResponse),
-        { loading: 'Đang xóa nhiều phòng ban...', success: 'Đã xóa các phòng ban đã chọn!' },
-      )
-      await invalidate()
-      setBulkDeleteOpen(false)
-      setRowSelection({})
-    } finally {
-      setBulkDeleting(false)
-    }
+    await toastSmartPromise(
+      bulkDeleteDepartments({ data: ids }).then(unwrapApiResponse),
+      { loading: 'Đang xóa nhiều phòng ban...', success: 'Đã xóa các phòng ban đã chọn!' },
+    )
+    await invalidate()
+    setBulkDeleteOpen(false)
+    setRowSelection({})
   }
 
   return (
@@ -273,10 +261,13 @@ export function DepartmentsPage() {
           title="Quản lý phòng ban"
           description="Danh sách các đơn vị trực thuộc UBND xã"
           actions={
-            <Button onClick={openCreate}>
-              <span className="material-symbols-outlined text-base mr-1">add</span>
-              Thêm phòng ban
-            </Button>
+            <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
+              <Button onClick={openCreate}>
+                <span className="material-symbols-outlined text-base mr-1">add</span>
+                Thêm phòng ban
+              </Button>
+            </>
           }
         />
 
@@ -410,7 +401,7 @@ export function DepartmentsPage() {
             <span className="font-semibold text-foreground">{deleting?.name}</span>?
           </>
         }
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

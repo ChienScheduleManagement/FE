@@ -1,9 +1,10 @@
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toastSmartPromise } from '@/api/utils'
-import { useLoginUser, loginUser } from '@/api/generated'
+import { loginAuth } from '@/api/generated'
 import type { Result } from '@/api/model'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { useAuthStore } from '@/store/auth.store'
@@ -27,22 +28,21 @@ export function LoginPage() {
   })
   const [showPassword, setShowPassword] = useState(false)
 
-  const { mutate, isPending } = useLoginUser({
-    mutation: {
-      mutationFn: async (variables) => {
-        return toastSmartPromise(
-          (async () => loginUser(variables.data, { skipAuth: true }))(),
-          {
-            loading: 'Đang xác thực tài khoản...',
-            success: 'Đăng nhập thành công!',
-          },
-        )
-      },
-      onSuccess: (data: Result) => {
-        const loginData = unwrapApiResponse<LoginResponse>(data)
-        setUser(loginData)
-        navigate({ to: '/', replace: true })
-      },    },
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (variables: { data: LoginRequest }) => {
+      return toastSmartPromise(
+        (async () => loginAuth(variables.data, { skipAuth: true }))(),
+        {
+          loading: 'Đang xác thực tài khoản...',
+          success: 'Đăng nhập thành công!',
+        },
+      )
+    },
+    onSuccess: (data: Result) => {
+      const loginData = unwrapApiResponse<LoginResponse>(data)
+      setUser(loginData)
+      navigate({ to: '/', replace: true })
+    },
   })
 
   const onSubmit = (data: LoginRequest) => {

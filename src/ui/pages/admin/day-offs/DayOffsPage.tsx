@@ -3,12 +3,7 @@ import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef } from '@tanstack/react-table'
-import {
-  createDayOff,
-  deleteDayOff,
-  updateDayOff,
-  useGetDayOffs,
-} from '@/api/generated'
+import { useCreateDayOffs, useDeleteDayOffsById, useGetDayOffs, useUpdateDayOffsById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -77,15 +72,18 @@ export function DayOffsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<DayOffVm | null>(null)
   const [deleting, setDeleting] = useState<DayOffVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
-  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
   const { data: raw, isLoading, isError, error } = useGetDayOffs()
+  const { mutateAsync: createDayOff, isPending: creating } = useCreateDayOffs()
+  const { mutateAsync: updateDayOff, isPending: updating } = useUpdateDayOffsById()
+  const { mutateAsync: deleteDayOff, isPending: deletingPosition } = useDeleteDayOffsById()
+
+  const saving = creating || updating
+  const bulkDeleting = deletingPosition
 
   useEffect(() => {
     if (isError) showError(error)
@@ -216,8 +214,6 @@ export function DayOffsPage() {
       return
     }
 
-    setSaving(true)
-    try {
       const payload = {
         name: form.name,
         symbol: form.symbol || undefined,
@@ -232,52 +228,39 @@ export function DayOffsPage() {
       }
       if (editing) {
         await toastSmartPromise(
-          updateDayOff(editing.id, payload).then(unwrapApiResponse),
+          updateDayOff({ id: editing.id, data: payload }).then(unwrapApiResponse),
           { loading: 'Đang cập nhật...', success: 'Cập nhật ngày nghỉ thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createDayOff(payload).then(unwrapApiResponse),
+          createDayOff({ data: payload }).then(unwrapApiResponse),
           { loading: 'Đang thêm...', success: 'Thêm ngày nghỉ thành công!' },
         )
       }
       await invalidate()
       setDialogOpen(false)
-    } finally {
-      setSaving(false)
-    }
   }
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
       await toastSmartPromise(
-        deleteDayOff(deleting.id).then(unwrapApiResponse),
+        deleteDayOff({ id: deleting.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa...', success: 'Đã xóa ngày nghỉ!' },
       )
       await invalidate()
       setDeleting(null)
-    } finally {
-      setDeleteLoading(false)
-    }
   }
 
   const handleBulkDelete = async () => {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
-    setBulkDeleting(true)
-    try {
       await toastSmartPromise(
-        Promise.all(ids.map((id) => deleteDayOff(id).then(unwrapApiResponse))),
+        Promise.all(ids.map((id) => deleteDayOff({ id }).then(unwrapApiResponse))),
         { loading: 'Đang xóa nhiều...', success: 'Đã xóa các ngày nghỉ đã chọn!' },
       )
       await invalidate()
       setBulkDeleteOpen(false)
       setRowSelection({})
-    } finally {
-      setBulkDeleting(false)
-    }
   }
 
   return (
@@ -517,7 +500,7 @@ export function DayOffsPage() {
             Ngày này sẽ trở lại là ngày đi làm bình thường.
           </>
         }
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

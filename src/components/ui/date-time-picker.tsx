@@ -3,7 +3,6 @@ import DatePicker, { registerLocale } from 'react-datepicker'
 import { vi } from 'date-fns/locale'
 import { format, isValid, parse } from 'date-fns'
 import { cn } from '@/lib/utils'
-import 'react-datepicker/dist/react-datepicker.css'
 
 registerLocale('vi', vi)
 

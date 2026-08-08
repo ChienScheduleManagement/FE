@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { bulkDeleteEmployees, createEmployee, deleteEmployee, updateEmployee, useGetEmployees } from '@/api/generated'
+import { useBulkEmployees, useCreateEmployees, useDeleteEmployeesById, useGetEmployees, useUpdateEmployeesById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -63,15 +63,18 @@ export function EmployeesPage() {
   const [editing, setEditing] = useState<EmployeeVm | null>(null)
   const [deleting, setDeleting] = useState<EmployeeVm | null>(null)
   const [historyEmp, setHistoryEmp] = useState<EmployeeVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
   const { data: raw, isLoading, isError, error } = useGetEmployees()
   const { data: deptRaw } = useGetDepartments()
+  const { mutateAsync: createEmployee, isPending: creating } = useCreateEmployees()
+  const { mutateAsync: updateEmployee, isPending: updating } = useUpdateEmployeesById()
+  const { mutateAsync: deleteEmployee, isPending: deletingPosition } = useDeleteEmployeesById()
+  const { mutateAsync: bulkDeleteEmployees, isPending: bulkDeleting } = useBulkEmployees()
+
+  const saving = creating || updating
 
   useEffect(() => {
     if (isError) showError(error)
@@ -237,8 +240,6 @@ export function EmployeesPage() {
       return
     }
 
-    setSaving(true)
-    try {
       const payload = {
         employeeCode: form.employeeCode,
         fullName: form.fullName,
@@ -254,52 +255,39 @@ export function EmployeesPage() {
       }
       if (editing) {
         await toastSmartPromise(
-          updateEmployee(editing.id, payload).then(unwrapApiResponse),
+          updateEmployee({ id: editing.id, data: payload }).then(unwrapApiResponse),
           { loading: 'Đang cập nhật...', success: 'Cập nhật cán bộ thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createEmployee(payload).then(unwrapApiResponse),
+          createEmployee({ data: payload }).then(unwrapApiResponse),
           { loading: 'Đang thêm...', success: 'Thêm cán bộ thành công!' },
         )
       }
       await invalidate()
       setDialogOpen(false)
-    } finally {
-      setSaving(false)
-    }
   }
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
       await toastSmartPromise(
-        deleteEmployee(deleting.id).then(unwrapApiResponse),
+        deleteEmployee({ id: deleting.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa...', success: 'Xóa cán bộ thành công!' },
       )
       await invalidate()
       setDeleting(null)
-    } finally {
-      setDeleteLoading(false)
-    }
   }
 
   const handleBulkDelete = async () => {
     const ids = Object.keys(rowSelection)
     if (!ids.length) return
-    setBulkDeleting(true)
-    try {
       await toastSmartPromise(
-        bulkDeleteEmployees(ids).then(unwrapApiResponse),
+        bulkDeleteEmployees({ data: ids }).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều cán bộ...', success: 'Đã xóa các cán bộ đã chọn!' },
       )
       await invalidate()
       setBulkDeleteOpen(false)
       setRowSelection({})
-    } finally {
-      setBulkDeleting(false)
-    }
   }
 
   return (
@@ -529,7 +517,7 @@ export function EmployeesPage() {
             <span className="font-semibold text-foreground">{deleting?.fullName}</span>?
           </>
         }
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

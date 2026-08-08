@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { useGetSalary, exportSalary, useGetDepartments } from '@/api/generated'
+import { useGetSalary, getExportSalary, useGetDepartments } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -33,7 +33,7 @@ export function SalaryPage() {
   const handleExport = async () => {
     try {
       await toastSmartPromise(
-        exportSalary(
+        getExportSalary(
           {
             Year: year,
             Month: month,

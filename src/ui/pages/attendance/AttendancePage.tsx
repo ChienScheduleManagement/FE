@@ -4,10 +4,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import {
   useGetAttendance,
   useGetLeaveReasons,
-  bulkSetAttendance,
-  useGetAttendanceHistory,
+  useBulkAttendance,
+  useGetAttendanceByEmployeeidHistory,
   useGetDepartments,
-  exportAttendances,
+  getExportAttendance,
 } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, showSuccess, toastSmartPromise } from '@/api/utils'
@@ -64,6 +64,7 @@ export function AttendancePage() {
 
   const { data: reasonsRaw } = useGetLeaveReasons()
   const { data: deptsRaw } = useGetDepartments()
+  const { mutateAsync: saveAttendance } = useBulkAttendance()
 
   useEffect(() => {
     if (gridIsError) showError(gridError)
@@ -78,7 +79,7 @@ export function AttendancePage() {
   for (const r of reasons) reasonMap.set(r.id, r)
 
   // Query change history for selected employee
-  const { data: historyRaw } = useGetAttendanceHistory(
+  const { data: historyRaw } = useGetAttendanceByEmployeeidHistory(
     selectedEmp?.employeeId ?? '',
     { year, month },
     { query: { enabled: !!selectedEmp } },
@@ -123,7 +124,7 @@ export function AttendancePage() {
   const handleExport = async () => {
     setExporting(true)
     try {
-      const blob = await exportAttendances(
+      const blob = await getExportAttendance(
         {
           year,
           month,
@@ -246,7 +247,7 @@ export function AttendancePage() {
     )
     try {
       await toastSmartPromise(
-        bulkSetAttendance({ items }).then(unwrapApiResponse),
+        saveAttendance({ data: { items } }).then(unwrapApiResponse),
         { loading: 'Đang cập nhật...', success: `Đã cập nhật ${selectedCells.length} ô!` }
       )
       invalidateGrid()

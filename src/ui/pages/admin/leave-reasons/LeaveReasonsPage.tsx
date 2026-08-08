@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { bulkDeleteLeaveReasons, createLeaveReason, deleteLeaveReason, updateLeaveReason, useGetLeaveReasons } from '@/api/generated'
+import { useBulkLeaveReasons, useCreateLeaveReasons, useDeleteLeaveReasonsById, useGetLeaveReasons, useUpdateLeaveReasonsById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -54,15 +54,18 @@ export function LeaveReasonsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<LeaveReasonVm | null>(null)
   const [deleting, setDeleting] = useState<LeaveReasonVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
   const { data: raw, isLoading, isError, error } = useGetLeaveReasons()
+  const { mutateAsync: createLeaveReason, isPending: creating } = useCreateLeaveReasons()
+  const { mutateAsync: updateLeaveReason, isPending: updating } = useUpdateLeaveReasonsById()
+  const { mutateAsync: deleteLeaveReason, isPending: deletingPosition } = useDeleteLeaveReasonsById()
+  const { mutateAsync: bulkDeleteLeaveReasons, isPending: bulkDeleting } = useBulkLeaveReasons()
+
+  const saving = creating || updating
 
   useEffect(() => {
     if (isError) showError(error)
@@ -216,8 +219,6 @@ export function LeaveReasonsPage() {
       return
     }
 
-    setSaving(true)
-    try {
       const payload = {
         code: form.code,
         name: form.name,
@@ -229,52 +230,39 @@ export function LeaveReasonsPage() {
       }
       if (editing) {
         await toastSmartPromise(
-          updateLeaveReason(editing.id, payload).then(unwrapApiResponse),
+          updateLeaveReason({ id: editing.id, data: payload }).then(unwrapApiResponse),
           { loading: 'Đang cập nhật...', success: 'Cập nhật lý do nghỉ thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createLeaveReason(payload).then(unwrapApiResponse),
+          createLeaveReason({ data: payload }).then(unwrapApiResponse),
           { loading: 'Đang thêm...', success: 'Thêm lý do nghỉ thành công!' },
         )
       }
       await invalidate()
       setDialogOpen(false)
-    } finally {
-      setSaving(false)
-    }
   }
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
       await toastSmartPromise(
-        deleteLeaveReason(deleting.id).then(unwrapApiResponse),
+        deleteLeaveReason({ id: deleting.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa...', success: 'Xóa lý do nghỉ thành công!' },
       )
       await invalidate()
       setDeleting(null)
-    } finally {
-      setDeleteLoading(false)
-    }
   }
 
   const handleBulkDelete = async () => {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
-    setBulkDeleting(true)
-    try {
       await toastSmartPromise(
-        bulkDeleteLeaveReasons(ids).then(unwrapApiResponse),
+        bulkDeleteLeaveReasons({ data: ids }).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều lý do...', success: 'Đã xóa các lý do đã chọn!' },
       )
       await invalidate()
       setBulkDeleteOpen(false)
       setRowSelection({})
-    } finally {
-      setBulkDeleting(false)
-    }
   }
 
   return (
@@ -464,7 +452,7 @@ export function LeaveReasonsPage() {
             <span className="font-semibold text-foreground">{deleting?.name}</span>?
           </>
         }
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

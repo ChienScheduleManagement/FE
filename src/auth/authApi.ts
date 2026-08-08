@@ -1,4 +1,4 @@
-import { loginUser, logoutUser, refreshUser } from '@/api/generated'
+import { loginAuth, logoutAuth, refreshTokenAuth } from '@/api/generated'
 import { clearAuth, getAccessToken, setUser, updateAuthToken } from '@/store/auth.store'
 
 import { extractAccessToken } from './token'
@@ -11,7 +11,7 @@ type LoginInput = {
 }
 
 export async function login(input: LoginInput) {
-  const result = (await loginUser(input, {
+  const result = (await loginAuth(input, {
     skipAuth: true,
   })) as ApiResponse<LoginResponse>
   const data = result.data as LoginResponse
@@ -22,7 +22,7 @@ export async function login(input: LoginInput) {
 }
 
 export async function refreshAccessToken() {
-  const result = (await refreshUser({
+  const result = (await refreshTokenAuth({
     skipAuth: true,
   })) as ApiResponse<LoginResponse>
 
@@ -45,7 +45,7 @@ export async function ensureAccessToken() {
 
 export async function logout() {
   try {
-    await logoutUser({
+    await logoutAuth({
       skipAuth: true,
     })
   } finally {

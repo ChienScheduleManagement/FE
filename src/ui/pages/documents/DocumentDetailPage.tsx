@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from '@tanstack/react-router'
-import { useGetDocumentById } from '@/api/generated'
+import { useGetDocumentsById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError } from '@/api/utils'
 import { formatDate, formatDateTime } from '@/lib/format'
@@ -33,7 +33,7 @@ function InfoItem({ label, value }: { label: string; value?: string | null }) {
 
 export function DocumentDetailPage() {
   const { id } = useParams({ from: '/app-layout/documents/$id' })
-  const { data: raw, isLoading, isError, error } = useGetDocumentById(id)
+  const { data: raw, isLoading, isError, error } = useGetDocumentsById(id)
 
   useEffect(() => {
     if (isError) showError(error)

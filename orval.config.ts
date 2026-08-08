@@ -28,12 +28,4 @@ export default defineConfig({
       },
     },
   },
-  zod: {
-    input: swaggerInput,
-    output: {
-      client: 'zod',
-      target: './src/api/zod.ts',
-      schemas: './src/api/model',
-    },
-  },
 })

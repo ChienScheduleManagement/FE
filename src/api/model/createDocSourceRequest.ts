@@ -4,10 +4,11 @@
  * ScheduleManagement.Api | v1
  * OpenAPI spec version: 1.0.0
  */
+import type { DocSourceLevel } from './docSourceLevel';
 
 export interface CreateDocSourceRequest {
   code?: string;
   name?: string;
-  level?: number;
+  level?: DocSourceLevel;
   displayOrder?: number;
 }

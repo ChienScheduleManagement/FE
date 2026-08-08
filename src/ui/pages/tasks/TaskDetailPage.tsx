@@ -3,11 +3,11 @@ import { Helmet } from 'react-helmet-async'
 import { useParams, useRouter } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import {
-  completeTaskById,
-  createTaskLog,
-  deleteTask,
-  useGetTaskById,
-  useGetTaskLogs,
+  usePatchTasksByIdComplete,
+  usePostTasksByTaskidLogs,
+  useDeleteTasksById,
+  useGetTasksById,
+  useGetTasksByTaskidLogs,
 } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
@@ -48,13 +48,14 @@ export function TaskDetailPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const [logNote, setLogNote] = useState('')
-  const [logSubmitting, setLogSubmitting] = useState(false)
-  const [completing, setCompleting] = useState<TaskItemVm | null>(null)
+  const [completingTask, setCompletingTask] = useState<TaskItemVm | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
 
-  const { data: raw, isLoading, isError, error } = useGetTaskById(id)
-  const { data: logsRaw, isLoading: logsLoading } = useGetTaskLogs(id)
+  const { data: raw, isLoading, isError, error } = useGetTasksById(id)
+  const { data: logsRaw, isLoading: logsLoading } = useGetTasksByTaskidLogs(id)
+  const { mutateAsync: addTaskLog, isPending: logSubmitting } = usePostTasksByTaskidLogs()
+  const { mutateAsync: completeTask } = usePatchTasksByIdComplete()
+  const { mutateAsync: deleteTask, isPending: deleteLoading } = useDeleteTasksById()
 
   useEffect(() => {
     if (isError) showError(error)
@@ -76,47 +77,42 @@ export function TaskDetailPage() {
   const handleAddLog = async () => {
     const note = logNote.trim()
     if (!note) return
-    setLogSubmitting(true)
     try {
       await toastSmartPromise(
-        createTaskLog(id, { progressNote: note, updatedBy: undefined }).then(unwrapApiResponse),
+        addTaskLog({ taskId: id, data: { progressNote: note, updatedBy: undefined } }).then(unwrapApiResponse),
         { loading: 'Đang lưu nhật ký...', success: 'Đã cập nhật tiến độ!' },
       )
       setLogNote('')
       await invalidate()
-    } catch (err) {
-      showError(err)
-    } finally {
-      setLogSubmitting(false)
+    } catch {
     }
   }
 
   const handleComplete = async (latestResult: string) => {
     await toastSmartPromise(
-      completeTaskById(id, {
-        latestResult: latestResult || undefined,
-        completedDate: toLocalDateString(new Date()),
+      completeTask({
+        id,
+        data: {
+          latestResult: latestResult || undefined,
+          completedDate: toLocalDateString(new Date()),
+        },
       }).then(unwrapApiResponse),
       { loading: 'Đang hoàn thành nhiệm vụ...', success: 'Nhiệm vụ đã hoàn thành!' },
     )
-    setCompleting(null)
+    setCompletingTask(null)
     await invalidate()
   }
 
   const handleDelete = async () => {
-    setDeleteLoading(true)
     try {
-      await toastSmartPromise(deleteTask(id).then(unwrapApiResponse), {
+      await toastSmartPromise(deleteTask({ id }).then(unwrapApiResponse), {
         loading: 'Đang xóa nhiệm vụ...',
         success: 'Xóa nhiệm vụ thành công!',
       })
       await invalidate()
       await router.navigate({ to: '/tasks', replace: true })
-    } catch (err) {
-      showError(err)
-    } finally {
-      setDeleteLoading(false)
       setDeleteOpen(false)
+    } catch {
     }
   }
 
@@ -149,7 +145,7 @@ export function TaskDetailPage() {
               {task.status !== TASK_STATUS.COMPLETED ? (
                 <Button
                   className="bg-emerald-600 hover:bg-emerald-700"
-                  onClick={() => setCompleting(task)}
+                  onClick={() => setCompletingTask(task)}
                 >
                   <span className="material-symbols-outlined text-base mr-1">check_circle</span>
                   Hoàn thành
@@ -285,8 +281,8 @@ export function TaskDetailPage() {
       </div>
 
       <CompleteTaskDialog
-        task={completing}
-        onOpenChange={(open) => { if (!open) setCompleting(null) }}
+        task={completingTask}
+        onOpenChange={(open) => { if (!open) setCompletingTask(null) }}
         onConfirm={handleComplete}
       />
 

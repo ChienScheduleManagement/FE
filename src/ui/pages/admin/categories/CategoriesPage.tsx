@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { bulkDeleteCategorys, createCategory, deleteCategory, updateCategory, useGetCategories } from '@/api/generated'
+import { useBulkCategories, useCreateCategories, useDeleteCategoriesById, useGetCategories, useUpdateCategoriesById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -41,15 +41,18 @@ export function CategoriesPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<CategoryVm | null>(null)
   const [deleting, setDeleting] = useState<CategoryVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
   const { data: raw, isLoading, isError, error } = useGetCategories({ type })
+  const { mutateAsync: createCategory, isPending: creating } = useCreateCategories()
+  const { mutateAsync: updateCategory, isPending: updating } = useUpdateCategoriesById()
+  const { mutateAsync: deleteCategory, isPending: deletingPosition } = useDeleteCategoriesById()
+  const { mutateAsync: bulkDeleteCategories, isPending: bulkDeleting } = useBulkCategories()
+
+  const saving = creating || updating
 
   useEffect(() => {
     if (isError) showError(error)
@@ -149,66 +152,51 @@ export function CategoriesPage() {
       return
     }
 
-    setSaving(true)
-    try {
       if (editing) {
         await toastSmartPromise(
-          updateCategory(editing.id, {
+          updateCategory({ id: editing.id, data: {
             type: form.type,
             code: form.code,
             name: form.name,
             displayOrder: Number(form.displayOrder) || 0,
-          }).then(unwrapApiResponse),
+          } }).then(unwrapApiResponse),
           { loading: 'Đang cập nhật...', success: 'Cập nhật danh mục thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createCategory({
+          createCategory({ data: {
             type: form.type,
             code: form.code,
             name: form.name,
             displayOrder: Number(form.displayOrder) || 0,
-          }).then(unwrapApiResponse),
+          } }).then(unwrapApiResponse),
           { loading: 'Đang thêm...', success: 'Thêm danh mục thành công!' },
         )
       }
       await invalidate()
       setDialogOpen(false)
-    } finally {
-      setSaving(false)
-    }
   }
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
       await toastSmartPromise(
-        deleteCategory(deleting.id).then(unwrapApiResponse),
+        deleteCategory({ id: deleting.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa...', success: 'Xóa danh mục thành công!' },
       )
       await invalidate()
       setDeleting(null)
-    } finally {
-      setDeleteLoading(false)
-    }
   }
 
   const handleBulkDelete = async () => {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
-    setBulkDeleting(true)
-    try {
       await toastSmartPromise(
-        bulkDeleteCategorys(ids).then(unwrapApiResponse),
+        bulkDeleteCategories({ data: ids }).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều danh mục...', success: 'Đã xóa các danh mục đã chọn!' },
       )
       await invalidate()
       setBulkDeleteOpen(false)
       setRowSelection({})
-    } finally {
-      setBulkDeleting(false)
-    }
   }
 
   return (
@@ -370,7 +358,7 @@ export function CategoriesPage() {
             <span className="font-semibold text-foreground">{deleting?.name}</span>?
           </>
         }
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

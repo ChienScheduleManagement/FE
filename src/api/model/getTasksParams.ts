@@ -4,12 +4,14 @@
  * ScheduleManagement.Api | v1
  * OpenAPI spec version: 1.0.0
  */
+import type { TaskStatus } from './taskStatus';
+import type { TaskTab } from './taskTab';
 
 export type GetTasksParams = {
 Keyword?: string;
 DepartmentId?: number;
-Status?: number;
-Tab?: number;
+Status?: TaskStatus;
+Tab?: TaskTab;
 Page?: number;
 PageSize?: number;
 SortBy?: string;

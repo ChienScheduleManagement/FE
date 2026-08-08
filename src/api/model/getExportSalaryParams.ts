@@ -4,8 +4,9 @@
  * ScheduleManagement.Api | v1
  * OpenAPI spec version: 1.0.0
  */
-import type { CategoryType } from './categoryType';
 
-export type GetCategoriesParams = {
-type?: CategoryType;
+export type GetExportSalaryParams = {
+Year?: number;
+Month?: number;
+DepartmentId?: number;
 };

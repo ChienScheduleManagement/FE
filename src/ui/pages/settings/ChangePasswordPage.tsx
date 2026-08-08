@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
-import { authChangePassword } from '@/api/generated'
+import { useChangePasswordAuth } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -32,11 +32,15 @@ export function ChangePasswordPage() {
   const [showNew, setShowNew] = useState(false)
   const newPassword = watch('newPassword')
 
+  const { mutateAsync: changePassword } = useChangePasswordAuth()
+
   const onSubmit = handleSubmit(async (values) => {
     await toastSmartPromise(
-      authChangePassword({
-        oldPassword: values.oldPassword,
-        newPassword: values.newPassword,
+      changePassword({
+        data: {
+          oldPassword: values.oldPassword,
+          newPassword: values.newPassword,
+        },
       }).then(unwrapApiResponse),
       { loading: 'Đang đổi mật khẩu...', success: 'Đổi mật khẩu thành công!' },
     )

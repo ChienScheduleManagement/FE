@@ -4,13 +4,13 @@
  * ScheduleManagement.Api | v1
  * OpenAPI spec version: 1.0.0
  */
+import type { DocSourceLevel } from './docSourceLevel';
 
 export interface UpdateDocSourceRequest {
   /** @nullable */
   code?: string | null;
   /** @nullable */
   name?: string | null;
-  /** @nullable */
-  level?: number | null;
+  level?: null | DocSourceLevel;
   displayOrder?: number;
 }

@@ -4,9 +4,10 @@
  * ScheduleManagement.Api | v1
  * OpenAPI spec version: 1.0.0
  */
+import type { CategoryType } from './categoryType';
 
 export interface CreateCategoryRequest {
-  type?: number;
+  type?: CategoryType;
   code?: string;
   name?: string;
   displayOrder?: number;

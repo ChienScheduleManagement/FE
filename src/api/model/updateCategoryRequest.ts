@@ -4,10 +4,10 @@
  * ScheduleManagement.Api | v1
  * OpenAPI spec version: 1.0.0
  */
+import type { CategoryType } from './categoryType';
 
 export interface UpdateCategoryRequest {
-  /** @nullable */
-  type?: number | null;
+  type?: null | CategoryType;
   /** @nullable */
   code?: string | null;
   /** @nullable */

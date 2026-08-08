@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { DateTimePicker } from '@/components/ui/date-time-picker'
 import {
-  createEmploymentHistories,
-  deleteEmploymentHistories,
-  updateEmploymentHistories,
+  useCreateEmploymentHistories,
+  useDeleteEmploymentHistoriesById,
+  useUpdateEmploymentHistoriesById,
   useGetDepartments,
-  useGETEmploymentHistoriesEmployeeEmployeeId,
+  useGetEmploymentHistoriesEmployeeByEmployeeid,
   useGetPositions,
 } from '@/api/generated'
 import { showError, toastSmartPromise } from '@/api/utils'
@@ -53,8 +53,6 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
   const [formOpen, setFormOpen] = useState(false)
   const [editingHistory, setEditingHistory] = useState<EmploymentHistoryVm | null>(null)
   const [deletingHistory, setDeletingHistory] = useState<EmploymentHistoryVm | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [deleting, setDeleting] = useState(false)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
 
@@ -62,12 +60,17 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
     data: historyRaw,
     isLoading,
     refetch,
-  } = useGETEmploymentHistoriesEmployeeEmployeeId(employeeId, {
+  } = useGetEmploymentHistoriesEmployeeByEmployeeid(employeeId, {
     query: { enabled: open && !!employeeId },
   })
 
   const { data: deptRaw } = useGetDepartments()
   const { data: posRaw } = useGetPositions()
+  const { mutateAsync: updateHistory, isPending: saving } = useUpdateEmploymentHistoriesById()
+  const { mutateAsync: createHistory, isPending: creating } = useCreateEmploymentHistories()
+  const { mutateAsync: deleteHistory, isPending: deleting } = useDeleteEmploymentHistoriesById()
+
+  const isSaving = saving || creating
 
   const histories = historyRaw ? unwrapApiResponse<EmploymentHistoryVm[]>(historyRaw) : []
   const departments = deptRaw ? unwrapApiResponse<DepartmentVm[]>(deptRaw) : []
@@ -112,30 +115,34 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validate() || saving) return
-    setSaving(true)
+    if (!validate() || saving || creating) return
 
     try {
       if (editingHistory) {
         await toastSmartPromise(
-          updateEmploymentHistories(editingHistory.id, {
-            departmentId: Number(form.departmentId),
-            positionId: form.positionId ? Number(form.positionId) : undefined,
-            effectiveFrom: form.effectiveFrom,
-            effectiveTo: form.effectiveTo ? form.effectiveTo : null,
-            reason: form.reason || undefined,
+          updateHistory({
+            id: editingHistory.id,
+            data: {
+              departmentId: Number(form.departmentId),
+              positionId: form.positionId ? Number(form.positionId) : undefined,
+              effectiveFrom: form.effectiveFrom,
+              effectiveTo: form.effectiveTo ? form.effectiveTo : null,
+              reason: form.reason || undefined,
+            },
           }).then(unwrapApiResponse),
           { loading: 'Đang lưu...', success: 'Cập nhật lịch sử công tác thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createEmploymentHistories({
-            employeeId,
-            departmentId: Number(form.departmentId),
-            positionId: form.positionId ? Number(form.positionId) : undefined,
-            effectiveFrom: form.effectiveFrom,
-            effectiveTo: form.effectiveTo ? form.effectiveTo : undefined,
-            reason: form.reason || undefined,
+          createHistory({
+            data: {
+              employeeId,
+              departmentId: Number(form.departmentId),
+              positionId: form.positionId ? Number(form.positionId) : undefined,
+              effectiveFrom: form.effectiveFrom,
+              effectiveTo: form.effectiveTo ? form.effectiveTo : undefined,
+              reason: form.reason || undefined,
+            },
           }).then(unwrapApiResponse),
           { loading: 'Đang tạo mới...', success: 'Thêm lịch sử công tác thành công!' },
         )
@@ -144,25 +151,20 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
       await refetch()
     } catch (err) {
       showError(err)
-    } finally {
-      setSaving(false)
     }
   }
 
   const handleDelete = async () => {
     if (!deletingHistory || deleting) return
-    setDeleting(true)
     try {
       await toastSmartPromise(
-        deleteEmploymentHistories(deletingHistory.id).then(unwrapApiResponse),
+        deleteHistory({ id: deletingHistory.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa...', success: 'Xóa lịch sử công tác thành công!' },
       )
       setDeletingHistory(null)
       await refetch()
     } catch (err) {
       showError(err)
-    } finally {
-      setDeleting(false)
     }
   }
 
@@ -370,11 +372,11 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setFormOpen(false)} disabled={saving}>
+              <Button type="button" variant="outline" onClick={() => setFormOpen(false)} disabled={isSaving}>
                 Hủy
               </Button>
-              <Button type="submit" disabled={saving}>
-                {saving ? 'Đang lưu...' : 'Lưu lại'}
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? 'Đang lưu...' : 'Lưu lại'}
               </Button>
             </DialogFooter>
           </form>

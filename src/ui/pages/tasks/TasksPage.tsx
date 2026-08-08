@@ -4,15 +4,15 @@ import { Link, useRouter, useSearch } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, PaginationState } from '@tanstack/react-table'
 import {
-  bulkDeleteTasks,
-  bulkUpdateTaskStatus,
-  completeTaskById,
-  createTask,
-  deleteTask,
-  exportTasks,
-  updateTask,
+  getExportTasks,
+  useBulkStatusTasks,
+  useBulkTasks,
+  useCreateTasks,
+  useDeleteTasksById,
   useGetDepartments,
   useGetTasks,
+  usePatchTasksByIdComplete,
+  useUpdateTasksById,
 } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, showSuccess, toastSmartPromise } from '@/api/utils'
@@ -25,7 +25,7 @@ import { StatusBadge, DeadlineBadge } from '@/components/StatusBadge'
 import { DataTable, DataTableColumnHeader } from '@/components/DataTable'
 import { TooltipButton } from '@/components/TooltipButton'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { SearchInput } from '@/components/ui/search-input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TaskFormDialog, type TaskFormValues } from './components/TaskFormDialog'
 import { CompleteTaskDialog } from './components/CompleteTaskDialog'
@@ -61,14 +61,18 @@ export function TasksPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<TaskItemVm | null>(null)
   const [deleting, setDeleting] = useState<TaskItemVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [selectedCells, setSelectedCells] = useState<ReadonlySet<string>>(new Set())
   const [cellMenu, setCellMenu] = useState<{ x: number; y: number } | null>(null)
-  const [statusUpdating, setStatusUpdating] = useState(false)
-  const [completing, setCompleting] = useState<TaskItemVm | null>(null)
+  const [completingTask, setCompletingTask] = useState<TaskItemVm | null>(null)
   const [exporting, setExporting] = useState(false)
+
+  const { mutateAsync: createTask } = useCreateTasks()
+  const { mutateAsync: updateTask } = useUpdateTasksById()
+  const { mutateAsync: deleteTask, isPending: deletingPosition } = useDeleteTasksById()
+  const { mutateAsync: bulkDeleteTasks, isPending: bulkDeleting } = useBulkTasks()
+  const { mutateAsync: bulkStatusTasks, isPending: statusUpdating } = useBulkStatusTasks()
+  const { mutateAsync: completeTask } = usePatchTasksByIdComplete()
 
   const params = useMemo(
     () => ({
@@ -137,16 +141,19 @@ export function TasksPage() {
   const handleSave = async (values: TaskFormValues) => {
     if (editing) {
       await toastSmartPromise(
-        updateTask(editing.id, {
-          taskContent: values.taskContent,
-          mainDepartmentId: values.mainDepartmentId ? Number(values.mainDepartmentId) : undefined,
-          coDepartmentIds: values.coDepartmentIds?.length
-            ? values.coDepartmentIds.join(',')
-            : undefined,
-          assigneeName: values.assigneeName || null,
-          dueDate: toUtcIso(values.dueDate),
-          status: values.status || undefined,
-          latestResult: values.latestResult || null,
+        updateTask({
+          id: editing.id,
+          data: {
+            taskContent: values.taskContent,
+            mainDepartmentId: values.mainDepartmentId ? Number(values.mainDepartmentId) : undefined,
+            coDepartmentIds: values.coDepartmentIds?.length
+              ? values.coDepartmentIds.join(',')
+              : undefined,
+            assigneeName: values.assigneeName || null,
+            dueDate: toUtcIso(values.dueDate),
+            status: values.status || undefined,
+            latestResult: values.latestResult || null,
+          },
         }).then(unwrapApiResponse),
         { loading: 'Đang cập nhật nhiệm vụ...', success: 'Cập nhật nhiệm vụ thành công!' },
       )
@@ -161,23 +168,23 @@ export function TasksPage() {
 
   const getTasksCreate = async (values: TaskFormValues) => {
     return createTask({
-      documentId: values.documentId,
-      taskContent: values.taskContent,
-      mainDepartmentId: Number(values.mainDepartmentId),
-      coDepartmentIds: values.coDepartmentIds?.length ? values.coDepartmentIds.join(',') : null,
-      assigneeName: values.assigneeName || null,
-      dueDate: toUtcIso(values.dueDate),
-      initialNote: values.initialNote || null,
-      createdBy: undefined,
+      data: {
+        documentId: values.documentId,
+        taskContent: values.taskContent,
+        mainDepartmentId: Number(values.mainDepartmentId),
+        coDepartmentIds: values.coDepartmentIds?.length ? values.coDepartmentIds.join(',') : null,
+        assigneeName: values.assigneeName || null,
+        dueDate: toUtcIso(values.dueDate),
+        initialNote: values.initialNote || null,
+        createdBy: undefined,
+      },
     }).then(unwrapApiResponse)
   }
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
       await toastSmartPromise(
-        deleteTask(deleting.id).then(unwrapApiResponse),
+        deleteTask({ id: deleting.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiệm vụ...', success: 'Xóa nhiệm vụ thành công!' },
       )
       await invalidate()
@@ -185,17 +192,12 @@ export function TasksPage() {
       if (tasks?.items.length === 1 && pagination.pageIndex > 0) {
         setPagination((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
       }
-    } finally {
-      setDeleteLoading(false)
-    }
   }
 
   const handleBulkDelete = async () => {
     if (!selectedTaskIds.size) return
-    setBulkDeleting(true)
-    try {
       await toastSmartPromise(
-        bulkDeleteTasks([...selectedTaskIds]).then(unwrapApiResponse),
+        bulkDeleteTasks({ data: [...selectedTaskIds] }).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều nhiệm vụ...', success: 'Đã xóa các nhiệm vụ đã chọn!' },
       )
       await invalidate()
@@ -205,24 +207,16 @@ export function TasksPage() {
       if (removed >= (tasks?.items.length ?? 0) && pagination.pageIndex > 0) {
         setPagination((p) => ({ ...p, pageIndex: p.pageIndex - 1 }))
       }
-    } finally {
-      setBulkDeleting(false)
-    }
   }
 
   const handleBulkStatusChange = async (status: number) => {
     if (!selectedTaskIds.size) return
-    setStatusUpdating(true)
-    try {
       await toastSmartPromise(
-        bulkUpdateTaskStatus({ ids: [...selectedTaskIds], status }).then(unwrapApiResponse),
+        bulkStatusTasks({ data: { ids: [...selectedTaskIds], status } }).then(unwrapApiResponse),
         { loading: 'Đang cập nhật trạng thái...', success: `Đã cập nhật trạng thái cho ${selectedTaskIds.size} ô!` },
       )
       await invalidate()
       clearCellSelection()
-    } finally {
-      setStatusUpdating(false)
-    }
     setCellMenu(null)
   }
 
@@ -266,7 +260,7 @@ export function TasksPage() {
 
     for (const [status, ids] of grouped) {
       await toastSmartPromise(
-        bulkUpdateTaskStatus({ ids, status }).then(unwrapApiResponse),
+        bulkStatusTasks({ data: { ids, status } }).then(unwrapApiResponse),
         { loading: 'Đang cập nhật trạng thái...', success: `Đã cập nhật trạng thái cho ${ids.length} ô!` },
       )
     }
@@ -275,21 +269,22 @@ export function TasksPage() {
   }
 
   const handleComplete = async (latestResult: string) => {
-    if (!completing) return
+    if (!completingTask) return
     await toastSmartPromise(
-      completeTaskById(completing.id, { latestResult: latestResult || undefined }).then(
-        unwrapApiResponse,
-      ),
+      completeTask({
+        id: completingTask.id,
+        data: { latestResult: latestResult || undefined },
+      }).then(unwrapApiResponse),
       { loading: 'Đang hoàn thành nhiệm vụ...', success: 'Nhiệm vụ đã hoàn thành!' },
     )
     await invalidate()
-    setCompleting(null)
+    setCompletingTask(null)
   }
 
   const handleExport = async () => {
     setExporting(true)
     try {
-      const blob = await exportTasks(
+      const blob = await getExportTasks(
         {
           Tab: TASK_TAB[tab],
           DepartmentId: departmentId ? Number(departmentId) : undefined,
@@ -418,7 +413,7 @@ export function TasksPage() {
               size="icon"
               label="Hoàn thành"
               className="text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
-              onClick={() => setCompleting(row.original)}
+              onClick={() => setCompletingTask(row.original)}
             >
               <span className="material-symbols-outlined text-lg">check_circle</span>
             </TooltipButton>
@@ -501,16 +496,13 @@ export function TasksPage() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-muted-foreground">
-              search
-            </span>
-            <Input
-              className="pl-10"
+          <div className="flex-1">
+            <SearchInput
               placeholder="Tìm nội dung / số văn bản..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && applySearch()}
+              onSearch={applySearch}
+              onClear={() => { setKeyword(''); setSearchText('') }}
             />
           </div>
           <div className="sm:w-56">
@@ -535,9 +527,6 @@ export function TasksPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button variant="secondary" onClick={applySearch}>
-            Tìm kiếm
-          </Button>
         </div>
 
         <div className="rounded-2xl border bg-card shadow-sm p-4">
@@ -640,8 +629,8 @@ export function TasksPage() {
       />
 
       <CompleteTaskDialog
-        task={completing}
-        onOpenChange={(open) => { if (!open) setCompleting(null) }}
+        task={completingTask}
+        onOpenChange={(open) => { if (!open) setCompletingTask(null) }}
         onConfirm={handleComplete}
       />
 
@@ -650,7 +639,7 @@ export function TasksPage() {
         onOpenChange={(open) => { if (!open) setDeleting(null) }}
         title="Xóa nhiệm vụ"
         description="Bạn có chắc chắn muốn xóa nhiệm vụ này? Lịch sử cập nhật tiến độ cũng sẽ bị xóa."
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

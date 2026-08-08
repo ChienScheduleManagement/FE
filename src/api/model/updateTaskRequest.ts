@@ -4,6 +4,7 @@
  * ScheduleManagement.Api | v1
  * OpenAPI spec version: 1.0.0
  */
+import type { TaskStatus } from './taskStatus';
 
 export interface UpdateTaskRequest {
   /** @nullable */
@@ -15,8 +16,7 @@ export interface UpdateTaskRequest {
   assigneeName?: string | null;
   /** @nullable */
   dueDate?: string | null;
-  /** @nullable */
-  status?: number | null;
+  status?: null | TaskStatus;
   /** @nullable */
   completedDate?: string | null;
   /** @nullable */

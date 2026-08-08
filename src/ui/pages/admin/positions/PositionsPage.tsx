@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
-import { bulkDeletePositions, createPosition, deletePosition, updatePosition, useGetPositions } from '@/api/generated'
+import { useBulkPositions, useCreatePositions, useDeletePositionsById, useGetPositions, useUpdatePositionsById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
@@ -44,15 +44,18 @@ export function PositionsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<PositionVm | null>(null)
   const [deleting, setDeleting] = useState<PositionVm | null>(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-  const [bulkDeleting, setBulkDeleting] = useState(false)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
   const { data: raw, isLoading, isError, error } = useGetPositions()
+  const { mutateAsync: createPosition, isPending: creating } = useCreatePositions()
+  const { mutateAsync: updatePosition, isPending: updating } = useUpdatePositionsById()
+  const { mutateAsync: deletePosition, isPending: deletingPosition } = useDeletePositionsById()
+  const { mutateAsync: bulkDeletePositions, isPending: bulkDeleting } = useBulkPositions()
+
+  const saving = creating || updating
 
   useEffect(() => {
     if (isError) showError(error)
@@ -166,62 +169,47 @@ export function PositionsPage() {
       return
     }
 
-    setSaving(true)
-    try {
-      const payload = {
-        code: form.code,
-        name: form.name,
-        displayOrder: Number(form.displayOrder) || 0,
-        isActive: form.isActive,
-      }
-      if (editing) {
-        await toastSmartPromise(
-          updatePosition(editing.id, payload).then(unwrapApiResponse),
-          { loading: 'Đang cập nhật...', success: 'Cập nhật chức vụ thành công!' },
-        )
-      } else {
-        await toastSmartPromise(
-          createPosition(payload).then(unwrapApiResponse),
-          { loading: 'Đang thêm...', success: 'Thêm chức vụ thành công!' },
-        )
-      }
-      await invalidate()
-      setDialogOpen(false)
-    } finally {
-      setSaving(false)
+    const payload = {
+      code: form.code,
+      name: form.name,
+      displayOrder: Number(form.displayOrder) || 0,
+      isActive: form.isActive,
     }
+    if (editing) {
+      await toastSmartPromise(
+        updatePosition({ id: editing.id, data: payload }).then(unwrapApiResponse),
+        { loading: 'Đang cập nhật...', success: 'Cập nhật chức vụ thành công!' },
+      )
+    } else {
+      await toastSmartPromise(
+        createPosition({ data: payload }).then(unwrapApiResponse),
+        { loading: 'Đang thêm...', success: 'Thêm chức vụ thành công!' },
+      )
+    }
+    await invalidate()
+    setDialogOpen(false)
   }
 
   const handleDelete = async () => {
     if (!deleting) return
-    setDeleteLoading(true)
-    try {
-      await toastSmartPromise(
-        deletePosition(deleting.id).then(unwrapApiResponse),
-        { loading: 'Đang xóa...', success: 'Xóa chức vụ thành công!' },
-      )
-      await invalidate()
-      setDeleting(null)
-    } finally {
-      setDeleteLoading(false)
-    }
+    await toastSmartPromise(
+      deletePosition({ id: deleting.id }).then(unwrapApiResponse),
+      { loading: 'Đang xóa...', success: 'Xóa chức vụ thành công!' },
+    )
+    await invalidate()
+    setDeleting(null)
   }
 
   const handleBulkDelete = async () => {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
-    setBulkDeleting(true)
-    try {
-      await toastSmartPromise(
-        bulkDeletePositions(ids).then(unwrapApiResponse),
-        { loading: 'Đang xóa nhiều chức vụ...', success: 'Đã xóa các chức vụ đã chọn!' },
-      )
-      await invalidate()
-      setBulkDeleteOpen(false)
-      setRowSelection({})
-    } finally {
-      setBulkDeleting(false)
-    }
+    await toastSmartPromise(
+      bulkDeletePositions({ data: ids }).then(unwrapApiResponse),
+      { loading: 'Đang xóa nhiều chức vụ...', success: 'Đã xóa các chức vụ đã chọn!' },
+    )
+    await invalidate()
+    setBulkDeleteOpen(false)
+    setRowSelection({})
   }
 
   return (
@@ -360,7 +348,7 @@ export function PositionsPage() {
             <span className="font-semibold text-foreground">{deleting?.name}</span>?
           </>
         }
-        loading={deleteLoading}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 

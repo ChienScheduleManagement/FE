@@ -4,8 +4,9 @@
  * ScheduleManagement.Api | v1
  * OpenAPI spec version: 1.0.0
  */
+import type { TaskStatus } from './taskStatus';
 
 export interface BulkUpdateTaskStatusRequest {
-  ids: string[];
-  status: number;
+  ids?: string[];
+  status?: TaskStatus;
 }
