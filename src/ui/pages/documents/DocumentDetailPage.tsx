@@ -21,6 +21,7 @@ import {
 import type { DocumentDetailVm } from '@/types/api'
 
 import { BackButton } from '@/components/BackButton'
+import { RefreshButton } from '@/components/RefreshButton'
 
 function InfoItem({ label, value }: { label: string; value?: string | null }) {
   return (
@@ -33,7 +34,7 @@ function InfoItem({ label, value }: { label: string; value?: string | null }) {
 
 export function DocumentDetailPage() {
   const { id } = useParams({ from: '/app-layout/documents/$id' })
-  const { data: raw, isLoading, isError, error } = useGetDocumentsById(id)
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetDocumentsById(id)
 
   useEffect(() => {
     if (isError) showError(error)
@@ -56,6 +57,9 @@ export function DocumentDetailPage() {
             <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
               {isLoading ? 'Đang tải...' : doc?.docNumber}
             </h1>
+          </div>
+          <div className="ml-auto">
+            <RefreshButton onClick={() => refetch()} loading={isRefetching} />
           </div>
         </div>
 

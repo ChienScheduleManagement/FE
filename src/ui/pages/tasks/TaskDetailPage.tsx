@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { SkeletonRows } from '@/components/SkeletonRows'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { RefreshButton } from '@/components/RefreshButton'
 import { CompleteTaskDialog } from './components/CompleteTaskDialog'
 import { TASK_STATUS, getTaskStatusMeta } from '@/constants/task'
 import type { TaskLogVm, TaskItemVm } from '@/types/api'
@@ -51,7 +52,7 @@ export function TaskDetailPage() {
   const [completingTask, setCompletingTask] = useState<TaskItemVm | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
-  const { data: raw, isLoading, isError, error } = useGetTasksById(id)
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetTasksById(id)
   const { data: logsRaw, isLoading: logsLoading } = useGetTasksByTaskidLogs(id)
   const { mutateAsync: addTaskLog, isPending: logSubmitting } = usePostTasksByTaskidLogs()
   const { mutateAsync: completeTask } = usePatchTasksByIdComplete()
@@ -142,6 +143,7 @@ export function TaskDetailPage() {
 
           {task ? (
             <div className="flex items-center gap-2">
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
               {task.status !== TASK_STATUS.COMPLETED ? (
                 <Button
                   className="bg-emerald-600 hover:bg-emerald-700"

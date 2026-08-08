@@ -7,6 +7,7 @@ import { showError } from '@/api/utils'
 import { formatPercent } from '@/lib/format'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { SkeletonRows } from '@/components/SkeletonRows'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -70,7 +71,7 @@ type DashboardData = {
 }
 
 export function DashboardPage() {
-  const { data: raw, isLoading, isError, error } = useGetDashboard()
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetDashboard()
 
   useEffect(() => {
     if (isError) showError(error)
@@ -88,6 +89,7 @@ export function DashboardPage() {
           icon="dashboard"
           title="Tổng quan"
           description="Tình hình thực hiện nhiệm vụ của các đơn vị"
+          actions={<RefreshButton onClick={() => refetch()} loading={isRefetching} />}
         />
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">

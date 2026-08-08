@@ -13,6 +13,7 @@ import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, showSuccess, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -56,7 +57,7 @@ export function AttendancePage() {
   const navDir = useRef(0)
 
   // Queries
-  const { data: gridRaw, isLoading: gridLoading, isError: gridIsError, error: gridError } = useGetAttendance({
+  const { data: gridRaw, isLoading: gridLoading, isError: gridIsError, error: gridError, refetch, isRefetching } = useGetAttendance({
     year,
     month,
     departmentId: departmentId === 'all' ? undefined : Number(departmentId),
@@ -285,6 +286,7 @@ export function AttendancePage() {
           description={`Chấm công và quản lý ngày nghỉ cán bộ - Tháng ${month}/${year}`}
           actions={
             <div className="flex flex-wrap items-center gap-2">
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
               {isCurrentMonth ? (
                 <div className="flex rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-xs bg-slate-100 dark:bg-slate-800 p-0.5 mr-1 shadow-sm">
                   <button
@@ -424,49 +426,6 @@ export function AttendancePage() {
             </div>
           }
         />
-
-        {/* Bulk action bar - hiển thị khi có ô được chọn */}
-        {selectedCells.length > 0 ? (
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-primary/30 bg-primary/5 p-2.5 shadow-sm animate-in slide-in-from-top-2">
-            <div className="flex items-center gap-2 mr-1">
-              <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-white text-xs font-black">
-                {selectedCells.length}
-              </span>
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">ô đã chọn</span>
-            </div>
-            <div className="h-6 w-px bg-slate-300 dark:bg-slate-700" />
-            <Button
-              variant="outline"
-              className="h-10 rounded-xl px-4 font-bold gap-2 text-emerald-700 border-emerald-300 hover:bg-emerald-50 dark:text-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950"
-              onClick={() => handleBulkSetReason(null)}
-            >
-              <span className="text-emerald-600 font-black text-base">✓</span>
-              Có mặt
-            </Button>
-            {reasons.map((r) => (
-              <Button
-                key={r.id}
-                variant="outline"
-                className="h-10 rounded-xl px-4 font-bold gap-2 text-sm text-slate-700 border-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800"
-                onClick={() => handleBulkSetReason(r.id)}
-              >
-                <span className="font-black text-base" style={{ color: r.color || undefined }}>
-                  {r.symbol}
-                </span>
-                {r.name}
-              </Button>
-            ))}
-            <div className="flex-1" />
-             <Button
-               variant="ghost"
-               className="h-10 rounded-xl px-4 font-bold text-slate-500 hover:text-slate-800 gap-2"
-               onClick={() => setSelectedCells([])}
-             >
-               <span className="material-symbols-outlined text-lg">close</span>
-               Bỏ chọn
-             </Button>
-          </div>
-        ) : null}
 
         {/* Main Grid + Right Panel */}
         <div className="grid gap-4 lg:grid-cols-12">

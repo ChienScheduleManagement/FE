@@ -7,6 +7,7 @@ import { showError, toastSmartPromise } from '@/api/utils'
 import apiClient from '@/api/client'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
@@ -61,7 +62,7 @@ export function BaseSalariesPage() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error } = useQuery({
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useQuery({
     queryKey: ['/api/base-salaries'],
     queryFn: () => apiClient.get('/api/base-salaries').then((res) => res.data),
   })
@@ -256,10 +257,13 @@ export function BaseSalariesPage() {
           title="Mức lương cơ sở"
           description="Quản lý lịch sử mức lương cơ sở Nhà nước qua các thời kỳ Nghị định"
           actions={
-            <Button onClick={openCreate} className="gap-1.5">
-              <span className="material-symbols-outlined text-base">add</span>
-              Thêm mức lương mới
-            </Button>
+            <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
+              <Button onClick={openCreate} className="gap-1.5">
+                <span className="material-symbols-outlined text-base">add</span>
+                Thêm mức lương mới
+              </Button>
+            </>
           }
         />
 

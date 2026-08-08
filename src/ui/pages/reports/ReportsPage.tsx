@@ -4,6 +4,7 @@ import { useGetAttendance, useGetSalary, useGetLeaveReasons, useGetDepartments }
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { AttendanceGridVm, SalaryVm, LeaveReasonVm, DepartmentVm } from '@/types/api'
 
@@ -13,25 +14,31 @@ export function ReportsPage() {
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [departmentId, setDepartmentId] = useState<string>('all')
 
-  const { data: gridRaw } = useGetAttendance({
+  const { data: gridRaw, refetch: refetchGrid, isRefetching: refetchingGrid } = useGetAttendance({
     year,
     month,
     departmentId: departmentId === 'all' ? undefined : Number(departmentId),
   })
 
-  const { data: salaryRaw } = useGetSalary({
+  const { data: salaryRaw, refetch: refetchSalary, isRefetching: refetchingSalary } = useGetSalary({
     Year: year,
     Month: month,
     DepartmentId: departmentId === 'all' ? undefined : Number(departmentId),
   })
 
-  const { data: reasonsRaw } = useGetLeaveReasons()
-  const { data: deptsRaw } = useGetDepartments()
+  const { data: reasonsRaw, refetch: refetchReasons, isRefetching: refetchingReasons } = useGetLeaveReasons()
+  const { data: deptsRaw, refetch: refetchDepts, isRefetching: refetchingDepts } = useGetDepartments()
 
   const gridData = gridRaw ? unwrapApiResponse<AttendanceGridVm>(gridRaw) : undefined
   const salaryData = salaryRaw ? unwrapApiResponse<SalaryVm>(salaryRaw) : undefined
   const reasons = reasonsRaw ? unwrapApiResponse<LeaveReasonVm[]>(reasonsRaw) : []
   const departments = deptsRaw ? unwrapApiResponse<DepartmentVm[]>(deptsRaw) : []
+
+  const refreshing = refetchingGrid || refetchingSalary || refetchingReasons || refetchingDepts
+
+  const handleRefresh = async () => {
+    await Promise.all([refetchGrid(), refetchSalary(), refetchReasons(), refetchDepts()])
+  }
 
   // Compute breakdown by leave reason
   const reasonCounts = new Map<number, number>()
@@ -60,6 +67,7 @@ export function ReportsPage() {
           description={`Thống kê tình hình chấm công và quỹ lương - Tháng ${month}/${year}`}
           actions={
             <div className="flex flex-wrap items-center gap-3">
+              <RefreshButton onClick={handleRefresh} loading={refreshing} />
               <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
                 <SelectTrigger className="w-[120px]">
                   <SelectValue placeholder="Tháng" />

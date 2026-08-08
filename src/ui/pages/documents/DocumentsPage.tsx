@@ -17,6 +17,7 @@ import { formatDate } from '@/lib/format'
 import { APP_NAME } from '@/constants/ui'
 import { DEFAULT_PAGE_SIZE } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
@@ -57,7 +58,7 @@ export function DocumentsPage() {
     [pagination.pageIndex, pagination.pageSize, searchText, sourceId],
   )
 
-  const { data: raw, isLoading, isError, error } = useGetDocuments(params)
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetDocuments(params)
 
   useEffect(() => {
     if (isError) showError(error)
@@ -251,10 +252,13 @@ export function DocumentsPage() {
           title="Quản lý văn bản"
           description="Theo dõi các văn bản đến và nhiệm vụ phát sinh từ văn bản"
           actions={
-            <Button onClick={() => { setEditing(null); setDialogOpen(true) }}>
-              <span className="material-symbols-outlined text-base mr-1">add</span>
-              Thêm văn bản
-            </Button>
+            <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
+              <Button onClick={() => { setEditing(null); setDialogOpen(true) }}>
+                <span className="material-symbols-outlined text-base mr-1">add</span>
+                Thêm văn bản
+              </Button>
+            </>
           }
         />
 

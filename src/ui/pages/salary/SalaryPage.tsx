@@ -5,6 +5,7 @@ import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
 import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { SalaryVm, DepartmentVm } from '@/types/api'
@@ -15,7 +16,7 @@ export function SalaryPage() {
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [departmentId, setDepartmentId] = useState<string>('all')
 
-  const { data: salaryRaw, isLoading, isError, error } = useGetSalary({
+  const { data: salaryRaw, isLoading, isError, error, refetch, isRefetching } = useGetSalary({
     Year: year,
     Month: month,
     DepartmentId: departmentId === 'all' ? undefined : Number(departmentId),
@@ -72,6 +73,7 @@ export function SalaryPage() {
           description={`Bảng tính lương cán bộ tháng ${month}/${year} dựa trên ngày công chấm công`}
           actions={
             <div className="flex flex-wrap items-center gap-3">
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
               <Select value={String(month)} onValueChange={(v) => setMonth(Number(v))}>
                 <SelectTrigger className="w-[120px]">
                   <SelectValue placeholder="Tháng" />

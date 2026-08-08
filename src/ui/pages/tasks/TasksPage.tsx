@@ -20,6 +20,7 @@ import { formatDateTime, toUtcIso } from '@/lib/format'
 import { APP_NAME } from '@/constants/ui'
 import { DEFAULT_PAGE_SIZE, TASK_STATUS, TASK_STATUSES, TASK_TAB, TASK_TABS, getDeadlineStatusMeta, getTaskStatusMeta } from '@/constants/task'
 import { PageHeader } from '@/components/PageHeader'
+import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { StatusBadge, DeadlineBadge } from '@/components/StatusBadge'
 import { DataTable, DataTableColumnHeader } from '@/components/DataTable'
@@ -85,7 +86,7 @@ export function TasksPage() {
     [tab, pagination.pageIndex, pagination.pageSize, searchText, departmentId],
   )
 
-  const { data: raw, isLoading, isError, error } = useGetTasks(params)
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetTasks(params)
 
   useEffect(() => {
     if (isError) showError(error)
@@ -458,6 +459,7 @@ export function TasksPage() {
           description="Theo dõi tiến độ thực hiện nhiệm vụ của các đơn vị"
           actions={
             <>
+              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
               <Button variant="outline" onClick={handleExport} disabled={exporting}>
                 <span className="material-symbols-outlined text-base mr-1">
                   {exporting ? 'progress_activity' : 'file_download'}
