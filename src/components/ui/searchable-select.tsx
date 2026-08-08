@@ -43,10 +43,14 @@ export function SearchableSelect({
   }, [items, search])
 
   useEffect(() => {
+    void search
+    void open
     setHighlightIndex(0)
   }, [search, open])
 
   useEffect(() => {
+    void highlightIndex
+    void open
     const el = listRef.current?.querySelector<HTMLElement>('[data-highlighted="true"]')
     el?.scrollIntoView({ block: 'nearest' })
   }, [highlightIndex, open])
