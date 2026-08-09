@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useGetDepartments, useGetDocuments } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { TASK_STATUS, TASK_STATUSES } from '@/constants/task'
+import { taskFormSchema, type TaskFormValues } from '@/schemas/task.schema'
 import {
   Dialog,
   DialogContent,
@@ -21,18 +23,6 @@ import { SearchableSelect } from '@/components/ui/searchable-select'
 import { cn } from '@/lib/utils'
 import { toInputValue } from '@/lib/format'
 import type { DocumentVm, PagedResponse, TaskItemVm } from '@/types/api'
-
-export interface TaskFormValues {
-  documentId: string
-  taskContent: string
-  mainDepartmentId: string
-  coDepartmentIds: string[]
-  assigneeName?: string
-  dueDate?: string
-  status?: number
-  initialNote?: string
-  latestResult?: string
-}
 
 interface TaskFormDialogProps {
   open: boolean
@@ -71,6 +61,7 @@ export function TaskFormDialog({
       latestResult: '',
     },
     mode: 'onChange',
+    resolver: zodResolver(taskFormSchema),
   })
 
   useEffect(() => {
@@ -159,7 +150,7 @@ export function TaskFormDialog({
 
         <form onSubmit={onSubmit} className="grid gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <input type="hidden" {...register('documentId', { required: 'Vui lòng chọn văn bản liên quan.' })} />
+            <input type="hidden" {...register('documentId')} />
             <div className="space-y-1.5 sm:col-span-2">
               <Label>
                 Văn bản liên quan <span className="text-red-500">*</span>
@@ -195,9 +186,7 @@ export function TaskFormDialog({
                 id="taskContent"
                 rows={3}
                 placeholder="Mô tả nội dung nhiệm vụ cần thực hiện..."
-                {...register('taskContent', {
-                  required: 'Nội dung nhiệm vụ không được để trống.',
-                })}
+                {...register('taskContent')}
               />
               {errors.taskContent ? (
                 <p className="text-xs font-medium text-red-500">

@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useGetCategories, useGetDocSources } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import {
@@ -18,16 +19,7 @@ import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { SearchableSelect } from '@/components/ui/searchable-select'
 import type { DocumentVm } from '@/types/api'
 import { CATEGORY_TYPE } from '@/constants/task'
-
-export interface DocumentFormValues {
-  docNumber: string
-  title: string
-  sourceId?: string
-  docTypeId?: string
-  issueDate?: string
-  signer?: string
-  filePath?: string
-}
+import { documentFormSchema, type DocumentFormValues } from '@/schemas/document.schema'
 
 interface DocumentFormDialogProps {
   open: boolean
@@ -60,6 +52,7 @@ export function DocumentFormDialog({
       filePath: '',
     },
     mode: 'onChange',
+    resolver: zodResolver(documentFormSchema),
   })
 
   useEffect(() => {
@@ -131,9 +124,7 @@ export function DocumentFormDialog({
             <Input
               id="docNumber"
               placeholder="VD: 123/UBND-VP"
-              {...register('docNumber', {
-                required: 'Số văn bản không được để trống.',
-              })}
+              {...register('docNumber')}
             />
             {errors.docNumber ? (
               <p className="text-xs font-medium text-red-500">
@@ -160,9 +151,7 @@ export function DocumentFormDialog({
               id="title"
               rows={3}
               placeholder="Trích yếu nội dung văn bản..."
-              {...register('title', {
-                required: 'Trích yếu không được để trống.',
-              })}
+              {...register('title')}
             />
             {errors.title ? (
               <p className="text-xs font-medium text-red-500">

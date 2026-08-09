@@ -23,7 +23,8 @@ import {TooltipButton} from '@/components/TooltipButton'
 import {Button} from '@/components/ui/button'
 import {SearchInput} from '@/components/ui/search-input'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
-import {DocumentFormDialog, type DocumentFormValues} from './components/DocumentFormDialog'
+import {DocumentFormDialog} from './components/DocumentFormDialog'
+import type {DocumentFormValues} from '@/schemas/document.schema'
 import type {DocumentVm, PagedResponse} from '@/types/api'
 
 export function DocumentsPage() {

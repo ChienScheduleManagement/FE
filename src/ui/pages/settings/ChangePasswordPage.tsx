@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useChangePasswordAuth } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { toastSmartPromise } from '@/api/utils'
@@ -7,28 +8,22 @@ import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
-interface ChangePasswordForm {
-  oldPassword: string
-  newPassword: string
-  confirmPassword: string
-}
+import { changePasswordFormSchema, type ChangePasswordForm } from '@/schemas/auth.schema'
 
 export function ChangePasswordPage() {
   const {
     register,
     handleSubmit,
-    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordForm>({
     defaultValues: { oldPassword: '', newPassword: '', confirmPassword: '' },
     mode: 'onChange',
+    resolver: zodResolver(changePasswordFormSchema),
   })
 
   const [showOld, setShowOld] = useState(false)
   const [showNew, setShowNew] = useState(false)
-  const newPassword = watch('newPassword')
 
   const { mutateAsync: changePassword } = useChangePasswordAuth()
 
@@ -64,9 +59,7 @@ export function ChangePasswordPage() {
                   id="old-password"
                   type={showOld ? 'text' : 'password'}
                   autoComplete="current-password"
-                  {...register('oldPassword', {
-                    required: 'Nhập mật khẩu hiện tại.',
-                  })}
+                  {...register('oldPassword')}
                 />
                 <button
                   type="button"
@@ -92,13 +85,7 @@ export function ChangePasswordPage() {
                   id="new-password"
                   type={showNew ? 'text' : 'password'}
                   autoComplete="new-password"
-                  {...register('newPassword', {
-                    required: 'Nhập mật khẩu mới.',
-                    minLength: {
-                      value: 6,
-                      message: 'Mật khẩu phải có ít nhất 6 ký tự.',
-                    },
-                  })}
+                  {...register('newPassword')}
                 />
                 <button
                   type="button"
@@ -123,10 +110,7 @@ export function ChangePasswordPage() {
                 id="confirm-password"
                 type="password"
                 autoComplete="new-password"
-                {...register('confirmPassword', {
-                  required: 'Xác nhận mật khẩu mới.',
-                  validate: (value) => value === newPassword || 'Mật khẩu xác nhận không khớp.',
-                })}
+                {...register('confirmPassword')}
               />
               {errors.confirmPassword ? (
                 <p className="text-xs font-medium text-red-500">
