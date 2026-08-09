@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react'
 import {getExportSalary, useGetDepartments, useGetSalary} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
+import {downloadBlob} from '@/lib/utils'
 import {showError, toastSmartPromise} from '@/api/utils'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
@@ -40,14 +41,7 @@ export function SalaryPage() {
           },
           { responseType: 'blob' },
         ).then((res) => {
-          // Download blob
-          const blob = res as unknown as Blob
-          const url = window.URL.createObjectURL(blob)
-          const a = document.createElement('a')
-          a.href = url
-          a.download = `Bang_luong_thang_${month}_${year}.xlsx`
-          a.click()
-          window.URL.revokeObjectURL(url)
+          downloadBlob(res as unknown as Blob, `Bang_luong_thang_${month}_${year}.xlsx`)
         }),
         { loading: 'Đang xuất Excel...', success: 'Xuất file thành công!' }
       )

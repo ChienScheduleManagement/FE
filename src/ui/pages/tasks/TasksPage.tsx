@@ -16,6 +16,7 @@ import {
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, showSuccess, toastSmartPromise} from '@/api/utils'
 import {formatDateTime, toUtcIso} from '@/lib/format'
+import {downloadBlob} from '@/lib/utils'
 import {
   DEFAULT_PAGE_SIZE,
   getDeadlineStatusMeta,
@@ -660,13 +661,4 @@ export function TasksPage() {
       />
     </>
   )
-}
-
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
 }

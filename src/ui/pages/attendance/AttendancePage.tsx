@@ -15,7 +15,7 @@ import {RefreshButton} from '@/components/RefreshButton'
 import {Button} from '@/components/ui/button'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
 import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip'
-import {cn} from '@/lib/utils'
+import {cn, downloadBlob} from '@/lib/utils'
 import type {
   AttendanceChangeVm,
   AttendanceEmployeeVm,
@@ -884,13 +884,4 @@ export function AttendancePage() {
       ) : null}
     </>
   )
-}
-
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
 }
