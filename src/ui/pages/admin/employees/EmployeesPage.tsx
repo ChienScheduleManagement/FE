@@ -155,7 +155,7 @@ export function EmployeesPage() {
             label="Quá trình công tác"
             onClick={() => setHistoryEmp(row.original)}
           >
-            <span className="material-symbols-outlined text-lg text-blue-600 dark:text-blue-400">history_edu</span>
+            <span className="material-symbols-outlined text-lg text-primary">history_edu</span>
           </TooltipButton>
           <TooltipButton
             variant="ghost"

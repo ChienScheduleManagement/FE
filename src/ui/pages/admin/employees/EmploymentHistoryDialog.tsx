@@ -205,7 +205,7 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
                         <span className="font-bold text-slate-900 dark:text-slate-100 text-base">
                           Phòng ban placeholder
                         </span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
                           Chức vụ placeholder
                         </span>
                       </div>
@@ -239,7 +239,7 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
                               {h.departmentName}
                             </span>
                             {h.positionName && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
                                 {h.positionName}
                               </span>
                             )}

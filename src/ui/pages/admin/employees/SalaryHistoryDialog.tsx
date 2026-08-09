@@ -202,7 +202,7 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
                         <span className="font-bold text-slate-900 dark:text-slate-100 text-base">
                           Hệ số 2,34
                         </span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
                           Phụ cấp 500.000đ
                         </span>
                       </div>
@@ -235,7 +235,7 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
                             <span className="font-bold text-slate-900 dark:text-slate-100 text-base">
                               Hệ số {h.salaryCoefficient.toLocaleString('vi-VN')}
                             </span>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
                               Phụ cấp {h.allowance.toLocaleString('vi-VN')}đ
                             </span>
                             {isCurrent && (

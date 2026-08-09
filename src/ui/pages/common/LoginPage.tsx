@@ -54,7 +54,8 @@ export function LoginPage() {
       <title>Đăng nhập</title>
       <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] 2xl:grid-cols-[1.5fr_1fr] bg-white dark:bg-neutral-950 font-sans selection:bg-primary/10 overflow-hidden">
         <div className="hidden lg:flex relative overflow-hidden bg-primary/10 border-r border-slate-100 dark:border-slate-800">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-blue-800 opacity-95" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/30" />
+          <div className="absolute inset-0 bg-slate-950/40 dark:bg-black/60" />
           <div
             className="absolute inset-0 opacity-20"
             style={{
@@ -127,7 +128,7 @@ export function LoginPage() {
           </div>
 
           <div className="absolute top-1/2 -right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-primary/20 rounded-full blur-3xl" />
         </div>
 
         <div className="w-full flex flex-col justify-center items-center px-6 sm:px-12 lg:px-16 2xl:px-24 bg-white dark:bg-slate-950">
@@ -239,7 +240,7 @@ export function LoginPage() {
                 className={`w-full font-black py-4 px-4 rounded-2xl shadow-xl transition-all transform active:scale-[0.98] mt-4 flex items-center justify-center gap-2
     ${isPending || !isValid
                     ? 'bg-slate-200 text-slate-500 cursor-not-allowed dark:bg-slate-800'
-                    : 'bg-primary hover:bg-blue-600 text-primary-foreground shadow-primary/25 hover:shadow-primary/40'}`}
+                    : 'bg-primary hover:opacity-90 text-primary-foreground shadow-primary/25 hover:shadow-primary/40'}`}
               >
                 {isPending ? (
                   <span className="material-symbols-outlined animate-spin">

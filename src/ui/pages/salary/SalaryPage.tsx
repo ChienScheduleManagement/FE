@@ -238,7 +238,7 @@ export function SalaryPage() {
                         <td className="px-3 py-2.5 text-center font-bold text-amber-600 dark:text-amber-400">
                           {item.leaveDays}
                         </td>
-                        <td className="px-3 py-2.5 text-right font-mono font-semibold text-indigo-600 dark:text-indigo-400">
+                        <td className="px-3 py-2.5 text-right font-mono font-semibold text-primary">
                           {coefDisplay}
                         </td>
                         <td className="px-3 py-2.5 text-right font-mono">

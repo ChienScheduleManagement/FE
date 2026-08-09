@@ -549,7 +549,7 @@ export function AttendancePage() {
                             className={cn(
                               'p-1.5 border-r text-center min-w-[42px] sticky top-0 z-20 transition-colors',
                               isToday
-                                ? 'bg-blue-600 text-white dark:bg-blue-600 shadow-sm font-black'
+                                ? 'bg-primary text-primary-foreground shadow-sm font-black'
                                 : off
                                   ? (off.color === '#94a3b8' || off.color === '#cbd5e1'
                                       ? 'bg-slate-300/80 dark:bg-slate-700/70 text-slate-600 dark:text-slate-400'
@@ -559,7 +559,7 @@ export function AttendancePage() {
                             title={off ? `Ngày nghỉ: ${off.name ?? ''}` : isToday ? 'Hôm nay' : undefined}
                           >
                             <div className={cn('text-xs leading-tight font-extrabold', isToday && 'scale-110 font-black')}>{String(d).padStart(2, '0')}</div>
-                            <div className={cn('text-[10px] font-bold leading-tight mt-0.5', isToday ? 'text-blue-100' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
+                            <div className={cn('text-[10px] font-bold leading-tight mt-0.5', isToday ? 'text-primary-foreground/80' : off ? 'text-red-400 dark:text-red-300' : 'text-slate-400 dark:text-slate-500')}>
                               {off?.symbol ?? weekdayLabel(d)}
                             </div>
                           </th>
@@ -644,8 +644,8 @@ export function AttendancePage() {
                                       : 'cursor-pointer',
                                     reason
                                       ? undefined
-                                      : isToday
-                                        ? 'bg-blue-50/90 dark:bg-blue-950/40 ring-1 ring-blue-400/50 ring-inset'
+                                        : isToday
+                                          ? 'bg-primary/10 ring-1 ring-primary/50 ring-inset'
                                         : day.isDayOff && 'bg-slate-200/60 dark:bg-slate-700/40',
                                     isSelected && 'ring-2 ring-primary ring-inset bg-primary/20 z-10'
                                   )}
@@ -680,7 +680,7 @@ export function AttendancePage() {
                                           —
                                         </span>
                                        ) : (
-                                          <span className={cn('font-bold text-base', isToday ? 'text-blue-700 dark:text-blue-300' : 'text-emerald-600 dark:text-emerald-400')}>✓</span>
+                                          <span className={cn('font-bold text-base', isToday ? 'text-primary' : 'text-emerald-600 dark:text-emerald-400')}>✓</span>
                                         )}
                                       </div>
                                     </TooltipTrigger>
