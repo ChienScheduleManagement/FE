@@ -79,10 +79,10 @@ export function DayOffsPage() {
   const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetDayOffs()
   const { mutateAsync: createDayOff, isPending: creating } = useCreateDayOffs()
   const { mutateAsync: updateDayOff, isPending: updating } = useUpdateDayOffsById()
-  const { mutateAsync: deleteDayOff, isPending: deletingPosition } = useDeleteDayOffsById()
+  const { mutateAsync: deleteDayOff, isPending: deletingItem } = useDeleteDayOffsById()
 
   const saving = creating || updating
-  const bulkDeleting = deletingPosition
+  const bulkDeleting = deletingItem
 
   useEffect(() => {
     if (isError) showError(error)
@@ -229,12 +229,12 @@ export function DayOffsPage() {
       }
       if (editing) {
         await toastSmartPromise(
-          updateDayOff({ id: editing.id, data: payload }).then(unwrapApiResponse),
+          updateDayOff({ id: editing.id, data: payload }),
           { loading: 'Đang cập nhật...', success: 'Cập nhật ngày nghỉ thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createDayOff({ data: payload }).then(unwrapApiResponse),
+          createDayOff({ data: payload }),
           { loading: 'Đang thêm...', success: 'Thêm ngày nghỉ thành công!' },
         )
       }
@@ -245,7 +245,7 @@ export function DayOffsPage() {
   const handleDelete = async () => {
     if (!deleting) return
       await toastSmartPromise(
-        deleteDayOff({ id: deleting.id }).then(unwrapApiResponse),
+        deleteDayOff({ id: deleting.id }),
         { loading: 'Đang xóa...', success: 'Đã xóa ngày nghỉ!' },
       )
       await invalidate()
@@ -256,7 +256,7 @@ export function DayOffsPage() {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
       await toastSmartPromise(
-        Promise.all(ids.map((id) => deleteDayOff({ id }).then(unwrapApiResponse))),
+        Promise.all(ids.map((id) => deleteDayOff({ id }))),
         { loading: 'Đang xóa nhiều...', success: 'Đã xóa các ngày nghỉ đã chọn!' },
       )
       await invalidate()
@@ -507,7 +507,7 @@ export function DayOffsPage() {
             Ngày này sẽ trở lại là ngày đi làm bình thường.
           </>
         }
-        loading={deletingPosition}
+        loading={deletingItem}
         onConfirm={handleDelete}
       />
 
@@ -522,3 +522,5 @@ export function DayOffsPage() {
     </>
   )
 }
+
+

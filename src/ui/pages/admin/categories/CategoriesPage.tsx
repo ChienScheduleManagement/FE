@@ -1,6 +1,5 @@
-import {useEffect, useState} from 'react'
-import {useQueryClient} from '@tanstack/react-query'
-import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
+import {useState} from 'react'
+import type {ColumnDef} from '@tanstack/react-table'
 import {
   useBulkCategories,
   useCreateCategories,
@@ -9,20 +8,9 @@ import {
   useUpdateCategoriesById
 } from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
-import {showError, toastSmartPromise} from '@/api/utils'
 import {CATEGORY_TYPE, CATEGORY_TYPES, type CategoryType} from '@/constants/task'
-import {PageHeader} from '@/components/PageHeader'
-import {RefreshButton} from '@/components/RefreshButton'
-import {ConfirmDialog} from '@/components/ConfirmDialog'
-import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
-import {selectColumn} from '@/components/DataTable/selectColumn'
-import {TooltipButton} from '@/components/TooltipButton'
-import {FormDialog, FormField} from '@/components/FormDialog'
-import {Button} from '@/components/ui/button'
-import {Input} from '@/components/ui/input'
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select'
+import {CrudPage} from '@/components/CrudPage'
+import {DataTableColumnHeader} from '@/components/DataTable'
 import type {CategoryVm} from '@/types/api'
 
 interface FormValues {
@@ -35,32 +23,15 @@ interface FormValues {
 const EMPTY_FORM: FormValues = { type: CATEGORY_TYPE.DOC_TYPE, code: '', name: '', displayOrder: '0' }
 
 export function CategoriesPage() {
-  const queryClient = useQueryClient()
   const [type, setType] = useState<CategoryType>(CATEGORY_TYPE.DOC_TYPE)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editing, setEditing] = useState<CategoryVm | null>(null)
-  const [deleting, setDeleting] = useState<CategoryVm | null>(null)
-  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [form, setForm] = useState<FormValues>(EMPTY_FORM)
-  const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetCategories({ type })
-  const { mutateAsync: createCategory, isPending: creating } = useCreateCategories()
-  const { mutateAsync: updateCategory, isPending: updating } = useUpdateCategoriesById()
-  const { mutateAsync: deleteCategory, isPending: deletingPosition } = useDeleteCategoriesById()
-  const { mutateAsync: bulkDeleteCategories, isPending: bulkDeleting } = useBulkCategories()
-
-  const saving = creating || updating
-
-  useEffect(() => {
-    if (isError) showError(error)
-  }, [isError, error])
-
-  const categories = raw ? unwrapApiResponse<CategoryVm[]>(raw) : undefined
+  const queryResult = useGetCategories({ type })
+  const createCategory = useCreateCategories()
+  const updateCategory = useUpdateCategoriesById()
+  const deleteCategory = useDeleteCategoriesById()
+  const bulkDeleteCategories = useBulkCategories()
 
   const columns: ColumnDef<CategoryVm>[] = [
-    selectColumn<CategoryVm>(),
     {
       accessorKey: 'code',
       header: ({ column }) => <DataTableColumnHeader column={column} title="Mã" />,
@@ -82,267 +53,88 @@ export function CategoriesPage() {
       cell: ({ row }) => <span className="text-sm">{row.original.displayOrder}</span>,
       size: 80,
     },
-    {
-      id: 'actions',
-      header: () => <span className="text-right">Thao tác</span>,
-      cell: ({ row }) => (
-        <div className="flex justify-end gap-1">
-          <TooltipButton
-            variant="ghost"
-            size="icon"
-            label="Chỉnh sửa"
-            onClick={() => openEdit(row.original)}
-          >
-            <span className="material-symbols-outlined text-lg">edit</span>
-          </TooltipButton>
-          <TooltipButton
-            variant="ghost"
-            size="icon"
-            label="Xóa"
-            className="text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40"
-            onClick={() => setDeleting(row.original)}
-          >
-            <span className="material-symbols-outlined text-lg">delete</span>
-          </TooltipButton>
-        </div>
-      ),
-      size: 110,
-    },
   ]
 
-  const invalidate = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['/api/categories'] })
-  }
-
-  const openCreate = () => {
-    setEditing(null)
-    setForm({ ...EMPTY_FORM, type })
-    setErrors({})
-    setDialogOpen(true)
-  }
-
-  const openEdit = (cat: CategoryVm) => {
-    setEditing(cat)
-    setForm({
-      type: cat.type as CategoryType,
-      code: cat.code,
-      name: cat.name,
-      displayOrder: String(cat.displayOrder),
-    })
-    setErrors({})
-    setDialogOpen(true)
-  }
-
-  const setField = (key: keyof FormValues, value: string) => {
-    setForm((prev) => {
-      if (key === 'type') return { ...prev, type: Number(value) as CategoryType }
-      return { ...prev, [key]: value }
-    })
-    setErrors((prev) => ({ ...prev, [key]: undefined }))
-  }
-
-  const handleSave = async () => {
-    const nextErrors: typeof errors = {}
-    if (!form.code.trim()) nextErrors.code = 'Mã danh mục không được để trống.'
-    if (!form.name.trim()) nextErrors.name = 'Tên danh mục không được để trống.'
-    if (Number(form.displayOrder) < 0) nextErrors.displayOrder = 'Độ ưu tiên không được âm.'
-    if (Object.keys(nextErrors).length) {
-      setErrors(nextErrors)
-      return
-    }
-
-      if (editing) {
-        await toastSmartPromise(
-          updateCategory({ id: editing.id, data: {
-            type: form.type,
-            code: form.code,
-            name: form.name,
-            displayOrder: Number(form.displayOrder) || 0,
-          } }).then(unwrapApiResponse),
-          { loading: 'Đang cập nhật...', success: 'Cập nhật danh mục thành công!' },
-        )
-      } else {
-        await toastSmartPromise(
-          createCategory({ data: {
-            type: form.type,
-            code: form.code,
-            name: form.name,
-            displayOrder: Number(form.displayOrder) || 0,
-          } }).then(unwrapApiResponse),
-          { loading: 'Đang thêm...', success: 'Thêm danh mục thành công!' },
-        )
-      }
-      await invalidate()
-      setDialogOpen(false)
-  }
-
-  const handleDelete = async () => {
-    if (!deleting) return
-      await toastSmartPromise(
-        deleteCategory({ id: deleting.id }).then(unwrapApiResponse),
-        { loading: 'Đang xóa...', success: 'Xóa danh mục thành công!' },
-      )
-      await invalidate()
-      setDeleting(null)
-  }
-
-  const handleBulkDelete = async () => {
-    const ids = Object.keys(rowSelection).map(Number)
-    if (!ids.length) return
-      await toastSmartPromise(
-        bulkDeleteCategories({ data: ids }).then(unwrapApiResponse),
-        { loading: 'Đang xóa nhiều danh mục...', success: 'Đã xóa các danh mục đã chọn!' },
-      )
-      await invalidate()
-      setBulkDeleteOpen(false)
-      setRowSelection({})
-  }
-
   return (
-    <>
-      <title>Quản lý danh mục</title>
-      <div className="flex flex-col gap-5">
-        <PageHeader
-          icon="category"
-          title="Quản lý danh mục"
-          description="Loại văn bản, lĩnh vực công tác dùng chung cho hệ thống"
-          actions={
-            <>
-              <RefreshButton onClick={() => refetch()} loading={isRefetching} />
-              <Button onClick={openCreate}>
-                <span className="material-symbols-outlined text-base mr-1">add</span>
-                Thêm danh mục
-              </Button>
-            </>
-          }
-        />
-
-        <div className="flex gap-1 overflow-x-auto rounded-xl border bg-card p-1">
-          {CATEGORY_TYPES.map((t) => (
-            <button
-              key={t.value}
-              type="button"
-              onClick={() => setType(t.value)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
-                type === t.value
-                  ? 'bg-primary text-primary-foreground shadow'
-                  : 'text-muted-foreground hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="rounded-2xl border bg-card shadow-sm p-4">
-          <BulkActionBar
-            selectedCount={Object.keys(rowSelection).length}
-            actions={[
-              {
-                label: 'Xóa nhiều',
-                icon: 'delete_sweep',
-                onClick: () => setBulkDeleteOpen(true),
-                colorClass:
-                  'text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 dark:border-red-900 dark:hover:bg-red-950/40',
-              },
-            ]}
-            onClearSelection={() => setRowSelection({})}
-          />
-          <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
-            <DataTable
-              columns={columns}
-              data={categories ?? []}
-              searchKey="tên danh mục"
-              getRowId={(row) => row.id}
-              enableRowSelection
-              rowSelection={rowSelection}
-              onRowSelectionChange={setRowSelection}
-            />
-          </phantom-ui>
-        </div>
-      </div>
-
-      <FormDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        title={editing ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
-        description="Nhập thông tin danh mục. Các trường có dấu (*) là bắt buộc."
-        editing={!!editing}
-        loading={saving}
-        onSave={handleSave}
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label="Loại danh mục">
-            <Select
-              value={String(form.type)}
-              onValueChange={(v) => setField('type', v)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORY_TYPES.map((t) => (
-                  <SelectItem key={t.value} value={String(t.value)}>
-                    {t.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
-          <FormField
-            label="Thứ tự hiển thị"
-            htmlFor="cat-order"
-            error={errors.displayOrder}
-          >
-            <Input
-              id="cat-order"
-              type="number"
-              min={0}
-              value={form.displayOrder}
-              onChange={(e) => setField('displayOrder', e.target.value)}
-            />
-          </FormField>
-          <FormField label="Mã danh mục" htmlFor="cat-code" required error={errors.code}>
-            <Input
-              id="cat-code"
-              placeholder="VD: THONG_BAO"
-              value={form.code}
-              onChange={(e) => setField('code', e.target.value)}
-            />
-          </FormField>
-          <FormField label="Tên danh mục" htmlFor="cat-name" required error={errors.name}>
-            <Input
-              id="cat-name"
-              placeholder="Tên hiển thị..."
-              value={form.name}
-              onChange={(e) => setField('name', e.target.value)}
-            />
-          </FormField>
-        </div>
-      </FormDialog>
-
-      <ConfirmDialog
-        open={!!deleting}
-        onOpenChange={(open) => { if (!open) setDeleting(null) }}
-        title="Xóa danh mục"
-        description={
-          <>
-            Bạn có chắc chắn muốn xóa danh mục{' '}
-            <span className="font-semibold text-foreground">{deleting?.name}</span>?
-          </>
-        }
-        loading={deletingPosition}
-        onConfirm={handleDelete}
-      />
-
-      <ConfirmDialog
-        open={bulkDeleteOpen}
-        onOpenChange={setBulkDeleteOpen}
-        title="Xóa nhiều danh mục"
-        description={`Bạn có chắc chắn muốn xóa ${Object.keys(rowSelection).length} danh mục đã chọn? Hành động này không thể hoàn tác.`}
-        loading={bulkDeleting}
-        onConfirm={handleBulkDelete}
-      />
-    </>
+    <CrudPage<CategoryVm, FormValues>
+      title="Quản lý danh mục"
+      pageTitle="Quản lý danh mục"
+      description="Loại văn bản, lĩnh vực công tác dùng chung cho hệ thống"
+      icon="category"
+      queryKey={['/api/categories']}
+      queryResult={queryResult}
+      toItems={(raw) => unwrapApiResponse<CategoryVm[]>(raw)}
+      getRowId={(row) => row.id}
+      mutations={{
+        create: createCategory,
+        update: updateCategory,
+        remove: deleteCategory,
+        bulkRemove: bulkDeleteCategories,
+      }}
+      messages={{
+        createSuccess: 'Thêm danh mục thành công!',
+        updateSuccess: 'Cập nhật danh mục thành công!',
+        deleteSuccess: 'Xóa danh mục thành công!',
+        bulkDeleteLoading: 'Đang xóa nhiều danh mục...',
+        bulkDeleteSuccess: 'Đã xóa các danh mục đã chọn!',
+      }}
+      tabs={CATEGORY_TYPES.map((t) => ({ value: String(t.value), label: t.label }))}
+      activeTab={String(type)}
+      onTabChange={(v) => setType(Number(v) as CategoryType)}
+      form={{
+        getEmpty: () => ({ ...EMPTY_FORM, type }),
+        toFormValues: (cat) => ({
+          type: cat.type as CategoryType,
+          code: cat.code,
+          name: cat.name,
+          displayOrder: String(cat.displayOrder),
+        }),
+        validate: (form) => {
+          const errors: Partial<Record<keyof FormValues, string>> = {}
+          if (!form.code.trim()) errors.code = 'Mã danh mục không được để trống.'
+          if (!form.name.trim()) errors.name = 'Tên danh mục không được để trống.'
+          if (Number(form.displayOrder) < 0) errors.displayOrder = 'Độ ưu tiên không được âm.'
+          return errors
+        },
+        fields: [
+          {
+            name: 'type',
+            label: 'Loại danh mục',
+            type: 'select',
+            options: CATEGORY_TYPES.map((t) => ({ value: String(t.value), label: t.label })),
+            transformValue: (v) => Number(v) as CategoryType,
+          },
+          { name: 'displayOrder', label: 'Thứ tự hiển thị', type: 'number', min: 0 },
+          { name: 'code', label: 'Mã danh mục', required: true, placeholder: 'VD: THONG_BAO' },
+          { name: 'name', label: 'Tên danh mục', required: true, placeholder: 'Tên hiển thị...' },
+        ],
+        dialogTitle: (editing) => (editing ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'),
+        dialogDescription: 'Nhập thông tin danh mục. Các trường có dấu (*) là bắt buộc.',
+      }}
+      getCreatePayload={(form) => ({
+        type: form.type,
+        code: form.code,
+        name: form.name,
+        displayOrder: Number(form.displayOrder) || 0,
+      })}
+      getUpdatePayload={(_cat, form) => ({
+        type: form.type,
+        code: form.code,
+        name: form.name,
+        displayOrder: Number(form.displayOrder) || 0,
+      })}
+      table={{
+        columns,
+        searchKey: 'tên danh mục',
+      }}
+      deleteDescription={(cat) => (
+        <>
+          Bạn có chắc chắn muốn xóa danh mục{' '}
+          <span className="font-semibold text-foreground">{cat.name}</span>?
+        </>
+      )}
+    />
   )
 }
+
+
