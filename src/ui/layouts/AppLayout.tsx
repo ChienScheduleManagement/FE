@@ -100,8 +100,8 @@ function SidebarContent({
         onClick={onNavigate}
         className={cn('flex items-center gap-3 px-2', collapsed && 'justify-center px-0')}
       >
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/25">
-          <span className="material-symbols-outlined text-2xl">event_note</span>
+         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/25 overflow-hidden">
+          <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover" />
         </div>
         {!collapsed ? (
           <div className="leading-tight">

@@ -70,10 +70,8 @@ export function LoginPage() {
           <div className="relative z-10 flex flex-col justify-between h-full p-16 text-white">
             <div>
               <div className="flex items-center gap-3 mb-12">
-                <div className="size-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-xl shadow-black/10">
-                  <span className="material-symbols-outlined text-3xl font-bold">
-                    event_note
-                  </span>
+                <div className="size-12 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-black/10 overflow-hidden">
+                  <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover" />
                 </div>
                 <h1 className="text-3xl font-black tracking-tight">
                   {APP_NAME}
@@ -138,10 +136,8 @@ export function LoginPage() {
         <div className="w-full flex flex-col justify-center items-center px-6 sm:px-12 lg:px-16 2xl:px-24 bg-white dark:bg-slate-950">
           <div className="w-full max-w-[400px]">
             <div className="flex lg:hidden items-center gap-3 mb-10">
-              <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
-                <span className="material-symbols-outlined text-2xl">
-                  event_note
-                </span>
+              <div className="size-10 rounded-xl flex items-center justify-center text-white shadow-lg overflow-hidden">
+                <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
               <span className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 {APP_NAME}
