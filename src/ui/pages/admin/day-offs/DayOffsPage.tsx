@@ -204,6 +204,8 @@ export function DayOffsPage() {
   const handleSave = async () => {
     const nextErrors: typeof errors = {}
     if (!form.name.trim()) nextErrors.name = 'Tên ngày nghỉ không được để trống.'
+    if (form.symbol.length > 10) nextErrors.symbol = 'Ký hiệu tối đa 10 ký tự.'
+    if (Number(form.displayOrder) < 0) nextErrors.displayOrder = 'Độ ưu tiên không được âm.'
     if (form.recurringType === 1 && !form.date) nextErrors.date = 'Chọn ngày nghỉ cụ thể.'
     if (form.recurringType === 2 && (!form.yearlyMonth || !form.yearlyDay))
       nextErrors.yearlyMonth = 'Nhập đầy đủ tháng và ngày.'
@@ -222,7 +224,7 @@ export function DayOffsPage() {
         yearlyMonth: form.recurringType === 2 && form.yearlyMonth ? Number(form.yearlyMonth) : undefined,
         yearlyDay: form.recurringType === 2 && form.yearlyDay ? Number(form.yearlyDay) : undefined,
         weekDay: form.recurringType === 3 ? Number(form.weekDay) : undefined,
-        displayOrder: Number(form.displayOrder) || 0,
+        displayOrder: Math.max(0, Number(form.displayOrder) || 0),
         isActive: form.isActive,
       }
       if (editing) {
@@ -431,6 +433,7 @@ export function DayOffsPage() {
                   value={form.symbol}
                   onChange={(e) => setField('symbol', e.target.value)}
                 />
+                {errors.symbol ? <p className="text-xs font-medium text-red-500">{errors.symbol}</p> : null}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="do-color">Màu</Label>
@@ -460,6 +463,9 @@ export function DayOffsPage() {
                 value={form.displayOrder}
                 onChange={(e) => setField('displayOrder', e.target.value)}
               />
+              {errors.displayOrder ? (
+                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
+              ) : null}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="do-active">Trạng thái</Label>

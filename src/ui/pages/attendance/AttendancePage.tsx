@@ -292,8 +292,14 @@ export function AttendancePage() {
   }
 
   // Bulk set selected cells
+  const MAX_BULK_CELLS = 500
+
   const handleBulkSetReason = async (reasonId: number | null) => {
     if (selectedCells.length === 0) return
+    if (selectedCells.length > MAX_BULK_CELLS) {
+      showError(`Mỗi lần cập nhật tối đa ${MAX_BULK_CELLS} ô. Vui lòng chọn ít hơn.`)
+      return
+    }
     setContextMenu(null)
     const items = selectedCells.map((c) =>
       reasonId === null
