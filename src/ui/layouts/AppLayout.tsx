@@ -43,6 +43,7 @@ const THEME_ICONS: Record<Theme, string> = {
   [THEMES.light]: 'dark_mode',
   [THEMES.dark]: 'light_mode',
   [THEMES.blue]: 'palette',
+  [THEMES.pink]: 'favorite',
 }
 
 function ThemeToggle({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
