@@ -16,17 +16,9 @@ import {ConfirmDialog} from '@/components/ConfirmDialog'
 import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
 import {selectColumn} from '@/components/DataTable/selectColumn'
 import {TooltipButton} from '@/components/TooltipButton'
+import {FormDialog, FormField} from '@/components/FormDialog'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {cn} from '@/lib/utils'
 import type {DepartmentVm} from '@/types/api'
 
@@ -302,98 +294,64 @@ export function DepartmentsPage() {
         </div>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Chỉnh sửa phòng ban' : 'Thêm phòng ban mới'}</DialogTitle>
-            <DialogDescription>
-              Nhập thông tin đơn vị. Các trường có dấu (*) là bắt buộc.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="dept-code">
-                Mã phòng ban <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="dept-code"
-                placeholder="VD: VP-UBND"
-                value={form.code}
-                onChange={(e) => setField('code', e.target.value)}
-              />
-              {errors.code ? (
-                <p className="text-xs font-medium text-red-500">{errors.code}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="dept-order">Thứ tự hiển thị</Label>
-              <Input
-                id="dept-order"
-                type="number"
-                min={0}
-                value={form.displayOrder}
-                onChange={(e) => setField('displayOrder', e.target.value)}
-              />
-              {errors.displayOrder ? (
-                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="dept-name">
-                Tên phòng ban <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="dept-name"
-                placeholder="Tên đầy đủ của đơn vị..."
-                value={form.name}
-                onChange={(e) => setField('name', e.target.value)}
-              />
-              {errors.name ? (
-                <p className="text-xs font-medium text-red-500">{errors.name}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="dept-short">Tên viết tắt</Label>
-              <Input
-                id="dept-short"
-                value={form.shortName ?? ''}
-                onChange={(e) => setField('shortName', e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="dept-leader">Lãnh đạo đơn vị</Label>
-              <Input
-                id="dept-leader"
-                value={form.leaderName ?? ''}
-                onChange={(e) => setField('leaderName', e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="dept-phone">Số điện thoại</Label>
-              <Input
-                id="dept-phone"
-                value={form.phoneNumber ?? ''}
-                onChange={(e) => setField('phoneNumber', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Hủy
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
-              ) : (
-                <span className="material-symbols-outlined text-base mr-1">save</span>
-              )}
-              {saving ? 'Đang lưu...' : editing ? 'Cập nhật' : 'Thêm mới'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <FormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={editing ? 'Chỉnh sửa phòng ban' : 'Thêm phòng ban mới'}
+        description="Nhập thông tin đơn vị. Các trường có dấu (*) là bắt buộc."
+        editing={!!editing}
+        loading={saving}
+        onSave={handleSave}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Mã phòng ban" htmlFor="dept-code" required error={errors.code}>
+            <Input
+              id="dept-code"
+              placeholder="VD: VP-UBND"
+              value={form.code}
+              onChange={(e) => setField('code', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Thứ tự hiển thị" htmlFor="dept-order" error={errors.displayOrder}>
+            <Input
+              id="dept-order"
+              type="number"
+              min={0}
+              value={form.displayOrder}
+              onChange={(e) => setField('displayOrder', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Tên phòng ban" htmlFor="dept-name" required error={errors.name}>
+            <Input
+              id="dept-name"
+              placeholder="Tên đầy đủ của đơn vị..."
+              value={form.name}
+              onChange={(e) => setField('name', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Tên viết tắt" htmlFor="dept-short">
+            <Input
+              id="dept-short"
+              value={form.shortName ?? ''}
+              onChange={(e) => setField('shortName', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Lãnh đạo đơn vị" htmlFor="dept-leader">
+            <Input
+              id="dept-leader"
+              value={form.leaderName ?? ''}
+              onChange={(e) => setField('leaderName', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Số điện thoại" htmlFor="dept-phone">
+            <Input
+              id="dept-phone"
+              value={form.phoneNumber ?? ''}
+              onChange={(e) => setField('phoneNumber', e.target.value)}
+            />
+          </FormField>
+        </div>
+      </FormDialog>
 
       <ConfirmDialog
         open={!!deleting}

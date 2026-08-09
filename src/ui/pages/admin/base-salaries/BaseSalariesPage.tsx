@@ -16,17 +16,9 @@ import {ConfirmDialog} from '@/components/ConfirmDialog'
 import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
 import {selectColumn} from '@/components/DataTable/selectColumn'
 import {TooltipButton} from '@/components/TooltipButton'
+import {FormDialog, FormField} from '@/components/FormDialog'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 
 export interface BaseSalaryVm {
   id: number
@@ -293,97 +285,73 @@ export function BaseSalariesPage() {
           ]}
         />
 
-        {/* Dialog thêm/sửa */}
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>{editing ? 'Chỉnh sửa mức lương cơ sở' : 'Thêm mức lương cơ sở mới'}</DialogTitle>
-              <DialogDescription>
-                Nhập số tiền và thời điểm Nghị định quy định bắt đầu áp dụng.
-              </DialogDescription>
-            </DialogHeader>
+        <FormDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          title={editing ? 'Chỉnh sửa mức lương cơ sở' : 'Thêm mức lương cơ sở mới'}
+          description="Nhập số tiền và thời điểm Nghị định quy định bắt đầu áp dụng."
+          editing={!!editing}
+          loading={saving}
+          onSave={handleSave}
+          maxWidth="max-w-md"
+        >
+          <div className="space-y-4">
+            <FormField label="Mức lương cơ sở (VNĐ)" htmlFor="bs-amount" required error={errors.amount}>
+              <Input
+                id="bs-amount"
+                type="number"
+                placeholder="VD: 2340000"
+                value={form.amount}
+                onChange={(e) => setField('amount', e.target.value)}
+              />
+            </FormField>
 
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="bs-amount">
-                  Mức lương cơ sở (VNĐ) <span className="text-red-500">*</span>
-                </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Áp dụng từ Tháng" htmlFor="bs-month" required error={errors.effectiveFromMonth}>
+                <select
+                  id="bs-month"
+                  value={form.effectiveFromMonth}
+                  onChange={(e) => setField('effectiveFromMonth', e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                    <option key={m} value={m}>
+                      Tháng {m}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+
+              <FormField label="Từ Năm" htmlFor="bs-year" required error={errors.effectiveFromYear}>
                 <Input
-                  id="bs-amount"
+                  id="bs-year"
                   type="number"
-                  placeholder="VD: 2340000"
-                  value={form.amount}
-                  onChange={(e) => setField('amount', e.target.value)}
+                  placeholder="VD: 2024"
+                  value={form.effectiveFromYear}
+                  onChange={(e) => setField('effectiveFromYear', e.target.value)}
                 />
-                {errors.amount ? <p className="text-xs font-medium text-red-500">{errors.amount}</p> : null}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="bs-month">
-                    Áp dụng từ Tháng <span className="text-red-500">*</span>
-                  </Label>
-                  <select
-                    id="bs-month"
-                    value={form.effectiveFromMonth}
-                    onChange={(e) => setField('effectiveFromMonth', e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-                  >
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                      <option key={m} value={m}>
-                        Tháng {m}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.effectiveFromMonth ? <p className="text-xs font-medium text-red-500">{errors.effectiveFromMonth}</p> : null}
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="bs-year">
-                    Từ Năm <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="bs-year"
-                    type="number"
-                    placeholder="VD: 2024"
-                    value={form.effectiveFromYear}
-                    onChange={(e) => setField('effectiveFromYear', e.target.value)}
-                  />
-                  {errors.effectiveFromYear ? <p className="text-xs font-medium text-red-500">{errors.effectiveFromYear}</p> : null}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="bs-note">Căn cứ Nghị định / Ghi chú</Label>
-                <Input
-                  id="bs-note"
-                  placeholder="VD: Nghị định 73/2024/NĐ-CP"
-                  value={form.note}
-                  onChange={(e) => setField('note', e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="bs-order">Thứ tự hiển thị</Label>
-                <Input
-                  id="bs-order"
-                  type="number"
-                  value={form.displayOrder}
-                  onChange={(e) => setField('displayOrder', e.target.value)}
-                />
-              </div>
+              </FormField>
             </div>
 
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>
-                Hủy
-              </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? 'Đang lưu...' : editing ? 'Cập nhật' : 'Thêm mới'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            <FormField label="Căn cứ Nghị định / Ghi chú" htmlFor="bs-note">
+              <Input
+                id="bs-note"
+                placeholder="VD: Nghị định 73/2024/NĐ-CP"
+                value={form.note}
+                onChange={(e) => setField('note', e.target.value)}
+              />
+            </FormField>
+
+            <FormField label="Thứ tự hiển thị" htmlFor="bs-order">
+              <Input
+                id="bs-order"
+                type="number"
+                value={form.displayOrder}
+                onChange={(e) => setField('displayOrder', e.target.value)}
+              />
+            </FormField>
+          </div>
+        </FormDialog>
 
         <ConfirmDialog
           open={!!deleting}

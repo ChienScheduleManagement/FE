@@ -10,17 +10,9 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { DataTable, DataTableColumnHeader, BulkActionBar } from '@/components/DataTable'
 import { selectColumn } from '@/components/DataTable/selectColumn'
 import { TooltipButton } from '@/components/TooltipButton'
+import { FormDialog, FormField } from '@/components/FormDialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import type { PositionVm } from '@/types/api'
 
@@ -258,86 +250,54 @@ export function PositionsPage() {
         </div>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Chỉnh sửa chức vụ' : 'Thêm chức vụ mới'}</DialogTitle>
-            <DialogDescription>
-              Nhập thông tin chức vụ. Các trường có dấu (*) là bắt buộc.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="pos-code">
-                Mã chức vụ <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="pos-code"
-                placeholder="VD: CT_UBND"
-                value={form.code}
-                onChange={(e) => setField('code', e.target.value)}
-              />
-              {errors.code ? (
-                <p className="text-xs font-medium text-red-500">{errors.code}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="pos-order">Thứ tự</Label>
-              <Input
-                id="pos-order"
-                type="number"
-                min={0}
-                value={form.displayOrder}
-                onChange={(e) => setField('displayOrder', e.target.value)}
-              />
-              {errors.displayOrder ? (
-                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="pos-name">
-                Tên chức vụ <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="pos-name"
-                placeholder="VD: Chủ tịch UBND xã"
-                value={form.name}
-                onChange={(e) => setField('name', e.target.value)}
-              />
-              {errors.name ? (
-                <p className="text-xs font-medium text-red-500">{errors.name}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="pos-active">Trạng thái</Label>
-              <select
-                id="pos-active"
-                value={String(form.isActive)}
-                onChange={(e) => setField('isActive', e.target.value === 'true')}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-              >
-                <option value="true">Đang dùng</option>
-                <option value="false">Tạm dừng</option>
-              </select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Hủy
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
-              ) : (
-                <span className="material-symbols-outlined text-base mr-1">save</span>
-              )}
-              {saving ? 'Đang lưu...' : editing ? 'Cập nhật' : 'Thêm mới'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <FormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={editing ? 'Chỉnh sửa chức vụ' : 'Thêm chức vụ mới'}
+        description="Nhập thông tin chức vụ. Các trường có dấu (*) là bắt buộc."
+        editing={!!editing}
+        loading={saving}
+        onSave={handleSave}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Mã chức vụ" htmlFor="pos-code" required error={errors.code}>
+            <Input
+              id="pos-code"
+              placeholder="VD: CT_UBND"
+              value={form.code}
+              onChange={(e) => setField('code', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Thứ tự" htmlFor="pos-order" error={errors.displayOrder}>
+            <Input
+              id="pos-order"
+              type="number"
+              min={0}
+              value={form.displayOrder}
+              onChange={(e) => setField('displayOrder', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Tên chức vụ" htmlFor="pos-name" required error={errors.name}>
+            <Input
+              id="pos-name"
+              placeholder="VD: Chủ tịch UBND xã"
+              value={form.name}
+              onChange={(e) => setField('name', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Trạng thái" htmlFor="pos-active">
+            <select
+              id="pos-active"
+              value={String(form.isActive)}
+              onChange={(e) => setField('isActive', e.target.value === 'true')}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            >
+              <option value="true">Đang dùng</option>
+              <option value="false">Tạm dừng</option>
+            </select>
+          </FormField>
+        </div>
+      </FormDialog>
 
       <ConfirmDialog
         open={!!deleting}

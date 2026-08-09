@@ -17,17 +17,9 @@ import {ConfirmDialog} from '@/components/ConfirmDialog'
 import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
 import {selectColumn} from '@/components/DataTable/selectColumn'
 import {TooltipButton} from '@/components/TooltipButton'
+import {FormDialog, FormField} from '@/components/FormDialog'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
 import type {DocSourceVm} from '@/types/api'
 
@@ -263,89 +255,57 @@ export function DocSourcesPage() {
         </div>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Chỉnh sửa nguồn văn bản' : 'Thêm nguồn văn bản mới'}</DialogTitle>
-            <DialogDescription>
-              Nhập thông tin cơ quan ban hành. Các trường có dấu (*) là bắt buộc.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="src-code">
-                Mã nguồn <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="src-code"
-                placeholder="VD: UBND-HUYEN"
-                value={form.code}
-                onChange={(e) => setField('code', e.target.value)}
-              />
-              {errors.code ? (
-                <p className="text-xs font-medium text-red-500">{errors.code}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label>Cấp ban hành</Label>
-              <Select value={String(form.level)} onValueChange={(v) => setField('level', v)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {DOC_SOURCE_LEVELS.map((l) => (
-                    <SelectItem key={l.value} value={String(l.value)}>
-                      {l.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="src-name">
-                Tên nguồn <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="src-name"
-                placeholder="Tên cơ quan ban hành..."
-                value={form.name}
-                onChange={(e) => setField('name', e.target.value)}
-              />
-              {errors.name ? (
-                <p className="text-xs font-medium text-red-500">{errors.name}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="src-order">Thứ tự hiển thị</Label>
-              <Input
-                id="src-order"
-                type="number"
-                min={0}
-                value={form.displayOrder}
-                onChange={(e) => setField('displayOrder', e.target.value)}
-              />
-              {errors.displayOrder ? (
-                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
-              ) : null}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Hủy
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
-              ) : (
-                <span className="material-symbols-outlined text-base mr-1">save</span>
-              )}
-              {saving ? 'Đang lưu...' : editing ? 'Cập nhật' : 'Thêm mới'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <FormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={editing ? 'Chỉnh sửa nguồn văn bản' : 'Thêm nguồn văn bản mới'}
+        description="Nhập thông tin cơ quan ban hành. Các trường có dấu (*) là bắt buộc."
+        editing={!!editing}
+        loading={saving}
+        onSave={handleSave}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Mã nguồn" htmlFor="src-code" required error={errors.code}>
+            <Input
+              id="src-code"
+              placeholder="VD: UBND-HUYEN"
+              value={form.code}
+              onChange={(e) => setField('code', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Cấp ban hành">
+            <Select value={String(form.level)} onValueChange={(v) => setField('level', v)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DOC_SOURCE_LEVELS.map((l) => (
+                  <SelectItem key={l.value} value={String(l.value)}>
+                    {l.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+          <FormField label="Tên nguồn" htmlFor="src-name" required error={errors.name}>
+            <Input
+              id="src-name"
+              placeholder="Tên cơ quan ban hành..."
+              value={form.name}
+              onChange={(e) => setField('name', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Thứ tự hiển thị" htmlFor="src-order" error={errors.displayOrder}>
+            <Input
+              id="src-order"
+              type="number"
+              min={0}
+              value={form.displayOrder}
+              onChange={(e) => setField('displayOrder', e.target.value)}
+            />
+          </FormField>
+        </div>
+      </FormDialog>
 
       <ConfirmDialog
         open={!!deleting}

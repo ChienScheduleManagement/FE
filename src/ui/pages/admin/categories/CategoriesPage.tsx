@@ -17,18 +17,12 @@ import {ConfirmDialog} from '@/components/ConfirmDialog'
 import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
 import {selectColumn} from '@/components/DataTable/selectColumn'
 import {TooltipButton} from '@/components/TooltipButton'
+import {FormDialog, FormField} from '@/components/FormDialog'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
 import type {CategoryVm} from '@/types/api'
 
 interface FormValues {
@@ -268,92 +262,64 @@ export function CategoriesPage() {
         </div>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}</DialogTitle>
-            <DialogDescription>
-              Nhập thông tin danh mục. Các trường có dấu (*) là bắt buộc.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>Loại danh mục</Label>
-              <Select
-                value={String(form.type)}
-                onValueChange={(v) => setField('type', v)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORY_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={String(t.value)}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-order">Thứ tự hiển thị</Label>
-              <Input
-                id="cat-order"
-                type="number"
-                min={0}
-                value={form.displayOrder}
-                onChange={(e) => setField('displayOrder', e.target.value)}
-              />
-              {errors.displayOrder ? (
-                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-code">
-                Mã danh mục <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="cat-code"
-                placeholder="VD: THONG_BAO"
-                value={form.code}
-                onChange={(e) => setField('code', e.target.value)}
-              />
-              {errors.code ? (
-                <p className="text-xs font-medium text-red-500">{errors.code}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-name">
-                Tên danh mục <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="cat-name"
-                placeholder="Tên hiển thị..."
-                value={form.name}
-                onChange={(e) => setField('name', e.target.value)}
-              />
-              {errors.name ? (
-                <p className="text-xs font-medium text-red-500">{errors.name}</p>
-              ) : null}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Hủy
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
-              ) : (
-                <span className="material-symbols-outlined text-base mr-1">save</span>
-              )}
-              {saving ? 'Đang lưu...' : editing ? 'Cập nhật' : 'Thêm mới'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <FormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={editing ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
+        description="Nhập thông tin danh mục. Các trường có dấu (*) là bắt buộc."
+        editing={!!editing}
+        loading={saving}
+        onSave={handleSave}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Loại danh mục">
+            <Select
+              value={String(form.type)}
+              onValueChange={(v) => setField('type', v)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORY_TYPES.map((t) => (
+                  <SelectItem key={t.value} value={String(t.value)}>
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+          <FormField
+            label="Thứ tự hiển thị"
+            htmlFor="cat-order"
+            error={errors.displayOrder}
+          >
+            <Input
+              id="cat-order"
+              type="number"
+              min={0}
+              value={form.displayOrder}
+              onChange={(e) => setField('displayOrder', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Mã danh mục" htmlFor="cat-code" required error={errors.code}>
+            <Input
+              id="cat-code"
+              placeholder="VD: THONG_BAO"
+              value={form.code}
+              onChange={(e) => setField('code', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Tên danh mục" htmlFor="cat-name" required error={errors.name}>
+            <Input
+              id="cat-name"
+              placeholder="Tên hiển thị..."
+              value={form.name}
+              onChange={(e) => setField('name', e.target.value)}
+            />
+          </FormField>
+        </div>
+      </FormDialog>
 
       <ConfirmDialog
         open={!!deleting}

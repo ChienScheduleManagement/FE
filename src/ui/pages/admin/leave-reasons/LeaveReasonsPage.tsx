@@ -16,17 +16,9 @@ import {ConfirmDialog} from '@/components/ConfirmDialog'
 import {BulkActionBar, DataTable, DataTableColumnHeader} from '@/components/DataTable'
 import {selectColumn} from '@/components/DataTable/selectColumn'
 import {TooltipButton} from '@/components/TooltipButton'
+import {FormDialog, FormField} from '@/components/FormDialog'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {cn} from '@/lib/utils'
 import type {LeaveReasonVm} from '@/types/api'
 
@@ -317,137 +309,92 @@ export function LeaveReasonsPage() {
         </div>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Chỉnh sửa lý do nghỉ' : 'Thêm lý do nghỉ mới'}</DialogTitle>
-            <DialogDescription>
-              Nhập thông tin loại nghỉ. Các trường có dấu (*) là bắt buộc.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="lr-code">
-                Mã <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="lr-code"
-                placeholder="VD: PHEP"
-                value={form.code}
-                onChange={(e) => setField('code', e.target.value)}
-              />
-              {errors.code ? (
-                <p className="text-xs font-medium text-red-500">{errors.code}</p>
-              ) : null}
+      <FormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={editing ? 'Chỉnh sửa lý do nghỉ' : 'Thêm lý do nghỉ mới'}
+        description="Nhập thông tin loại nghỉ. Các trường có dấu (*) là bắt buộc."
+        editing={!!editing}
+        loading={saving}
+        onSave={handleSave}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Mã" htmlFor="lr-code" required error={errors.code}>
+            <Input
+              id="lr-code"
+              placeholder="VD: PHEP"
+              value={form.code}
+              onChange={(e) => setField('code', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Thứ tự" htmlFor="lr-order" error={errors.displayOrder}>
+            <Input
+              id="lr-order"
+              type="number"
+              min={0}
+              value={form.displayOrder}
+              onChange={(e) => setField('displayOrder', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Tên lý do" htmlFor="lr-name" required error={errors.name}>
+            <Input
+              id="lr-name"
+              placeholder="Tên đầy đủ..."
+              value={form.name}
+              onChange={(e) => setField('name', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Ký hiệu" htmlFor="lr-sym" required error={errors.symbol}>
+            <Input
+              id="lr-sym"
+              placeholder="P, Ô, TS..."
+              maxLength={10}
+              value={form.symbol}
+              onChange={(e) => setField('symbol', e.target.value)}
+            />
+          </FormField>
+          <FormField label="Màu sắc" htmlFor="lr-color">
+            <div className="flex flex-wrap gap-2">
+              {DEFAULT_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setField('color', c)}
+                  className={cn(
+                    'size-8 rounded-lg border-2 transition-all',
+                    form.color === c ? 'border-primary scale-110' : 'border-transparent hover:border-slate-300',
+                  )}
+                  style={{ backgroundColor: c }}
+                  aria-label={c}
+                />
+              ))}
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lr-order">Thứ tự</Label>
-              <Input
-                id="lr-order"
-                type="number"
-                min={0}
-                value={form.displayOrder}
-                onChange={(e) => setField('displayOrder', e.target.value)}
-              />
-              {errors.displayOrder ? (
-                <p className="text-xs font-medium text-red-500">{errors.displayOrder}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lr-name">
-                Tên lý do <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="lr-name"
-                placeholder="Tên đầy đủ..."
-                value={form.name}
-                onChange={(e) => setField('name', e.target.value)}
-              />
-              {errors.name ? (
-                <p className="text-xs font-medium text-red-500">{errors.name}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lr-sym">
-                Ký hiệu <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="lr-sym"
-                placeholder="P, Ô, TS..."
-                maxLength={10}
-                value={form.symbol}
-                onChange={(e) => setField('symbol', e.target.value)}
-              />
-              {errors.symbol ? (
-                <p className="text-xs font-medium text-red-500">{errors.symbol}</p>
-              ) : null}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lr-color">Màu sắc</Label>
-              <div className="flex flex-wrap gap-2">
-                {DEFAULT_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setField('color', c)}
-                    className={cn(
-                      'size-8 rounded-lg border-2 transition-all',
-                      form.color === c ? 'border-primary scale-110' : 'border-transparent hover:border-slate-300',
-                    )}
-                    style={{ backgroundColor: c }}
-                    aria-label={c}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lr-paid">Tính lương</Label>
-              <select
-                id="lr-paid"
-                value={String(form.isPaid)}
-                onChange={(e) => setField('isPaid', e.target.value === 'true')}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-              >
-                <option value="true">Có (tính lương)</option>
-                <option value="false">Không (không lương)</option>
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lr-ratio">
-                Tỷ lệ hưởng lương <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="lr-ratio"
-                type="number"
-                min={0}
-                max={1}
-                step={0.05}
-                placeholder="1.0"
-                value={form.salaryRatio}
-                onChange={(e) => setField('salaryRatio', e.target.value)}
-              />
-              {errors.salaryRatio ? (
-                <p className="text-xs font-medium text-red-500">{errors.salaryRatio}</p>
-              ) : null}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Hủy
-            </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? (
-                <span className="material-symbols-outlined animate-spin text-base">progress_activity</span>
-              ) : (
-                <span className="material-symbols-outlined text-base mr-1">save</span>
-              )}
-              {saving ? 'Đang lưu...' : editing ? 'Cập nhật' : 'Thêm mới'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </FormField>
+          <FormField label="Tính lương" htmlFor="lr-paid">
+            <select
+              id="lr-paid"
+              value={String(form.isPaid)}
+              onChange={(e) => setField('isPaid', e.target.value === 'true')}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            >
+              <option value="true">Có (tính lương)</option>
+              <option value="false">Không (không lương)</option>
+            </select>
+          </FormField>
+          <FormField label="Tỷ lệ hưởng lương" htmlFor="lr-ratio" required error={errors.salaryRatio}>
+            <Input
+              id="lr-ratio"
+              type="number"
+              min={0}
+              max={1}
+              step={0.05}
+              placeholder="1.0"
+              value={form.salaryRatio}
+              onChange={(e) => setField('salaryRatio', e.target.value)}
+            />
+          </FormField>
+        </div>
+      </FormDialog>
 
       <ConfirmDialog
         open={!!deleting}
