@@ -4,7 +4,6 @@ import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
 import apiClient from '@/api/client'
-import {APP_NAME} from '@/constants/ui'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 import {ConfirmDialog} from '@/components/ConfirmDialog'
@@ -246,7 +245,7 @@ export function BaseSalariesPage() {
 
   return (
     <>
-      <title>Mức lương cơ sở - {APP_NAME}</title>
+      <title>Mức lương cơ sở</title>
 
       <div className="flex flex-col gap-5">
         <PageHeader

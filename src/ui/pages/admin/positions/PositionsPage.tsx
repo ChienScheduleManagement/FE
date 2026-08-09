@@ -4,7 +4,6 @@ import type { ColumnDef, RowSelectionState } from '@tanstack/react-table'
 import { useBulkPositions, useCreatePositions, useDeletePositionsById, useGetPositions, useUpdatePositionsById } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { showError, toastSmartPromise } from '@/api/utils'
-import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
 import { RefreshButton } from '@/components/RefreshButton'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -214,7 +213,7 @@ export function PositionsPage() {
 
   return (
     <>
-       <title>Chức vụ - {APP_NAME}</title>
+       <title>Chức vụ</title>
        <div className="flex flex-col gap-5">
         <PageHeader
           icon="workspace_premium"

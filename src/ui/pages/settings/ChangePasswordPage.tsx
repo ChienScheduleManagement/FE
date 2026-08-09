@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { useChangePasswordAuth } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { toastSmartPromise } from '@/api/utils'
-import { APP_NAME } from '@/constants/ui'
 import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -48,7 +47,7 @@ export function ChangePasswordPage() {
 
   return (
     <>
-      <title>Đổi mật khẩu - {APP_NAME}</title>
+      <title>Đổi mật khẩu</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="key"

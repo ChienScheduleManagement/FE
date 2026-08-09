@@ -51,7 +51,7 @@ export function LoginPage() {
 
   return (
     <>
-      <title>Đăng nhập - {APP_NAME}</title>
+      <title>Đăng nhập</title>
       <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] 2xl:grid-cols-[1.5fr_1fr] bg-white dark:bg-neutral-950 font-sans selection:bg-primary/10 overflow-hidden">
         <div className="hidden lg:flex relative overflow-hidden bg-primary/10 border-r border-slate-100 dark:border-slate-800">
           <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-blue-800 opacity-95" />
@@ -239,7 +239,7 @@ export function LoginPage() {
                 className={`w-full font-black py-4 px-4 rounded-2xl shadow-xl transition-all transform active:scale-[0.98] mt-4 flex items-center justify-center gap-2
     ${isPending || !isValid
                     ? 'bg-slate-200 text-slate-500 cursor-not-allowed dark:bg-slate-800'
-                    : 'bg-primary hover:bg-blue-600 text-white shadow-primary/25 hover:shadow-primary/40'}`}
+                    : 'bg-primary hover:bg-blue-600 text-primary-foreground shadow-primary/25 hover:shadow-primary/40'}`}
               >
                 {isPending ? (
                   <span className="material-symbols-outlined animate-spin">

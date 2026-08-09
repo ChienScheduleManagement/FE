@@ -4,7 +4,6 @@ import {useGetDocumentsById} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError} from '@/api/utils'
 import {formatDate, formatDateTime} from '@/lib/format'
-import {APP_NAME} from '@/constants/ui'
 import {DeadlineBadge, StatusBadge} from '@/components/StatusBadge'
 import {EmptyState} from '@/components/EmptyState'
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table'
@@ -34,7 +33,7 @@ export function DocumentDetailPage() {
 
   return (
     <>
-      <title>{doc ? doc.docNumber : 'Chi tiết văn bản'} - {APP_NAME}</title>
+      <title>{doc ? doc.docNumber : 'Chi tiết văn bản'}</title>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-3">
           <BackButton to="/documents" label="Quay lại danh sách văn bản" />

@@ -5,7 +5,6 @@ import type {ColumnDef} from '@tanstack/react-table'
 import {useCreateDayOffs, useDeleteDayOffsById, useGetDayOffs, useUpdateDayOffsById} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
-import {APP_NAME} from '@/constants/ui'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 import {ConfirmDialog} from '@/components/ConfirmDialog'
@@ -265,7 +264,7 @@ export function DayOffsPage() {
 
   return (
     <>
-      <title>Lịch nghỉ - {APP_NAME}</title>
+      <title>Lịch nghỉ</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="event_busy"

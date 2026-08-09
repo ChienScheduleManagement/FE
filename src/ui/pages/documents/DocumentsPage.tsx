@@ -13,7 +13,6 @@ import {
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
 import {formatDate} from '@/lib/format'
-import {APP_NAME} from '@/constants/ui'
 import {DEFAULT_PAGE_SIZE} from '@/constants/task'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
@@ -242,7 +241,7 @@ export function DocumentsPage() {
 
   return (
     <>
-      <title>Quản lý văn bản - {APP_NAME}</title>
+      <title>Quản lý văn bản</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="description"

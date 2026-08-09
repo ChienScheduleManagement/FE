@@ -10,7 +10,6 @@ import {
 } from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, showSuccess, toastSmartPromise} from '@/api/utils'
-import {APP_NAME} from '@/constants/ui'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 import {Button} from '@/components/ui/button'
@@ -366,7 +365,7 @@ export function AttendancePage() {
 
   return (
     <>
-      <title>Chấm công - {APP_NAME}</title>
+      <title>Chấm công</title>
 
       <div className="flex flex-col gap-5">
         <PageHeader
@@ -383,7 +382,7 @@ export function AttendancePage() {
                     className={cn(
                       'px-3 py-1.5 font-bold rounded-lg transition-all',
                       !showFullMonth && !showThisWeek
-                        ? 'bg-primary text-white shadow-sm'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
                     )}
                     onClick={() => { setShowFullMonth(false); setShowThisWeek(false) }}
@@ -395,7 +394,7 @@ export function AttendancePage() {
                     className={cn(
                       'px-3 py-1.5 font-bold rounded-lg transition-all',
                       showThisWeek
-                        ? 'bg-primary text-white shadow-sm'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
                     )}
                     onClick={() => { setShowThisWeek(true); setShowFullMonth(false) }}
@@ -407,7 +406,7 @@ export function AttendancePage() {
                     className={cn(
                       'px-3 py-1.5 font-bold rounded-lg transition-all',
                       showFullMonth
-                        ? 'bg-primary text-white shadow-sm'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
                     )}
                     onClick={() => { setShowFullMonth(true); setShowThisWeek(false) }}

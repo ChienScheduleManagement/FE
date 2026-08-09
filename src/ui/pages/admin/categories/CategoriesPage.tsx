@@ -10,7 +10,6 @@ import {
 } from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
-import {APP_NAME} from '@/constants/ui'
 import {CATEGORY_TYPE, CATEGORY_TYPES, type CategoryType} from '@/constants/task'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
@@ -207,7 +206,7 @@ export function CategoriesPage() {
 
   return (
     <>
-      <title>Quản lý danh mục - {APP_NAME}</title>
+      <title>Quản lý danh mục</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="category"

@@ -10,7 +10,6 @@ import {
 } from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
-import {APP_NAME} from '@/constants/ui'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 import {ConfirmDialog} from '@/components/ConfirmDialog'
@@ -273,7 +272,7 @@ export function LeaveReasonsPage() {
 
   return (
     <>
-      <title>Danh mục lý do nghỉ - {APP_NAME}</title>
+      <title>Danh mục lý do nghỉ</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="category"

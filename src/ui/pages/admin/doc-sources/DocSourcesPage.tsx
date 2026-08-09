@@ -10,7 +10,6 @@ import {
 } from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
-import {APP_NAME} from '@/constants/ui'
 import {DOC_SOURCE_LEVEL, DOC_SOURCE_LEVELS, type DocSourceLevel} from '@/constants/task'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
@@ -219,7 +218,7 @@ export function DocSourcesPage() {
 
   return (
     <>
-      <title>Quản lý nguồn văn bản - {APP_NAME}</title>
+      <title>Quản lý nguồn văn bản</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="import_contacts"

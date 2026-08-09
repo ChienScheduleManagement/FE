@@ -4,7 +4,6 @@ import {useGetDashboard} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError} from '@/api/utils'
 import {formatPercent} from '@/lib/format'
-import {APP_NAME} from '@/constants/ui'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 
@@ -78,7 +77,7 @@ export function DashboardPage() {
 
   return (
     <>
-      <title>Tổng quan - {APP_NAME}</title>
+      <title>Tổng quan</title>
       <div className="flex flex-col gap-6">
          <PageHeader
            icon="dashboard"

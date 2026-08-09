@@ -1,7 +1,6 @@
 import {useState} from 'react'
 import {useGetAttendance, useGetDepartments, useGetLeaveReasons, useGetSalary} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
-import {APP_NAME} from '@/constants/ui'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
@@ -97,7 +96,7 @@ export function ReportsPage() {
 
   return (
     <>
-      <title>Báo cáo & Thống kê - {APP_NAME}</title>
+      <title>Báo cáo & Thống kê</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="analytics"

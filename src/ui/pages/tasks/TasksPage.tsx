@@ -16,7 +16,6 @@ import {
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, showSuccess, toastSmartPromise} from '@/api/utils'
 import {formatDateTime, toUtcIso} from '@/lib/format'
-import {APP_NAME} from '@/constants/ui'
 import {
   DEFAULT_PAGE_SIZE,
   getDeadlineStatusMeta,
@@ -456,7 +455,7 @@ export function TasksPage() {
 
   return (
     <>
-      <title>Quản lý nhiệm vụ - {APP_NAME}</title>
+      <title>Quản lý nhiệm vụ</title>
       <div className="flex flex-col gap-5">
          <PageHeader
            icon="task_alt"

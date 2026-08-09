@@ -2,7 +2,6 @@ import {useEffect, useState} from 'react'
 import {getExportSalary, useGetDepartments, useGetSalary} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
-import {APP_NAME} from '@/constants/ui'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 import {Button} from '@/components/ui/button'
@@ -100,7 +99,7 @@ export function SalaryPage() {
 
   return (
     <>
-      <title>Tính lương - {APP_NAME}</title>
+      <title>Tính lương</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="payments"

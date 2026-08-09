@@ -11,7 +11,6 @@ import {
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
 import {formatDate, formatDateTime} from '@/lib/format'
-import {APP_NAME} from '@/constants/ui'
 import {DeadlineBadge, StatusBadge} from '@/components/StatusBadge'
 import {EmptyState} from '@/components/EmptyState'
 import {Button} from '@/components/ui/button'
@@ -121,7 +120,7 @@ export function TaskDetailPage() {
 
   return (
     <>
-      <title>Chi tiết nhiệm vụ - {APP_NAME}</title>
+      <title>Chi tiết nhiệm vụ</title>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-3">
           <BackButton to="/tasks" label="Quay lại danh sách nhiệm vụ" />
@@ -156,7 +155,6 @@ export function TaskDetailPage() {
               </Button>
             </div>
           ) : null}
-        </div>
 
         <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
           <div className="grid gap-5 lg:grid-cols-2">

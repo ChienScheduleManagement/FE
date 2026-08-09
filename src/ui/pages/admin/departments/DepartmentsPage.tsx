@@ -10,7 +10,6 @@ import {
 } from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
-import {APP_NAME} from '@/constants/ui'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 import {ConfirmDialog} from '@/components/ConfirmDialog'
@@ -258,7 +257,7 @@ export function DepartmentsPage() {
 
   return (
     <>
-      <title>Quản lý phòng ban - {APP_NAME}</title>
+      <title>Quản lý phòng ban</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="account_balance"
