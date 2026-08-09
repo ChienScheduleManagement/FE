@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
 import {unwrapApiResponse} from '@/lib/apiHandler'
@@ -247,9 +246,7 @@ export function BaseSalariesPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Mức lương cơ sở - {APP_NAME}</title>
-      </Helmet>
+      <title>Mức lương cơ sở - {APP_NAME}</title>
 
       <div className="flex flex-col gap-5">
         <PageHeader

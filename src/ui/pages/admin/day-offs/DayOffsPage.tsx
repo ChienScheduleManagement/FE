@@ -1,6 +1,5 @@
 import {useEffect, useState} from 'react'
 import {DateTimePicker} from '@/components/ui/date-time-picker'
-import {Helmet} from 'react-helmet-async'
 import {useQueryClient} from '@tanstack/react-query'
 import type {ColumnDef} from '@tanstack/react-table'
 import {useCreateDayOffs, useDeleteDayOffsById, useGetDayOffs, useUpdateDayOffsById} from '@/api/generated'
@@ -266,9 +265,7 @@ export function DayOffsPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Lịch nghỉ - {APP_NAME}</title>
-      </Helmet>
+      <title>Lịch nghỉ - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="event_busy"

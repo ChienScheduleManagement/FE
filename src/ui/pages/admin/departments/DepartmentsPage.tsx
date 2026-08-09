@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {useQueryClient} from '@tanstack/react-query'
 import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
 import {
@@ -259,9 +258,7 @@ export function DepartmentsPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Quản lý phòng ban - {APP_NAME}</title>
-      </Helmet>
+      <title>Quản lý phòng ban - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="account_balance"

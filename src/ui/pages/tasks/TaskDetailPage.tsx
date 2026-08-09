@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {useParams, useRouter} from '@tanstack/react-router'
 import {useQueryClient} from '@tanstack/react-query'
 import {
@@ -122,13 +121,10 @@ export function TaskDetailPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Chi tiết nhiệm vụ - {APP_NAME}</title>
-      </Helmet>
+      <title>Chi tiết nhiệm vụ - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <BackButton to="/tasks" label="Quay lại danh sách nhiệm vụ" />
+        <div className="flex items-center gap-3">
+          <BackButton to="/tasks" label="Quay lại danh sách nhiệm vụ" />
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Chi tiết nhiệm vụ

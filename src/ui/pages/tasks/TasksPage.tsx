@@ -1,5 +1,4 @@
 import {useEffect, useMemo, useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {Link, useRouter, useSearch} from '@tanstack/react-router'
 import {useQueryClient} from '@tanstack/react-query'
 import type {ColumnDef, PaginationState} from '@tanstack/react-table'
@@ -457,13 +456,11 @@ export function TasksPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Quản lý nhiệm vụ - {APP_NAME}</title>
-      </Helmet>
+      <title>Quản lý nhiệm vụ - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
-        <PageHeader
-          icon="task_alt"
-          title="Quản lý nhiệm vụ"
+         <PageHeader
+           icon="task_alt"
+           title="Quản lý nhiệm vụ"
           description="Theo dõi tiến độ thực hiện nhiệm vụ của các đơn vị"
           actions={
             <>

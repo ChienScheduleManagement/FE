@@ -1,5 +1,4 @@
 import {useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {useGetAttendance, useGetDepartments, useGetLeaveReasons, useGetSalary} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {APP_NAME} from '@/constants/ui'
@@ -98,10 +97,7 @@ export function ReportsPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Báo cáo & Thống kê - {APP_NAME}</title>
-      </Helmet>
-
+      <title>Báo cáo & Thống kê - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="analytics"

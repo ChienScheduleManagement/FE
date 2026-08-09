@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { useChangePasswordAuth } from '@/api/generated'
 import { unwrapApiResponse } from '@/lib/apiHandler'
@@ -49,9 +48,7 @@ export function ChangePasswordPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Đổi mật khẩu - {APP_NAME}</title>
-      </Helmet>
+      <title>Đổi mật khẩu - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="key"

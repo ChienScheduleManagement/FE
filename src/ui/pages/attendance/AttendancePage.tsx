@@ -1,5 +1,4 @@
 import {useEffect, useRef, useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {useQueryClient} from '@tanstack/react-query'
 import {
   getExportAttendance,
@@ -367,9 +366,7 @@ export function AttendancePage() {
 
   return (
     <>
-      <Helmet>
-        <title>Chấm công - {APP_NAME}</title>
-      </Helmet>
+      <title>Chấm công - {APP_NAME}</title>
 
       <div className="flex flex-col gap-5">
         <PageHeader
@@ -738,35 +735,7 @@ export function AttendancePage() {
             </div>
           </div>
 
-          {/* Legend bar — đặt dưới cùng của bảng */}
-          <div className="lg:col-span-12 flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm text-xs font-semibold">
-            <span className="text-muted-foreground font-bold">Chú giải:</span>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
-              <span className="font-bold text-sm">✓</span>
-              <span>Có mặt</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-              <span className="material-symbols-outlined text-xs">star</span>
-              <span>Đi trực ngày nghỉ (+1 công)</span>
-            </div>
-            {reasons.map((r) => (
-              <div
-                key={r.id}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100"
-                style={{ backgroundColor: `${r.color}40` }}
-              >
-                <span className="font-black text-base" style={{ color: r.color || undefined }}>
-                  {r.symbol}
-                </span>
-                <span>{r.name}</span>
-              </div>
-            ))}
-            <div className="ml-auto text-muted-foreground italic text-[11px]">
-              Kéo chuột chọn hình chữ nhật • Shift+click chọn vùng • Ctrl+click chọn thêm • Chuột phải menu nhanh • ESC bỏ chọn
-            </div>
-          </div>
-
-          {/* Right Panel - Employee Details & History */}
+          {/* Right Panel - Employee Details & History (placed BEFORE legend so grid auto-flow lays it beside the data grid instead of below the full-width legend) */}
           {selectedEmp ? (
             <div className="lg:col-span-4 xl:col-span-3 rounded-2xl border bg-card p-4 shadow-sm space-y-4 flex flex-col">
               <div className="flex items-center justify-between border-b pb-3">
@@ -842,6 +811,34 @@ export function AttendancePage() {
               </div>
             </div>
           ) : null}
+
+          {/* Legend bar — đặt dưới cùng của bảng */}
+          <div className="lg:col-span-12 flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-3 shadow-sm text-xs font-semibold">
+            <span className="text-muted-foreground font-bold">Chú giải:</span>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+              <span className="font-bold text-sm">✓</span>
+              <span>Có mặt</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+              <span className="material-symbols-outlined text-xs">star</span>
+              <span>Đi trực ngày nghỉ (+1 công)</span>
+            </div>
+            {reasons.map((r) => (
+              <div
+                key={r.id}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold text-slate-900 dark:text-slate-100"
+                style={{ backgroundColor: `${r.color}40` }}
+              >
+                <span className="font-black text-base" style={{ color: r.color || undefined }}>
+                  {r.symbol}
+                </span>
+                <span>{r.name}</span>
+              </div>
+            ))}
+            <div className="ml-auto text-muted-foreground italic text-[11px]">
+              Kéo chuột chọn hình chữ nhật • Shift+click chọn vùng • Ctrl+click chọn thêm • Chuột phải menu nhanh • ESC bỏ chọn
+            </div>
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
@@ -52,9 +51,7 @@ export function LoginPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Đăng nhập - {APP_NAME}</title>
-      </Helmet>
+      <title>Đăng nhập - {APP_NAME}</title>
       <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] 2xl:grid-cols-[1.5fr_1fr] bg-white dark:bg-neutral-950 font-sans selection:bg-primary/10 overflow-hidden">
         <div className="hidden lg:flex relative overflow-hidden bg-primary/10 border-r border-slate-100 dark:border-slate-800">
           <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-blue-800 opacity-95" />

@@ -1,5 +1,4 @@
 import {useEffect} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {Link} from '@tanstack/react-router'
 import {useGetDashboard} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
@@ -79,14 +78,12 @@ export function DashboardPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Tổng quan - {APP_NAME}</title>
-      </Helmet>
+      <title>Tổng quan - {APP_NAME}</title>
       <div className="flex flex-col gap-6">
-        <PageHeader
-          icon="dashboard"
-          title="Tổng quan"
-          description="Tình hình thực hiện nhiệm vụ của các đơn vị"
+         <PageHeader
+           icon="dashboard"
+           title="Tổng quan"
+           description="Tình hình thực hiện nhiệm vụ của các đơn vị"
           actions={<RefreshButton onClick={() => refetch()} loading={isRefetching} />}
         />
 

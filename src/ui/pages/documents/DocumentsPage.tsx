@@ -1,5 +1,4 @@
 import {useEffect, useMemo, useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {Link} from '@tanstack/react-router'
 import {useQueryClient} from '@tanstack/react-query'
 import type {ColumnDef, PaginationState, RowSelectionState} from '@tanstack/react-table'
@@ -243,9 +242,7 @@ export function DocumentsPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Quản lý văn bản - {APP_NAME}</title>
-      </Helmet>
+      <title>Quản lý văn bản - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="description"

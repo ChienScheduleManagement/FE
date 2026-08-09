@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {useQueryClient} from '@tanstack/react-query'
 import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
 import {
@@ -274,9 +273,7 @@ export function LeaveReasonsPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Danh mục lý do nghỉ - {APP_NAME}</title>
-      </Helmet>
+      <title>Danh mục lý do nghỉ - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="category"

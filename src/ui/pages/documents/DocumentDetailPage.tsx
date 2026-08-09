@@ -1,5 +1,4 @@
 import {useEffect} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {Link, useParams} from '@tanstack/react-router'
 import {useGetDocumentsById} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
@@ -35,9 +34,7 @@ export function DocumentDetailPage() {
 
   return (
     <>
-      <Helmet>
-        <title>{doc ? doc.docNumber : 'Chi tiết văn bản'} - {APP_NAME}</title>
-      </Helmet>
+      <title>{doc ? doc.docNumber : 'Chi tiết văn bản'} - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-3">
           <BackButton to="/documents" label="Quay lại danh sách văn bản" />

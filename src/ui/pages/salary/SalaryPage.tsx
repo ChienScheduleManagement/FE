@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import {Helmet} from 'react-helmet-async'
 import {getExportSalary, useGetDepartments, useGetSalary} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
@@ -101,10 +100,7 @@ export function SalaryPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Tính lương - {APP_NAME}</title>
-      </Helmet>
-
+      <title>Tính lương - {APP_NAME}</title>
       <div className="flex flex-col gap-5">
         <PageHeader
           icon="payments"
