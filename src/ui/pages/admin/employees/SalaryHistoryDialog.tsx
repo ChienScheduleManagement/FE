@@ -1,4 +1,6 @@
 import {useState} from 'react'
+import {useForm} from 'react-hook-form'
+import {zodResolver} from '@hookform/resolvers/zod'
 import {useQueryClient} from '@tanstack/react-query'
 import {
   useCreateSalaryHistories,
@@ -22,6 +24,10 @@ import {
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {unwrapApiResponse} from '@/lib/apiHandler'
+import {
+  salaryHistoryFormSchema,
+  type SalaryHistoryFormValues,
+} from '@/schemas/employee.schema'
 import type {EmployeeVm, SalaryHistoryVm} from '@/types/api'
 
 interface Props {
@@ -30,15 +36,7 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-interface FormState {
-  salaryCoefficient: string
-  allowance: string
-  effectiveFrom: string
-  effectiveTo: string
-  reason: string
-}
-
-const EMPTY_FORM: FormState = {
+const EMPTY_FORM: SalaryHistoryFormValues = {
   salaryCoefficient: '2.34',
   allowance: '0',
   effectiveFrom: '',
@@ -52,10 +50,11 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
   const [formOpen, setFormOpen] = useState(false)
   const [editingHistory, setEditingHistory] = useState<SalaryHistoryVm | null>(null)
   const [deletingHistory, setDeletingHistory] = useState<SalaryHistoryVm | null>(null)
-  const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [form, setForm] = useState<FormState>(EMPTY_FORM)
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+  const form = useForm<SalaryHistoryFormValues>({
+    resolver: zodResolver(salaryHistoryFormSchema),
+    defaultValues: EMPTY_FORM,
+  })
 
   const {
     data: historyRaw,
@@ -70,60 +69,39 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
 
   const openCreate = () => {
     setEditingHistory(null)
-    setForm({
-      salaryCoefficient: '2.34',
-      allowance: '0',
+    form.reset({
+      ...EMPTY_FORM,
       effectiveFrom: new Date().toISOString().split('T')[0],
-      effectiveTo: '',
-      reason: '',
     })
-    setErrors({})
     setFormOpen(true)
   }
 
   const openEdit = (h: SalaryHistoryVm) => {
     setEditingHistory(h)
-    setForm({
+    form.reset({
       salaryCoefficient: String(h.salaryCoefficient),
       allowance: String(h.allowance),
       effectiveFrom: h.effectiveFrom ? h.effectiveFrom.split('T')[0] : '',
       effectiveTo: h.effectiveTo ? h.effectiveTo.split('T')[0] : '',
       reason: h.reason ?? '',
     })
-    setErrors({})
     setFormOpen(true)
   }
 
-  const validate = () => {
-    const errs: Partial<Record<keyof FormState, string>> = {}
-    const coef = Number(form.salaryCoefficient)
-    if (Number.isNaN(coef) || coef <= 0) errs.salaryCoefficient = 'Hệ số lương phải lớn hơn 0'
-    const allow = Number(form.allowance)
-    if (Number.isNaN(allow) || allow < 0) errs.allowance = 'Phụ cấp không được âm'
-    if (!form.effectiveFrom) errs.effectiveFrom = 'Vui lòng nhập Từ ngày'
-    if (form.effectiveFrom && form.effectiveTo && form.effectiveTo < form.effectiveFrom) {
-      errs.effectiveTo = 'Đến ngày phải lớn hơn hoặc bằng Từ ngày'
-    }
-    setErrors(errs)
-    return Object.keys(errs).length === 0
-  }
-
-  const { mutateAsync: createHistory } = useCreateSalaryHistories()
-  const { mutateAsync: updateHistory } = useUpdateSalaryHistoriesById()
+  const { mutateAsync: createHistory, isPending: creating } = useCreateSalaryHistories()
+  const { mutateAsync: updateHistory, isPending: updating } = useUpdateSalaryHistoriesById()
   const { mutateAsync: deleteHistory } = useDeleteSalaryHistoriesById()
+  const isSaving = creating || updating
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validate() || saving) return
-    setSaving(true)
+  const onSubmit = async (values: SalaryHistoryFormValues) => {
+    const payload = {
+      salaryCoefficient: Number(values.salaryCoefficient),
+      allowance: Number(values.allowance),
+      effectiveFrom: values.effectiveFrom,
+      effectiveTo: values.effectiveTo ? values.effectiveTo : null,
+      reason: values.reason || null,
+    }
     try {
-      const payload = {
-        salaryCoefficient: Number(form.salaryCoefficient),
-        allowance: Number(form.allowance),
-        effectiveFrom: form.effectiveFrom,
-        effectiveTo: form.effectiveTo ? form.effectiveTo : null,
-        reason: form.reason || null,
-      }
       if (editingHistory) {
         await toastSmartPromise(
           updateHistory({ id: editingHistory.id, data: payload }),
@@ -140,8 +118,6 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
       await refetch()
     } catch (err) {
       showError(err)
-    } finally {
-      setSaving(false)
     }
   }
 
@@ -302,7 +278,7 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
       {/* Dialog Thêm mới / Chỉnh sửa mốc hệ số lương */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-md">
-          <form onSubmit={handleSave}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>
                 {editingHistory ? 'Chỉnh sửa mốc hệ số lương' : 'Thêm mốc hệ số lương'}
@@ -324,10 +300,11 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
                     min={0}
                     step={0.01}
                     placeholder="VD: 2.34"
-                    value={form.salaryCoefficient}
-                    onChange={(e) => setForm((prev) => ({ ...prev, salaryCoefficient: e.target.value }))}
+                    {...form.register('salaryCoefficient')}
                   />
-                  {errors.salaryCoefficient && <p className="text-xs text-red-500">{errors.salaryCoefficient}</p>}
+                  {form.formState.errors.salaryCoefficient && (
+                    <p className="text-xs text-red-500">{form.formState.errors.salaryCoefficient.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
@@ -338,10 +315,11 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
                     min={0}
                     step={100000}
                     placeholder="1500000"
-                    value={form.allowance}
-                    onChange={(e) => setForm((prev) => ({ ...prev, allowance: e.target.value }))}
+                    {...form.register('allowance')}
                   />
-                  {errors.allowance && <p className="text-xs text-red-500">{errors.allowance}</p>}
+                  {form.formState.errors.allowance && (
+                    <p className="text-xs text-red-500">{form.formState.errors.allowance.message}</p>
+                  )}
                 </div>
               </div>
 
@@ -352,22 +330,26 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
                   </Label>
                   <DateTimePicker
                     id="salary-from"
-                    value={form.effectiveFrom}
+                    value={form.watch('effectiveFrom')}
                     placeholder="Chọn ngày..."
-                    onChange={(v) => setForm((prev) => ({ ...prev, effectiveFrom: v }))}
+                    onChange={(v) => form.setValue('effectiveFrom', v)}
                   />
-                  {errors.effectiveFrom && <p className="text-xs text-red-500">{errors.effectiveFrom}</p>}
+                  {form.formState.errors.effectiveFrom && (
+                    <p className="text-xs text-red-500">{form.formState.errors.effectiveFrom.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
                   <Label htmlFor="salary-to">Đến ngày (để trống nếu đến nay)</Label>
                   <DateTimePicker
                     id="salary-to"
-                    value={form.effectiveTo}
+                    value={form.watch('effectiveTo')}
                     placeholder="Chọn ngày..."
-                    onChange={(v) => setForm((prev) => ({ ...prev, effectiveTo: v }))}
+                    onChange={(v) => form.setValue('effectiveTo', v)}
                   />
-                  {errors.effectiveTo && <p className="text-xs text-red-500">{errors.effectiveTo}</p>}
+                  {form.formState.errors.effectiveTo && (
+                    <p className="text-xs text-red-500">{form.formState.errors.effectiveTo.message}</p>
+                  )}
                 </div>
               </div>
 
@@ -376,18 +358,17 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
                 <Input
                   id="salary-reason"
                   placeholder="VD: Nâng lương thường xuyên, Quyết định số 123..."
-                  value={form.reason}
-                  onChange={(e) => setForm((prev) => ({ ...prev, reason: e.target.value }))}
+                  {...form.register('reason')}
                 />
               </div>
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setFormOpen(false)} disabled={saving}>
+              <Button type="button" variant="outline" onClick={() => setFormOpen(false)} disabled={isSaving}>
                 Hủy
               </Button>
-              <Button type="submit" disabled={saving}>
-                {saving ? 'Đang lưu...' : 'Lưu lại'}
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? 'Đang lưu...' : 'Lưu lại'}
               </Button>
             </DialogFooter>
           </form>

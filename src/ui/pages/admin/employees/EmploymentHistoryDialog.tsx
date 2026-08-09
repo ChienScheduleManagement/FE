@@ -1,4 +1,6 @@
 import {useState} from 'react'
+import {useForm} from 'react-hook-form'
+import {zodResolver} from '@hookform/resolvers/zod'
 import {DateTimePicker} from '@/components/ui/date-time-picker'
 import {
   useCreateEmploymentHistories,
@@ -24,6 +26,10 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
 import {unwrapApiResponse} from '@/lib/apiHandler'
+import {
+  employmentHistoryFormSchema,
+  type EmploymentHistoryFormValues,
+} from '@/schemas/employee.schema'
 import type {DepartmentVm, EmployeeVm, EmploymentHistoryVm, PositionVm} from '@/types/api'
 
 interface Props {
@@ -32,15 +38,7 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-interface FormState {
-  departmentId: string
-  positionId: string
-  effectiveFrom: string
-  effectiveTo: string
-  reason: string
-}
-
-const EMPTY_FORM: FormState = {
+const EMPTY_FORM: EmploymentHistoryFormValues = {
   departmentId: '',
   positionId: '',
   effectiveFrom: '',
@@ -53,8 +51,10 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
   const [formOpen, setFormOpen] = useState(false)
   const [editingHistory, setEditingHistory] = useState<EmploymentHistoryVm | null>(null)
   const [deletingHistory, setDeletingHistory] = useState<EmploymentHistoryVm | null>(null)
-  const [form, setForm] = useState<FormState>(EMPTY_FORM)
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+  const form = useForm<EmploymentHistoryFormValues>({
+    resolver: zodResolver(employmentHistoryFormSchema),
+    defaultValues: EMPTY_FORM,
+  })
 
   const {
     data: historyRaw,
@@ -78,58 +78,40 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
 
   const openCreate = () => {
     setEditingHistory(null)
-    setForm({
+    form.reset({
+      ...EMPTY_FORM,
       departmentId: employee?.departmentId ? String(employee.departmentId) : '',
-      positionId: '',
       effectiveFrom: new Date().toISOString().split('T')[0],
-      effectiveTo: '',
-      reason: '',
     })
-    setErrors({})
     setFormOpen(true)
   }
 
   const openEdit = (h: EmploymentHistoryVm) => {
     setEditingHistory(h)
-    setForm({
+    form.reset({
       departmentId: String(h.departmentId),
       positionId: h.positionId ? String(h.positionId) : '',
       effectiveFrom: h.effectiveFrom ? h.effectiveFrom.split('T')[0] : '',
       effectiveTo: h.effectiveTo ? h.effectiveTo.split('T')[0] : '',
       reason: h.reason ?? '',
     })
-    setErrors({})
     setFormOpen(true)
   }
 
-  const validate = () => {
-    const errs: Partial<Record<keyof FormState, string>> = {}
-    if (!form.departmentId) errs.departmentId = 'Vui lòng chọn đơn vị'
-    if (!form.effectiveFrom) errs.effectiveFrom = 'Vui lòng nhập Từ ngày'
-    if (form.effectiveFrom && form.effectiveTo && form.effectiveTo < form.effectiveFrom) {
-      errs.effectiveTo = 'Đến ngày phải lớn hơn hoặc bằng Từ ngày'
-    }
-    setErrors(errs)
-    return Object.keys(errs).length === 0
-  }
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validate() || saving || creating) return
-
+  const onSubmit = async (values: EmploymentHistoryFormValues) => {
     try {
       if (editingHistory) {
         await toastSmartPromise(
           updateHistory({
             id: editingHistory.id,
             data: {
-              departmentId: Number(form.departmentId),
-              positionId: form.positionId ? Number(form.positionId) : undefined,
-              effectiveFrom: form.effectiveFrom,
-              effectiveTo: form.effectiveTo ? form.effectiveTo : null,
-              reason: form.reason || undefined,
+              departmentId: Number(values.departmentId),
+              positionId: values.positionId ? Number(values.positionId) : undefined,
+              effectiveFrom: values.effectiveFrom,
+              effectiveTo: values.effectiveTo ? values.effectiveTo : null,
+              reason: values.reason || undefined,
             },
-          }).then(unwrapApiResponse),
+          }),
           { loading: 'Đang lưu...', success: 'Cập nhật lịch sử công tác thành công!' },
         )
       } else {
@@ -137,13 +119,13 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
           createHistory({
             data: {
               employeeId,
-              departmentId: Number(form.departmentId),
-              positionId: form.positionId ? Number(form.positionId) : undefined,
-              effectiveFrom: form.effectiveFrom,
-              effectiveTo: form.effectiveTo ? form.effectiveTo : undefined,
-              reason: form.reason || undefined,
+              departmentId: Number(values.departmentId),
+              positionId: values.positionId ? Number(values.positionId) : undefined,
+              effectiveFrom: values.effectiveFrom,
+              effectiveTo: values.effectiveTo ? values.effectiveTo : undefined,
+              reason: values.reason || undefined,
             },
-          }).then(unwrapApiResponse),
+          }),
           { loading: 'Đang tạo mới...', success: 'Thêm lịch sử công tác thành công!' },
         )
       }
@@ -304,7 +286,7 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
       {/* Dialog Thêm mới / Chỉnh sửa mốc lịch sử */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-md">
-          <form onSubmit={handleSave}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>
                 {editingHistory ? 'Chỉnh sửa mốc quá trình công tác' : 'Thêm mốc quá trình công tác'}
@@ -320,8 +302,8 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
                   Đơn vị / Phòng ban <span className="text-red-500">*</span>
                 </Label>
                 <Select
-                  value={form.departmentId}
-                  onValueChange={(v) => setForm((prev) => ({ ...prev, departmentId: v }))}
+                  value={form.watch('departmentId')}
+                  onValueChange={(v) => form.setValue('departmentId', v)}
                 >
                   <SelectTrigger id="hist-dept">
                     <SelectValue placeholder="Chọn đơn vị công tác" />
@@ -334,14 +316,16 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.departmentId && <p className="text-xs text-red-500">{errors.departmentId}</p>}
+                {form.formState.errors.departmentId && (
+                  <p className="text-xs text-red-500">{form.formState.errors.departmentId.message}</p>
+                )}
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="hist-pos">Chức vụ</Label>
                 <Select
-                  value={form.positionId}
-                  onValueChange={(v) => setForm((prev) => ({ ...prev, positionId: v }))}
+                  value={form.watch('positionId')}
+                  onValueChange={(v) => form.setValue('positionId', v)}
                 >
                   <SelectTrigger id="hist-pos">
                     <SelectValue placeholder="Chọn chức vụ (tùy chọn)" />
@@ -363,22 +347,26 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
                   </Label>
                   <DateTimePicker
                     id="hist-from"
-                    value={form.effectiveFrom}
+                    value={form.watch('effectiveFrom')}
                     placeholder="Chọn ngày..."
-                    onChange={(v) => setForm((prev) => ({ ...prev, effectiveFrom: v }))}
+                    onChange={(v) => form.setValue('effectiveFrom', v)}
                   />
-                  {errors.effectiveFrom && <p className="text-xs text-red-500">{errors.effectiveFrom}</p>}
+                  {form.formState.errors.effectiveFrom && (
+                    <p className="text-xs text-red-500">{form.formState.errors.effectiveFrom.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
                   <Label htmlFor="hist-to">Đến ngày (để trống nếu đến nay)</Label>
                   <DateTimePicker
                     id="hist-to"
-                    value={form.effectiveTo}
+                    value={form.watch('effectiveTo')}
                     placeholder="Chọn ngày..."
-                    onChange={(v) => setForm((prev) => ({ ...prev, effectiveTo: v }))}
+                    onChange={(v) => form.setValue('effectiveTo', v)}
                   />
-                  {errors.effectiveTo && <p className="text-xs text-red-500">{errors.effectiveTo}</p>}
+                  {form.formState.errors.effectiveTo && (
+                    <p className="text-xs text-red-500">{form.formState.errors.effectiveTo.message}</p>
+                  )}
                 </div>
               </div>
 
@@ -387,8 +375,7 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
                 <Input
                   id="hist-reason"
                   placeholder="VD: Quyết định bổ nhiệm số 123/QĐ-UBND..."
-                  value={form.reason}
-                  onChange={(e) => setForm((prev) => ({ ...prev, reason: e.target.value }))}
+                  {...form.register('reason')}
                 />
               </div>
             </div>
