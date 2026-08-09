@@ -6,6 +6,7 @@ import { useLogout } from '@/hooks/useLogout'
 import { useTheme } from '@/hooks/useTheme'
 import { useDataWarming } from '@/hooks/useDataWarming'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { APP_NAME } from '@/constants/ui'
 import { USER_ROLE } from '@/constants/task'
 import { THEMES, THEME_LABELS, THEME_ORDER, type Theme } from '@/constants/theme'
@@ -190,6 +191,7 @@ export function AppLayout() {
   const { theme, toggleTheme } = useTheme()
   useDataWarming()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [logoutOpen, setLogoutOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(
     () => localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1',
   )
@@ -296,12 +298,21 @@ export function AppLayout() {
 
             <button
               type="button"
-              onClick={() => void logout()}
+              onClick={() => setLogoutOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
             >
               <span className="material-symbols-outlined text-lg">logout</span>
               <span className="hidden sm:inline">Đăng xuất</span>
             </button>
+
+            <ConfirmDialog
+              open={logoutOpen}
+              onOpenChange={setLogoutOpen}
+              title="Đăng xuất"
+              description="Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?"
+              confirmText="Đăng xuất"
+              onConfirm={() => void logout()}
+            />
           </div>
         </header>
 
