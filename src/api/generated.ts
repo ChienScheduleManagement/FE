@@ -38,6 +38,7 @@ import type {
   CreateEmploymentHistoryRequest,
   CreateLeaveReasonRequest,
   CreatePositionRequest,
+  CreateSalaryHistoryRequest,
   CreateTaskLogRequest,
   CreateTaskRequest,
   GetAttendanceByEmployeeidHistoryParams,
@@ -49,6 +50,7 @@ import type {
   GetExportAttendanceParams,
   GetExportSalaryParams,
   GetExportTasksParams,
+  GetSalaryHistoriesParams,
   GetSalaryParams,
   GetTasksParams,
   LoginRequest,
@@ -64,6 +66,7 @@ import type {
   UpdateEmploymentHistoryRequest,
   UpdateLeaveReasonRequest,
   UpdatePositionRequest,
+  UpdateSalaryHistoryRequest,
   UpdateTaskRequest
 } from './model';
 
@@ -4778,6 +4781,350 @@ export function useGetExportSalary<TData = Awaited<ReturnType<typeof getExportSa
 
 
 
+export const getSalaryHistories = (
+    params?: GetSalaryHistoriesParams,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/salary-histories`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetSalaryHistoriesQueryKey = (params?: GetSalaryHistoriesParams,) => {
+    return [
+    `/api/salary-histories`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetSalaryHistoriesQueryOptions = <TData = Awaited<ReturnType<typeof getSalaryHistories>>, TError = unknown>(params?: GetSalaryHistoriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistories>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSalaryHistoriesQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSalaryHistories>>> = ({ signal }) => getSalaryHistories(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistories>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSalaryHistoriesQueryResult = NonNullable<Awaited<ReturnType<typeof getSalaryHistories>>>
+export type GetSalaryHistoriesQueryError = unknown
+
+
+export function useGetSalaryHistories<TData = Awaited<ReturnType<typeof getSalaryHistories>>, TError = unknown>(
+ params: undefined |  GetSalaryHistoriesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistories>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSalaryHistories>>,
+          TError,
+          Awaited<ReturnType<typeof getSalaryHistories>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSalaryHistories<TData = Awaited<ReturnType<typeof getSalaryHistories>>, TError = unknown>(
+ params?: GetSalaryHistoriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistories>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSalaryHistories>>,
+          TError,
+          Awaited<ReturnType<typeof getSalaryHistories>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSalaryHistories<TData = Awaited<ReturnType<typeof getSalaryHistories>>, TError = unknown>(
+ params?: GetSalaryHistoriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistories>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetSalaryHistories<TData = Awaited<ReturnType<typeof getSalaryHistories>>, TError = unknown>(
+ params?: GetSalaryHistoriesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistories>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSalaryHistoriesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const createSalaryHistories = (
+    createSalaryHistoryRequest: CreateSalaryHistoryRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/salary-histories`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createSalaryHistoryRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getCreateSalaryHistoriesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSalaryHistories>>, TError,{data: CreateSalaryHistoryRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSalaryHistories>>, TError,{data: CreateSalaryHistoryRequest}, TContext> => {
+
+const mutationKey = ['createSalaryHistories'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSalaryHistories>>, {data: CreateSalaryHistoryRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSalaryHistories(data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSalaryHistoriesMutationResult = NonNullable<Awaited<ReturnType<typeof createSalaryHistories>>>
+    export type CreateSalaryHistoriesMutationBody = CreateSalaryHistoryRequest
+    export type CreateSalaryHistoriesMutationError = unknown
+
+    export const useCreateSalaryHistories = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSalaryHistories>>, TError,{data: CreateSalaryHistoryRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createSalaryHistories>>,
+        TError,
+        {data: CreateSalaryHistoryRequest},
+        TContext
+      > => {
+      return useMutation(getCreateSalaryHistoriesMutationOptions(options), queryClient);
+    }
+    
+export const getSalaryHistoriesById = (
+    id: string,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/salary-histories/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetSalaryHistoriesByIdQueryKey = (id: string,) => {
+    return [
+    `/api/salary-histories/${id}`
+    ] as const;
+    }
+
+    
+export const getGetSalaryHistoriesByIdQueryOptions = <TData = Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSalaryHistoriesByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSalaryHistoriesById>>> = ({ signal }) => getSalaryHistoriesById(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetSalaryHistoriesByIdQueryResult = NonNullable<Awaited<ReturnType<typeof getSalaryHistoriesById>>>
+export type GetSalaryHistoriesByIdQueryError = unknown
+
+
+export function useGetSalaryHistoriesById<TData = Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSalaryHistoriesById>>,
+          TError,
+          Awaited<ReturnType<typeof getSalaryHistoriesById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSalaryHistoriesById<TData = Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getSalaryHistoriesById>>,
+          TError,
+          Awaited<ReturnType<typeof getSalaryHistoriesById>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetSalaryHistoriesById<TData = Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetSalaryHistoriesById<TData = Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSalaryHistoriesById>>, TError, TData>>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetSalaryHistoriesByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+export const updateSalaryHistoriesById = (
+    id: string,
+    updateSalaryHistoryRequest: UpdateSalaryHistoryRequest,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/salary-histories/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateSalaryHistoryRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getUpdateSalaryHistoriesByIdMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSalaryHistoriesById>>, TError,{id: string;data: UpdateSalaryHistoryRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateSalaryHistoriesById>>, TError,{id: string;data: UpdateSalaryHistoryRequest}, TContext> => {
+
+const mutationKey = ['updateSalaryHistoriesById'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSalaryHistoriesById>>, {id: string;data: UpdateSalaryHistoryRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateSalaryHistoriesById(id,data,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSalaryHistoriesByIdMutationResult = NonNullable<Awaited<ReturnType<typeof updateSalaryHistoriesById>>>
+    export type UpdateSalaryHistoriesByIdMutationBody = UpdateSalaryHistoryRequest
+    export type UpdateSalaryHistoriesByIdMutationError = unknown
+
+    export const useUpdateSalaryHistoriesById = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSalaryHistoriesById>>, TError,{id: string;data: UpdateSalaryHistoryRequest}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateSalaryHistoriesById>>,
+        TError,
+        {id: string;data: UpdateSalaryHistoryRequest},
+        TContext
+      > => {
+      return useMutation(getUpdateSalaryHistoriesByIdMutationOptions(options), queryClient);
+    }
+    
+export const deleteSalaryHistoriesById = (
+    id: string,
+ options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal
+) => {
+      
+      
+      return apiOrvalClient<Result>(
+      {url: `/api/salary-histories/${id}`, method: 'DELETE', signal
+    },
+      options);
+    }
+  
+
+
+export const getDeleteSalaryHistoriesByIdMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSalaryHistoriesById>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSalaryHistoriesById>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteSalaryHistoriesById'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSalaryHistoriesById>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteSalaryHistoriesById(id,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSalaryHistoriesByIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSalaryHistoriesById>>>
+    
+    export type DeleteSalaryHistoriesByIdMutationError = unknown
+
+    export const useDeleteSalaryHistoriesById = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSalaryHistoriesById>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof apiOrvalClient>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSalaryHistoriesById>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeleteSalaryHistoriesByIdMutationOptions(options), queryClient);
+    }
+    
 export const getTasksByTaskidLogs = (
     taskId: string,
  options?: SecondParameter<typeof apiOrvalClient>,signal?: AbortSignal

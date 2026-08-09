@@ -1,6 +1,11 @@
 import {useState} from 'react'
-import {useQuery, useQueryClient} from '@tanstack/react-query'
-import apiClient from '@/api/client'
+import {useQueryClient} from '@tanstack/react-query'
+import {
+  useCreateSalaryHistories,
+  useDeleteSalaryHistoriesById,
+  useGetSalaryHistories,
+  useUpdateSalaryHistoriesById,
+} from '@/api/generated'
 import {showError, toastSmartPromise} from '@/api/utils'
 import {ConfirmDialog} from '@/components/ConfirmDialog'
 import {TooltipButton} from '@/components/TooltipButton'
@@ -56,14 +61,10 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
     data: historyRaw,
     isLoading,
     refetch,
-  } = useQuery({
-    queryKey: ['/api/salary-histories', employeeId],
-    queryFn: () =>
-      apiClient
-        .get('/api/salary-histories', { params: { employeeId } })
-        .then((res) => res.data),
-    enabled: open && !!employeeId,
-  })
+  } = useGetSalaryHistories(
+    { employeeId },
+    { query: { enabled: open && !!employeeId } },
+  )
 
   const histories = historyRaw ? unwrapApiResponse<SalaryHistoryVm[]>(historyRaw) : []
 
@@ -107,6 +108,10 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
     return Object.keys(errs).length === 0
   }
 
+  const { mutateAsync: createHistory } = useCreateSalaryHistories()
+  const { mutateAsync: updateHistory } = useUpdateSalaryHistoriesById()
+  const { mutateAsync: deleteHistory } = useDeleteSalaryHistoriesById()
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate() || saving) return
@@ -121,14 +126,12 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
       }
       if (editingHistory) {
         await toastSmartPromise(
-          apiClient.put(`/api/salary-histories/${editingHistory.id}`, payload).then((r) => r.data),
+          updateHistory({ id: editingHistory.id, data: payload }),
           { loading: 'Đang lưu...', success: 'Cập nhật mốc hệ số lương thành công!' },
         )
       } else {
         await toastSmartPromise(
-          apiClient
-            .post('/api/salary-histories', { employeeId, ...payload })
-            .then((r) => r.data),
+          createHistory({ data: { employeeId, ...payload } }),
           { loading: 'Đang tạo mới...', success: 'Thêm mốc hệ số lương thành công!' },
         )
       }
@@ -147,7 +150,7 @@ export function SalaryHistoryDialog({ employee, open, onOpenChange }: Props) {
     setDeleting(true)
     try {
       await toastSmartPromise(
-        apiClient.delete(`/api/salary-histories/${deletingHistory.id}`).then((r) => r.data),
+        deleteHistory({ id: deletingHistory.id }),
         { loading: 'Đang xóa...', success: 'Xóa mốc hệ số lương thành công!' },
       )
       setDeletingHistory(null)

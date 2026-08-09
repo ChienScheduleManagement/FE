@@ -11,10 +11,6 @@ export interface CreateEmployeeRequest {
   departmentId?: number;
   /** @nullable */
   position?: string | null;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  baseSalary?: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  allowance?: number | string;
   /** @nullable */
   phoneNumber?: string | null;
   /** @nullable */

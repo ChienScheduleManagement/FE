@@ -1,9 +1,15 @@
 import {useEffect, useState} from 'react'
-import {useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
 import type {ColumnDef, RowSelectionState} from '@tanstack/react-table'
+import {
+  deleteBaseSalariesById,
+  useCreateBaseSalaries,
+  useDeleteBaseSalariesById,
+  useGetBaseSalaries,
+  useUpdateBaseSalariesById,
+} from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
-import apiClient from '@/api/client'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
 import {ConfirmDialog} from '@/components/ConfirmDialog'
@@ -60,10 +66,10 @@ export function BaseSalariesPage() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormValues, string>>>({})
 
-  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useQuery({
-    queryKey: ['/api/base-salaries'],
-    queryFn: () => apiClient.get('/api/base-salaries').then((res) => res.data),
-  })
+  const { data: raw, isLoading, isError, error, refetch, isRefetching } = useGetBaseSalaries()
+  const { mutateAsync: createBaseSalary } = useCreateBaseSalaries()
+  const { mutateAsync: updateBaseSalary } = useUpdateBaseSalariesById()
+  const { mutateAsync: deleteBaseSalary } = useDeleteBaseSalariesById()
 
   useEffect(() => {
     if (isError) showError(error)
@@ -186,12 +192,12 @@ export function BaseSalariesPage() {
 
       if (editing) {
         await toastSmartPromise(
-          apiClient.put(`/api/base-salaries/${editing.id}`, payload).then((res) => unwrapApiResponse(res.data)),
+          updateBaseSalary({ id: editing.id, data: payload }),
           { loading: 'Đang cập nhật...', success: 'Cập nhật mức lương cơ sở thành công!' },
         )
       } else {
         await toastSmartPromise(
-          apiClient.post('/api/base-salaries', payload).then((res) => unwrapApiResponse(res.data)),
+          createBaseSalary({ data: payload }),
           { loading: 'Đang thêm mới...', success: 'Thêm mức lương cơ sở mới thành công!' },
         )
       }
@@ -209,7 +215,7 @@ export function BaseSalariesPage() {
     setDeleteLoading(true)
     try {
       await toastSmartPromise(
-        apiClient.delete(`/api/base-salaries/${deleting.id}`).then((res) => unwrapApiResponse(res.data)),
+        deleteBaseSalary({ id: deleting.id }),
         { loading: 'Đang xóa...', success: 'Đã xóa mức lương cơ sở!' },
       )
       await invalidate()
@@ -230,7 +236,7 @@ export function BaseSalariesPage() {
     setBulkDeleting(true)
     try {
       await toastSmartPromise(
-        Promise.all(selectedIds.map((id) => apiClient.delete(`/api/base-salaries/${id}`))),
+        Promise.all(selectedIds.map((id) => deleteBaseSalariesById(id))),
         { loading: 'Đang xóa các mục đã chọn...', success: 'Đã xóa danh sách mức lương!' },
       )
       setRowSelection({})

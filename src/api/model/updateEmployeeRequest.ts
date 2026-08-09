@@ -13,16 +13,6 @@ export interface UpdateEmployeeRequest {
   departmentId?: number;
   /** @nullable */
   position?: string | null;
-  /**
-   * @nullable
-   * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-   */
-  baseSalary?: number | string | null;
-  /**
-   * @nullable
-   * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$
-   */
-  allowance?: number | string | null;
   /** @nullable */
   phoneNumber?: string | null;
   /** @nullable */

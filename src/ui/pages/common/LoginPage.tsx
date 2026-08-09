@@ -1,13 +1,14 @@
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
-import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
-import { toastSmartPromise } from '@/api/utils'
-import { loginAuth } from '@/api/generated'
+import { toast } from 'sonner'
+import { useLoginAuth } from '@/api/generated'
 import type { Result } from '@/api/model'
 import { unwrapApiResponse } from '@/lib/apiHandler'
 import { useAuthStore } from '@/store/auth.store'
 import { APP_NAME } from '@/constants/ui'
+import { loginFormSchema, type LoginFormValues } from '@/schemas/auth.schema'
 import type { LoginRequest } from '@/api/model'
 import type { LoginResponse } from '@/types/api'
 
@@ -18,29 +19,33 @@ export function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm({
+  } = useForm<LoginFormValues>({
     defaultValues: {
       username: '',
       password: '',
     },
     mode: 'onChange',
+    resolver: zodResolver(loginFormSchema),
   })
   const [showPassword, setShowPassword] = useState(false)
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (variables: { data: LoginRequest }) => {
-      return toastSmartPromise(
-        (async () => loginAuth(variables.data, { skipAuth: true }))(),
-        {
-          loading: 'Đang xác thực tài khoản...',
-          success: 'Đăng nhập thành công!',
-        },
-      )
-    },
-    onSuccess: (data: Result) => {
-      const loginData = unwrapApiResponse<LoginResponse>(data)
-      setUser(loginData)
-      navigate({ to: '/', replace: true })
+  const { mutate, isPending } = useLoginAuth({
+    request: { skipAuth: true },
+    mutation: {
+      onMutate: () => {
+        toast.loading('Đang xác thực tài khoản...')
+      },
+      onSuccess: (data: Result) => {
+        toast.dismiss()
+        toast.success('Đăng nhập thành công!')
+        const loginData = unwrapApiResponse<LoginResponse>(data)
+        setUser(loginData)
+        navigate({ to: '/', replace: true })
+      },
+      onError: (err) => {
+        toast.dismiss()
+        toast.error(err instanceof Error ? err.message : 'Đăng nhập thất bại')
+      },
     },
   })
 
@@ -169,9 +174,7 @@ export function LoginPage() {
                   </div>
                   <input
                     id="username"
-                    {...register('username', {
-                      required: 'Tên đăng nhập không được để trống.',
-                    })}
+                    {...register('username')}
                     className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 transition-all placeholder:text-slate-400/70 ${errors.username ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-100 dark:border-slate-800 focus:border-primary/50 focus:ring-primary/10'}`}
                     placeholder="Tên đăng nhập"
                     autoComplete="username"
@@ -206,9 +209,7 @@ export function LoginPage() {
                   </div>
                   <input
                     id="password"
-                    {...register('password', {
-                      required: 'Mật khẩu không được để trống.',
-                    })}
+                    {...register('password')}
                     className={`w-full pl-11 pr-12 py-3.5 rounded-2xl border bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-4 transition-all placeholder:text-slate-400/70 ${errors.password ? 'border-red-500 focus:ring-red-500/10' : 'border-slate-100 dark:border-slate-800 focus:border-primary/50 focus:ring-primary/10'}`}
                     placeholder="••••••••"
                     type={showPassword ? 'text' : 'password'}
