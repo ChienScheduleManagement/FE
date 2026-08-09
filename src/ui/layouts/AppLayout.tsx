@@ -8,6 +8,7 @@ import { useDataWarming } from '@/hooks/useDataWarming'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { APP_NAME } from '@/constants/ui'
 import { USER_ROLE } from '@/constants/task'
+import { THEMES, THEME_LABELS, THEME_ORDER, type Theme } from '@/constants/theme'
 
 interface NavItem {
   label: string
@@ -37,6 +38,38 @@ const NAV_HR: NavItem[] = [
 ]
 
 const SIDEBAR_STORAGE_KEY = 'schedule_sidebar_collapsed'
+
+const THEME_ICONS: Record<Theme, string> = {
+  [THEMES.light]: 'dark_mode',
+  [THEMES.dark]: 'light_mode',
+  [THEMES.blue]: 'palette',
+}
+
+function ThemeToggle({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
+  const nextTheme = THEME_ORDER[(THEME_ORDER.indexOf(theme) + 1) % THEME_ORDER.length]
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={`Chuyển sang ${THEME_LABELS[nextTheme].toLowerCase()}`}
+          className="group flex size-9 items-center justify-center rounded-lg text-slate-500 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 active:scale-95 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+          onClick={onToggle}
+        >
+          <span
+            key={theme}
+            className="material-symbols-outlined animate-in fade-in-0 rotate-in-45 duration-500 text-xl transition-transform group-hover:rotate-45"
+          >
+            {THEME_ICONS[theme]}
+          </span>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="font-semibold">
+        {THEME_LABELS[theme]}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 function NavLink({
   item,
@@ -100,7 +133,7 @@ function SidebarContent({
         onClick={onNavigate}
         className={cn('flex items-center gap-3 px-2', collapsed && 'justify-center px-0')}
       >
-         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/25 overflow-hidden">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 overflow-hidden">
           <img src="/logo.jpg" alt="Logo" className="h-full w-full object-cover" />
         </div>
         {!collapsed ? (
@@ -242,26 +275,7 @@ export function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  aria-label={theme === 'dark' ? 'Chuyển sang chế độ sáng' : 'Chuyển sang chế độ tối'}
-                  className="group flex size-9 items-center justify-center rounded-lg text-slate-500 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 active:scale-95 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-                  onClick={toggleTheme}
-                >
-                  <span
-                    key={theme}
-                    className="material-symbols-outlined animate-in fade-in-0 rotate-in-45 duration-500 text-xl transition-transform group-hover:rotate-45"
-                  >
-                    {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-                  </span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="font-semibold">
-                {theme === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'}
-              </TooltipContent>
-            </Tooltip>
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
 
             <div className="flex items-center gap-2.5">
               <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">

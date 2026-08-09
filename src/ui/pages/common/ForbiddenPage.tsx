@@ -15,7 +15,7 @@ export function ForbiddenPage() {
         </p>
         <a
           href="/"
-          className="inline-block bg-primary hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow transition-all"
+          className="inline-block bg-primary hover:bg-blue-600 text-primary-foreground font-semibold py-3 px-6 rounded-lg shadow transition-all"
         >
           Về trang chủ
         </a>

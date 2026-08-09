@@ -19,7 +19,7 @@ export function BulkActionBar({ selectedCount, actions, onClearSelection }: Bulk
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm animate-in slide-in-from-top-2 duration-200">
       <div className="flex items-center gap-2 mr-2">
-        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-white text-xs font-black">
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-primary-foreground text-xs font-black">
           {selectedCount}
         </span>
         <span className="text-sm font-bold text-slate-600 dark:text-slate-300">đã chọn</span>

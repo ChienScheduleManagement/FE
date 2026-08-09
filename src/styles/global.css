@@ -50,6 +50,28 @@
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
   }
+
+  .blue {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 221 84% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 221 84% 53%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 221 84% 96%;
+    --muted-foreground: 221 30% 45%;
+    --accent: 221 84% 95%;
+    --accent-foreground: 221 84% 20%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 221 30% 88%;
+    --input: 221 30% 88%;
+    --ring: 221 84% 53%;
+  }
 }
 
 @layer base {

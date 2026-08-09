@@ -1,18 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
-
-export type Theme = 'light' | 'dark'
+import { THEMES, THEME_CLASSES, THEME_ORDER, type Theme } from '@/constants/theme'
 
 export const THEME_STORAGE_KEY = 'schedule_theme'
 
 export function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'light'
+  if (typeof window === 'undefined') return THEMES.light
   const stored = localStorage.getItem(THEME_STORAGE_KEY)
-  if (stored === 'light' || stored === 'dark') return stored
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  if (THEME_ORDER.includes(stored as Theme)) return stored as Theme
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? THEMES.dark : THEMES.light
 }
 
 export function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle('dark', theme === 'dark')
+  const root = document.documentElement
+  root.classList.remove(...Object.values(THEME_CLASSES).filter(Boolean))
+  const className = THEME_CLASSES[theme]
+  if (className) root.classList.add(className)
 }
 
 export function useTheme() {
@@ -24,8 +26,15 @@ export function useTheme() {
   }, [theme])
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+    setTheme((prev) => {
+      const index = THEME_ORDER.indexOf(prev)
+      return THEME_ORDER[(index + 1) % THEME_ORDER.length]
+    })
   }, [])
 
-  return { theme, toggleTheme }
+  const setThemeByIndex = useCallback((index: number) => {
+    setTheme(THEME_ORDER[((index % THEME_ORDER.length) + THEME_ORDER.length) % THEME_ORDER.length])
+  }, [])
+
+  return { theme, toggleTheme, setThemeByIndex, themes: THEME_ORDER }
 }
