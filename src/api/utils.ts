@@ -1,35 +1,8 @@
 import { toast } from 'sonner'
-import type { Result } from '@/api/model'
-
-/**
- * Lấy thông báo lỗi nghiệp vụ từ response BE.
- * BE luôn trả HTTP 200 nhưng set isError=true + errorMessage là chuỗi lỗi.
- */
-export function extractBeError(data: Result | unknown): string | null {
-  if (!data || typeof data !== 'object') return null
-  const r = data as Result
-  if (!r.isError) return null
-  if (typeof r.errorMessage === 'string' && r.errorMessage.trim())
-    return r.errorMessage
-  return 'Có lỗi xảy ra từ máy chủ'
-}
-
-/**
- * Kiểm tra response data có lỗi nghiệp vụ không.
- * Nếu có → throw Error để caller biết.
- * Trả về data nếu OK để chain tiếp.
- */
-export function assertBeSuccess<T extends Result>(data: T): T {
-  const msg = extractBeError(data)
-  if (msg) {
-    throw new Error(msg)
-  }
-  return data
-}
 
 /**
  * Hiển thị lỗi từ catch block.
- * Ưu tiên: message từ Error object (set bởi assertBeSuccess) > fallback
+ * Ưu tiên: message từ Error object (do apiOrvalClient set từ `isError`/`errorMessage`) > fallback
  */
 const recentErrors = new Map<string, number>()
 const ERROR_DEDUPE_MS = 3_000

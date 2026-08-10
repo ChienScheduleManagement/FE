@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useChangePasswordAuth } from '@/api/generated'
-import { unwrapApiResponse } from '@/lib/apiHandler'
 import { toastSmartPromise } from '@/api/utils'
 import { PageHeader } from '@/components/PageHeader'
 import { Button } from '@/components/ui/button'
@@ -34,7 +33,7 @@ export function ChangePasswordPage() {
           oldPassword: values.oldPassword,
           newPassword: values.newPassword,
         },
-      }).then(unwrapApiResponse),
+      }),
       { loading: 'Đang đổi mật khẩu...', success: 'Đổi mật khẩu thành công!' },
     )
     reset()
@@ -133,3 +132,4 @@ export function ChangePasswordPage() {
     </>
   )
 }
+

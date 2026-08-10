@@ -308,7 +308,7 @@ export function AttendancePage() {
     )
     try {
       await toastSmartPromise(
-        saveAttendance({ data: { items } }).then(unwrapApiResponse),
+        saveAttendance({ data: { items } }),
         { loading: 'Đang cập nhật...', success: `Đã cập nhật ${selectedCells.length} ô!` }
       )
       invalidateGrid()
@@ -891,3 +891,4 @@ export function AttendancePage() {
     </>
   )
 }
+

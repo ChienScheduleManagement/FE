@@ -158,7 +158,7 @@ export function CategoriesPage() {
             code: form.code,
             name: form.name,
             displayOrder: Number(form.displayOrder) || 0,
-          } }).then(unwrapApiResponse),
+          } }),
           { loading: 'Đang cập nhật...', success: 'Cập nhật danh mục thành công!' },
         )
       } else {
@@ -168,7 +168,7 @@ export function CategoriesPage() {
             code: form.code,
             name: form.name,
             displayOrder: Number(form.displayOrder) || 0,
-          } }).then(unwrapApiResponse),
+          } }),
           { loading: 'Đang thêm...', success: 'Thêm danh mục thành công!' },
         )
       }
@@ -179,7 +179,7 @@ export function CategoriesPage() {
   const handleDelete = async () => {
     if (!deleting) return
       await toastSmartPromise(
-        deleteCategory({ id: deleting.id }).then(unwrapApiResponse),
+        deleteCategory({ id: deleting.id }),
         { loading: 'Đang xóa...', success: 'Xóa danh mục thành công!' },
       )
       await invalidate()
@@ -190,7 +190,7 @@ export function CategoriesPage() {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
       await toastSmartPromise(
-        bulkDeleteCategories({ data: ids }).then(unwrapApiResponse),
+        bulkDeleteCategories({ data: ids }),
         { loading: 'Đang xóa nhiều danh mục...', success: 'Đã xóa các danh mục đã chọn!' },
       )
       await invalidate()

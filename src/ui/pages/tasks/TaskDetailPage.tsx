@@ -77,7 +77,7 @@ export function TaskDetailPage() {
     if (!note) return
     try {
       await toastSmartPromise(
-        addTaskLog({ taskId: id, data: { progressNote: note, updatedBy: undefined } }).then(unwrapApiResponse),
+        addTaskLog({ taskId: id, data: { progressNote: note, updatedBy: undefined } }),
         { loading: 'Đang lưu nhật ký...', success: 'Đã cập nhật tiến độ!' },
       )
       setLogNote('')
@@ -95,7 +95,7 @@ export function TaskDetailPage() {
           latestResult: latestResult || undefined,
           completedDate: toLocalDateString(new Date()),
         },
-      }).then(unwrapApiResponse),
+      }),
       { loading: 'Đang hoàn thành nhiệm vụ...', success: 'Nhiệm vụ đã hoàn thành!' },
     )
     setCompletingTask(null)
@@ -104,7 +104,7 @@ export function TaskDetailPage() {
 
   const handleDelete = async () => {
     try {
-      await toastSmartPromise(deleteTask({ id }).then(unwrapApiResponse), {
+      await toastSmartPromise(deleteTask({ id }), {
         loading: 'Đang xóa nhiệm vụ...',
         success: 'Xóa nhiệm vụ thành công!',
       })
@@ -287,3 +287,4 @@ export function TaskDetailPage() {
     </>
   )
 }
+

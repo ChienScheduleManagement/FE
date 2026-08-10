@@ -168,12 +168,12 @@ export function PositionsPage() {
     }
     if (editing) {
       await toastSmartPromise(
-        updatePosition({ id: editing.id, data: payload }).then(unwrapApiResponse),
+        updatePosition({ id: editing.id, data: payload }),
         { loading: 'Đang cập nhật...', success: 'Cập nhật chức vụ thành công!' },
       )
     } else {
       await toastSmartPromise(
-        createPosition({ data: payload }).then(unwrapApiResponse),
+        createPosition({ data: payload }),
         { loading: 'Đang thêm...', success: 'Thêm chức vụ thành công!' },
       )
     }
@@ -184,7 +184,7 @@ export function PositionsPage() {
   const handleDelete = async () => {
     if (!deleting) return
     await toastSmartPromise(
-      deletePosition({ id: deleting.id }).then(unwrapApiResponse),
+      deletePosition({ id: deleting.id }),
       { loading: 'Đang xóa...', success: 'Xóa chức vụ thành công!' },
     )
     await invalidate()
@@ -195,7 +195,7 @@ export function PositionsPage() {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
     await toastSmartPromise(
-      bulkDeletePositions({ data: ids }).then(unwrapApiResponse),
+      bulkDeletePositions({ data: ids }),
       { loading: 'Đang xóa nhiều chức vụ...', success: 'Đã xóa các chức vụ đã chọn!' },
     )
     await invalidate()

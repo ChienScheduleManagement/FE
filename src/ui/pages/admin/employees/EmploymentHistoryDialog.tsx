@@ -12,6 +12,7 @@ import {
 } from '@/api/generated'
 import {showError, toastSmartPromise} from '@/api/utils'
 import {ConfirmDialog} from '@/components/ConfirmDialog'
+import {ErrorState} from '@/components/ErrorState'
 import {TooltipButton} from '@/components/TooltipButton'
 import {Button} from '@/components/ui/button'
 import {
@@ -59,6 +60,8 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
   const {
     data: historyRaw,
     isLoading,
+    isError,
+    error,
     refetch,
   } = useGetEmploymentHistoriesEmployeeByEmployeeid(employeeId, {
     query: { enabled: open && !!employeeId },
@@ -140,7 +143,7 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
     if (!deletingHistory || deleting) return
     try {
       await toastSmartPromise(
-        deleteHistory({ id: deletingHistory.id }).then(unwrapApiResponse),
+        deleteHistory({ id: deletingHistory.id }),
         { loading: 'Đang xóa...', success: 'Xóa lịch sử công tác thành công!' },
       )
       setDeletingHistory(null)
@@ -177,9 +180,9 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
           <div className="flex-1 overflow-y-auto pr-1">
             <phantom-ui loading={isLoading} animation="shimmer" reveal={0.1} class="block">
               {isLoading ? (
-                Array.from({ length: 3 }, () => (
+                [0, 1, 2].map((v) => (
                   <div
-                    key="employment-placeholder-row"
+                    key={`employment-placeholder-row-${v}`}
                     className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mb-3"
                   >
                     <div className="space-y-1.5 flex-1">
@@ -198,6 +201,8 @@ export function EmploymentHistoryDialog({ employee, open, onOpenChange }: Props)
                     </div>
                   </div>
                 ))
+              ) : isError ? (
+                <ErrorState error={error} title="Không tải được quá trình công tác" />
               ) : histories.length === 0 ? (
                 <div className="py-12 text-center text-sm text-slate-400 border border-dashed rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
                   Chưa có dữ liệu quá trình công tác nào.

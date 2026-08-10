@@ -227,12 +227,12 @@ export function LeaveReasonsPage() {
       }
       if (editing) {
         await toastSmartPromise(
-          updateLeaveReason({ id: editing.id, data: payload }).then(unwrapApiResponse),
+          updateLeaveReason({ id: editing.id, data: payload }),
           { loading: 'Đang cập nhật...', success: 'Cập nhật lý do nghỉ thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createLeaveReason({ data: payload }).then(unwrapApiResponse),
+          createLeaveReason({ data: payload }),
           { loading: 'Đang thêm...', success: 'Thêm lý do nghỉ thành công!' },
         )
       }
@@ -243,7 +243,7 @@ export function LeaveReasonsPage() {
   const handleDelete = async () => {
     if (!deleting) return
       await toastSmartPromise(
-        deleteLeaveReason({ id: deleting.id }).then(unwrapApiResponse),
+        deleteLeaveReason({ id: deleting.id }),
         { loading: 'Đang xóa...', success: 'Xóa lý do nghỉ thành công!' },
       )
       await invalidate()
@@ -254,7 +254,7 @@ export function LeaveReasonsPage() {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
       await toastSmartPromise(
-        bulkDeleteLeaveReasons({ data: ids }).then(unwrapApiResponse),
+        bulkDeleteLeaveReasons({ data: ids }),
         { loading: 'Đang xóa nhiều lý do...', success: 'Đã xóa các lý do đã chọn!' },
       )
       await invalidate()

@@ -205,7 +205,7 @@ export function DepartmentsPage() {
           leaderName: form.leaderName || null,
           phoneNumber: form.phoneNumber || null,
           displayOrder: Number(form.displayOrder) || 0,
-        } }).then(unwrapApiResponse),
+        } }),
         { loading: 'Đang cập nhật...', success: 'Cập nhật phòng ban thành công!' },
       )
     } else {
@@ -217,7 +217,7 @@ export function DepartmentsPage() {
           leaderName: form.leaderName || null,
           phoneNumber: form.phoneNumber || null,
           displayOrder: Number(form.displayOrder) || 0,
-        } }).then(unwrapApiResponse),
+        } }),
         { loading: 'Đang thêm...', success: 'Thêm phòng ban thành công!' },
       )
     }
@@ -228,7 +228,7 @@ export function DepartmentsPage() {
   const handleDelete = async () => {
     if (!deleting) return
     await toastSmartPromise(
-      deleteDepartment({ id: deleting.id }).then(unwrapApiResponse),
+      deleteDepartment({ id: deleting.id }),
       { loading: 'Đang xóa...', success: 'Xóa phòng ban thành công!' },
     )
     await invalidate()
@@ -239,7 +239,7 @@ export function DepartmentsPage() {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
     await toastSmartPromise(
-      bulkDeleteDepartments({ data: ids }).then(unwrapApiResponse),
+      bulkDeleteDepartments({ data: ids }),
       { loading: 'Đang xóa nhiều phòng ban...', success: 'Đã xóa các phòng ban đã chọn!' },
     )
     await invalidate()

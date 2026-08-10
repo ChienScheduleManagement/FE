@@ -163,7 +163,7 @@ export function TasksPage() {
             status: values.status || undefined,
             latestResult: values.latestResult || null,
           },
-        }).then(unwrapApiResponse),
+        }),
         { loading: 'Đang cập nhật nhiệm vụ...', success: 'Cập nhật nhiệm vụ thành công!' },
       )
     } else {
@@ -187,13 +187,13 @@ export function TasksPage() {
         initialNote: values.initialNote || null,
         createdBy: undefined,
       },
-    }).then(unwrapApiResponse)
+    })
   }
 
   const handleDelete = async () => {
     if (!deleting) return
       await toastSmartPromise(
-        deleteTask({ id: deleting.id }).then(unwrapApiResponse),
+        deleteTask({ id: deleting.id }),
         { loading: 'Đang xóa nhiệm vụ...', success: 'Xóa nhiệm vụ thành công!' },
       )
       await invalidate()
@@ -206,7 +206,7 @@ export function TasksPage() {
   const handleBulkDelete = async () => {
     if (!selectedTaskIds.size) return
       await toastSmartPromise(
-        bulkDeleteTasks({ data: [...selectedTaskIds] }).then(unwrapApiResponse),
+        bulkDeleteTasks({ data: [...selectedTaskIds] }),
         { loading: 'Đang xóa nhiều nhiệm vụ...', success: 'Đã xóa các nhiệm vụ đã chọn!' },
       )
       await invalidate()
@@ -221,7 +221,7 @@ export function TasksPage() {
   const handleBulkStatusChange = async (status: number) => {
     if (!selectedTaskIds.size) return
       await toastSmartPromise(
-        bulkStatusTasks({ data: { ids: [...selectedTaskIds], status } }).then(unwrapApiResponse),
+        bulkStatusTasks({ data: { ids: [...selectedTaskIds], status } }),
         { loading: 'Đang cập nhật trạng thái...', success: `Đã cập nhật trạng thái cho ${selectedTaskIds.size} ô!` },
       )
       await invalidate()
@@ -269,7 +269,7 @@ export function TasksPage() {
 
     for (const [status, ids] of grouped) {
       await toastSmartPromise(
-        bulkStatusTasks({ data: { ids, status } }).then(unwrapApiResponse),
+        bulkStatusTasks({ data: { ids, status } }),
         { loading: 'Đang cập nhật trạng thái...', success: `Đã cập nhật trạng thái cho ${ids.length} ô!` },
       )
     }
@@ -283,7 +283,7 @@ export function TasksPage() {
       completeTask({
         id: completingTask.id,
         data: { latestResult: latestResult || undefined },
-      }).then(unwrapApiResponse),
+      }),
       { loading: 'Đang hoàn thành nhiệm vụ...', success: 'Nhiệm vụ đã hoàn thành!' },
     )
     await invalidate()
@@ -663,3 +663,4 @@ export function TasksPage() {
     </>
   )
 }
+

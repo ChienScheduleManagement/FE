@@ -165,7 +165,7 @@ export function DocSourcesPage() {
             name: form.name,
             level: form.level,
             displayOrder: Number(form.displayOrder) || 0,
-          } }).then(unwrapApiResponse),
+          } }),
           { loading: 'Đang cập nhật...', success: 'Cập nhật nguồn văn bản thành công!' },
         )
       } else {
@@ -175,7 +175,7 @@ export function DocSourcesPage() {
             name: form.name,
             level: form.level,
             displayOrder: Number(form.displayOrder) || 0,
-          } }).then(unwrapApiResponse),
+          } }),
           { loading: 'Đang thêm...', success: 'Thêm nguồn văn bản thành công!' },
         )
       }
@@ -186,7 +186,7 @@ export function DocSourcesPage() {
   const handleDelete = async () => {
     if (!deleting) return
       await toastSmartPromise(
-        deleteDocSource({ id: deleting.id }).then(unwrapApiResponse),
+        deleteDocSource({ id: deleting.id }),
         { loading: 'Đang xóa...', success: 'Xóa nguồn văn bản thành công!' },
       )
       await invalidate()
@@ -197,7 +197,7 @@ export function DocSourcesPage() {
     const ids = Object.keys(rowSelection).map(Number)
     if (!ids.length) return
       await toastSmartPromise(
-        bulkDeleteDocSources({ data: ids }).then(unwrapApiResponse),
+        bulkDeleteDocSources({ data: ids }),
         { loading: 'Đang xóa nhiều nguồn...', success: 'Đã xóa các nguồn văn bản đã chọn!' },
       )
       await invalidate()

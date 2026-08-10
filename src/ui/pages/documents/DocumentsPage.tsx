@@ -83,7 +83,7 @@ export function DocumentsPage() {
             signer: values.signer || null,
             filePath: values.filePath || null,
           },
-        }).then(unwrapApiResponse),
+        }),
         { loading: 'Đang cập nhật văn bản...', success: 'Cập nhật văn bản thành công!' },
       )
     } else {
@@ -99,7 +99,7 @@ export function DocumentsPage() {
             filePath: values.filePath || null,
             createdBy: undefined,
           },
-        }).then(unwrapApiResponse),
+        }),
         { loading: 'Đang thêm văn bản...', success: 'Thêm văn bản thành công!' },
       )
     }
@@ -109,7 +109,7 @@ export function DocumentsPage() {
   const handleDelete = async () => {
     if (!deleting) return
       await toastSmartPromise(
-        deleteDocument({ id: deleting.id }).then(unwrapApiResponse),
+        deleteDocument({ id: deleting.id }),
         { loading: 'Đang xóa văn bản...', success: 'Xóa văn bản thành công!' },
       )
       await invalidate()
@@ -123,7 +123,7 @@ export function DocumentsPage() {
     const ids = Object.keys(rowSelection)
     if (!ids.length) return
       await toastSmartPromise(
-        bulkDeleteDocuments({ data: ids }).then(unwrapApiResponse),
+        bulkDeleteDocuments({ data: ids }),
         { loading: 'Đang xóa nhiều văn bản...', success: 'Đã xóa các văn bản đã chọn!' },
       )
       await invalidate()
@@ -358,3 +358,4 @@ function SourceOptions() {
     </SelectItem>
   ))
 }
+

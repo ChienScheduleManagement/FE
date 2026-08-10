@@ -242,12 +242,12 @@ export function EmployeesPage() {
       }
       if (editing) {
         await toastSmartPromise(
-          updateEmployee({ id: editing.id, data: payload }).then(unwrapApiResponse),
+          updateEmployee({ id: editing.id, data: payload }),
           { loading: 'Đang cập nhật...', success: 'Cập nhật cán bộ thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createEmployee({ data: payload }).then(unwrapApiResponse),
+          createEmployee({ data: payload }),
           { loading: 'Đang thêm...', success: 'Thêm cán bộ thành công!' },
         )
       }
@@ -258,7 +258,7 @@ export function EmployeesPage() {
   const handleDelete = async () => {
     if (!deleting) return
       await toastSmartPromise(
-        deleteEmployee({ id: deleting.id }).then(unwrapApiResponse),
+        deleteEmployee({ id: deleting.id }),
         { loading: 'Đang xóa...', success: 'Xóa cán bộ thành công!' },
       )
       await invalidate()
@@ -269,7 +269,7 @@ export function EmployeesPage() {
     const ids = Object.keys(rowSelection)
     if (!ids.length) return
       await toastSmartPromise(
-        bulkDeleteEmployees({ data: ids }).then(unwrapApiResponse),
+        bulkDeleteEmployees({ data: ids }),
         { loading: 'Đang xóa nhiều cán bộ...', success: 'Đã xóa các cán bộ đã chọn!' },
       )
       await invalidate()
