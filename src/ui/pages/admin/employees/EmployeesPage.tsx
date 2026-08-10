@@ -73,7 +73,7 @@ export function EmployeesPage() {
   const { data: deptRaw, refetch: refetchDepartments, isRefetching: refreshingDepartments } = useGetDepartments()
   const { mutateAsync: createEmployee, isPending: creating } = useCreateEmployees()
   const { mutateAsync: updateEmployee, isPending: updating } = useUpdateEmployeesById()
-  const { mutateAsync: deleteEmployee, isPending: deletingItem } = useDeleteEmployeesById()
+  const { mutateAsync: deleteEmployee, isPending: deletingPosition } = useDeleteEmployeesById()
   const { mutateAsync: bulkDeleteEmployees, isPending: bulkDeleting } = useBulkEmployees()
 
   const saving = creating || updating
@@ -242,12 +242,12 @@ export function EmployeesPage() {
       }
       if (editing) {
         await toastSmartPromise(
-          updateEmployee({ id: editing.id, data: payload }),
+          updateEmployee({ id: editing.id, data: payload }).then(unwrapApiResponse),
           { loading: 'Đang cập nhật...', success: 'Cập nhật cán bộ thành công!' },
         )
       } else {
         await toastSmartPromise(
-          createEmployee({ data: payload }),
+          createEmployee({ data: payload }).then(unwrapApiResponse),
           { loading: 'Đang thêm...', success: 'Thêm cán bộ thành công!' },
         )
       }
@@ -258,7 +258,7 @@ export function EmployeesPage() {
   const handleDelete = async () => {
     if (!deleting) return
       await toastSmartPromise(
-        deleteEmployee({ id: deleting.id }),
+        deleteEmployee({ id: deleting.id }).then(unwrapApiResponse),
         { loading: 'Đang xóa...', success: 'Xóa cán bộ thành công!' },
       )
       await invalidate()
@@ -269,7 +269,7 @@ export function EmployeesPage() {
     const ids = Object.keys(rowSelection)
     if (!ids.length) return
       await toastSmartPromise(
-        bulkDeleteEmployees({ data: ids }),
+        bulkDeleteEmployees({ data: ids }).then(unwrapApiResponse),
         { loading: 'Đang xóa nhiều cán bộ...', success: 'Đã xóa các cán bộ đã chọn!' },
       )
       await invalidate()
@@ -476,7 +476,7 @@ export function EmployeesPage() {
             <span className="font-semibold text-foreground">{deleting?.fullName}</span>?
           </>
         }
-        loading={deletingItem}
+        loading={deletingPosition}
         onConfirm={handleDelete}
       />
 
@@ -503,5 +503,3 @@ export function EmployeesPage() {
     </>
   )
 }
-
-
