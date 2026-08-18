@@ -5,6 +5,7 @@ import type {ColumnDef, PaginationState, RowSelectionState} from '@tanstack/reac
 import {
   useBulkDocuments,
   useCreateDocuments,
+  useCreateTasks,
   useDeleteDocumentsById,
   useGetDocSources,
   useGetDocuments,
@@ -12,7 +13,7 @@ import {
 } from '@/api/generated'
 import {unwrapApiResponse} from '@/lib/apiHandler'
 import {showError, toastSmartPromise} from '@/api/utils'
-import {formatDate} from '@/lib/format'
+import {formatDate, toUtcIso} from '@/lib/format'
 import {DEFAULT_PAGE_SIZE} from '@/constants/task'
 import {PageHeader} from '@/components/PageHeader'
 import {RefreshButton} from '@/components/RefreshButton'
@@ -24,7 +25,9 @@ import {Button} from '@/components/ui/button'
 import {SearchInput} from '@/components/ui/search-input'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select'
 import {DocumentFormDialog} from './components/DocumentFormDialog'
+import {DocumentTaskFormDialog} from './components/DocumentTaskFormDialog'
 import type {DocumentFormValues} from '@/schemas/document.schema'
+import type {DocumentTaskFormValues} from '@/schemas/documentTask.schema'
 import type {DocumentVm, PagedResponse} from '@/types/api'
 
 export function DocumentsPage() {
@@ -37,6 +40,7 @@ export function DocumentsPage() {
   const [searchText, setSearchText] = useState('')
   const [sourceId, setSourceId] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [combinedOpen, setCombinedOpen] = useState(false)
   const [editing, setEditing] = useState<DocumentVm | null>(null)
   const [deleting, setDeleting] = useState<DocumentVm | null>(null)
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
@@ -44,6 +48,7 @@ export function DocumentsPage() {
 
   const { mutateAsync: updateDocument } = useUpdateDocumentsById()
   const { mutateAsync: createDocument } = useCreateDocuments()
+  const { mutateAsync: createTask } = useCreateTasks()
   const { mutateAsync: deleteDocument, isPending: deletingPosition } = useDeleteDocumentsById()
   const { mutateAsync: bulkDeleteDocuments, isPending: bulkDeleting } = useBulkDocuments()
 
@@ -102,6 +107,56 @@ export function DocumentsPage() {
         }),
         { loading: 'Đang thêm văn bản...', success: 'Thêm văn bản thành công!' },
       )
+    }
+    await invalidate()
+  }
+
+  const handleSaveCombined = async (values: DocumentTaskFormValues) => {
+    const hasTask =
+      values.taskContent?.trim() || values.mainDepartmentId || values.assigneeName || values.dueDate
+    if (hasTask && !values.taskContent?.trim()) {
+      showError('Nhập nội dung nhiệm vụ phát sinh.')
+      throw new Error('Nhập nội dung nhiệm vụ phát sinh.')
+    }
+    if (hasTask && !values.mainDepartmentId) {
+      showError('Chọn đơn vị chủ trì cho nhiệm vụ phát sinh.')
+      throw new Error('Chọn đơn vị chủ trì cho nhiệm vụ phát sinh.')
+    }
+
+    const docResponse = await toastSmartPromise(
+      createDocument({
+        data: {
+          docNumber: values.docNumber,
+          title: values.title,
+          sourceId: values.sourceId ? Number(values.sourceId) : undefined,
+          docTypeId: values.docTypeId ? Number(values.docTypeId) : undefined,
+          issueDate: values.issueDate || null,
+          createdBy: undefined,
+        },
+      }),
+      { loading: 'Đang thêm văn bản...', success: 'Thêm văn bản thành công!' },
+    )
+    const createdDoc = unwrapApiResponse<DocumentVm>(docResponse)
+
+    if (hasTask) {
+      try {
+        await toastSmartPromise(
+          createTask({
+            data: {
+              documentId: createdDoc.id,
+              taskContent: values.taskContent,
+              mainDepartmentId: Number(values.mainDepartmentId),
+              assigneeName: values.assigneeName || null,
+              dueDate: toUtcIso(values.dueDate),
+              createdBy: undefined,
+            },
+          }),
+          { loading: 'Đang thêm nhiệm vụ...', success: 'Thêm nhiệm vụ thành công!' },
+        )
+        await queryClient.invalidateQueries({ queryKey: ['/api/tasks'] })
+      } catch {
+        showError('Văn bản đã được tạo nhưng thêm nhiệm vụ thất bại. Bạn có thể thêm nhiệm vụ sau.')
+      }
     }
     await invalidate()
   }
@@ -251,7 +306,7 @@ export function DocumentsPage() {
           actions={
             <>
               <RefreshButton onClick={() => refetch()} loading={isRefetching} />
-              <Button onClick={() => { setEditing(null); setDialogOpen(true) }}>
+              <Button onClick={() => setCombinedOpen(true)}>
                 <span className="material-symbols-outlined text-base mr-1">add</span>
                 Thêm văn bản
               </Button>
@@ -319,6 +374,12 @@ export function DocumentsPage() {
         onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null) }}
         editing={editing}
         onSave={handleSave}
+      />
+
+      <DocumentTaskFormDialog
+        open={combinedOpen}
+        onOpenChange={setCombinedOpen}
+        onSave={handleSaveCombined}
       />
 
       <ConfirmDialog
